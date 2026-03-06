@@ -13,6 +13,10 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'EB Garamond','Noto Serif SC',Georgia,serif;background:var(--lz-deep);color:var(--t);line-height:1.7;min-height:100vh}
 .hero{text-align:center;padding:90px 20px 60px;background:linear-gradient(180deg,var(--lz) 0%,var(--lz-deep) 100%);border-bottom:2px solid var(--gd);position:relative;overflow:hidden}
+.hero-slab{position:absolute;top:50%;transform:translateY(-50%);width:160px;opacity:.7;pointer-events:none;transition:.3s}
+.hero-slab:hover{opacity:.95}
+.hero-slab.left{left:3%}
+.hero-slab.right{right:3%}
 .hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(197,162,88,.06) 0%,transparent 70%);pointer-events:none}
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
 .hero-logo{font-size:.82rem;letter-spacing:.5em;color:var(--g);text-transform:uppercase;margin-bottom:18px;font-weight:500}
@@ -159,13 +163,15 @@ nav button:hover,nav button.active{background:var(--g);color:var(--lz-deep);bord
 footer{text-align:center;padding:44px 20px;color:var(--tm);font-size:.75rem;border-top:1px solid var(--lz-b);margin-top:44px;letter-spacing:.04em}
 footer .gold{color:var(--gd)}
 
-@media(max-width:640px){.hero h1{font-size:2rem}.hero .cn-title{font-size:1.3rem}.stats-bar{gap:6px}.stat{min-width:90px;padding:8px 12px}.coin-grid{grid-template-columns:1fr}.dragon-list{grid-template-columns:1fr}.stat-expand-inner{columns:1}.detail-panel{padding:20px}}
+@media(max-width:640px){.hero h1{font-size:2rem}.hero .cn-title{font-size:1.3rem}.hero-slab{display:none}.stats-bar{gap:6px}.stat{min-width:90px;padding:8px 12px}.coin-grid{grid-template-columns:1fr}.dragon-list{grid-template-columns:1fr}.stat-expand-inner{columns:1}.detail-panel{padding:20px}}
 </style>
 </head>
 <body>
 <div class="lang-toggle"><button class="active" onclick="setLang('cn')">中文</button><button onclick="setLang('en')">EN</button></div>
 
 <div class="hero">
+  <img class="hero-slab left" src="img/slab_dragon.jpg" alt="七三反版 龙面 PCGS SP66+">
+  <img class="hero-slab right" src="img/slab_text.jpg" alt="七三反版 字面 PCGS SP66+">
   <div class="hero-logo">Private Numismatic Registry</div>
   <h1>1024 COLLECTION</h1>
   <div class="cn-title">壹零贰肆 珍藏</div>
@@ -232,11 +238,7 @@ const wanted=COINS.filter(c=>c.myStatus==='want');
 const champs=owned.filter(c=>c.myRank&&(c.myRank.includes('冠军')||c.myRank.includes('亚军')||c.myRank.includes('季军')));
 (function(){
   const track=document.getElementById('showcaseTrack');
-  const showcase=[...owned].sort((a,b)=>{
-    const ra=a.myRank?a.myRank.includes('冠军')?3:a.myRank.includes('亚军')?2:1:0;
-    const rb=b.myRank?b.myRank.includes('冠军')?3:b.myRank.includes('亚军')?2:1:0;
-    return rb-ra||b.rarity-a.rarity;
-  });
+  const showcase=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned').sort((a,b)=>b.rarity-a.rarity);
   showcase.forEach(c=>{
     const isC=c.myRank?.includes('冠军');const isR=c.myRank?.includes('亚军')||c.myRank?.includes('季军');
     const cls=isC?'champion':isR?'runner':'';
@@ -405,13 +407,38 @@ function closeDetail(){document.getElementById('detailOverlay').classList.remove
 
 // === RENDER SECTIONS ===
 // PROLOGUE
-document.getElementById('prologue').innerHTML=`<div class="story"><p class="drop-cap" data-cn="1889年，一条完整的逻辑链在广州开启——两广总督张之洞从英国伯明翰喜敦造币厂引进全套机器压印设备，在广东钱局开铸中国第一批机制银圆。这不是一次技术引进，而是一个帝国在财政分权的极限处被迫启动货币主权重建的起点。" data-en="In 1889, a complete logical chain began in Canton — Viceroy Zhang Zhidong imported full press machinery from Birmingham's Heaton Mint, striking China's first machine-milled silver dollars. This was not a technology transfer. It was the moment an empire, pushed to the limits of fiscal decentralization, began rebuilding monetary sovereignty.">1889年，一条完整的逻辑链在广州开启——两广总督张之洞从英国伯明翰喜敦造币厂引进全套机器压印设备，在广东钱局开铸中国第一批机制银圆。这不是一次技术引进，而是一个帝国在财政分权的极限处被迫启动货币主权重建的起点。</p>
-<p style="margin-top:14px" data-cn="首批试铸为七钱三分「反版」——英文居正、龙图在背——因不合体例旋改为七钱二分正版。广东首铸后，湖北、江南、北洋、奉天、吉林等十余省各自设局仿铸，龙纹各异，实质是地方财权的银质化表达。「圆两之争」贯穿始终：各省以「圆」计重铸币（七钱二分），而清廷主张「两」制统一（壹两）——户部壹两、北洋壹两、中字壹两，正是中央对地方铸币权的收回尝试。每一枚壹两样币都是制度博弈的实物证据。" data-en="The first trial strikes — the 7.3 Candareens 'reverse' type with English obverse — were corrected to 7.2 standard. After Kwangtung, Hupeh, Kiangnan, Chihli, Fengtien, Kirin and more minted their own, each with distinct dragon designs — in reality, local fiscal power expressed in silver. The 'Dollar vs. Tael' debate persisted: provinces minted by 'Dollar' (7.2 Candareens), while the Court insisted on 'Tael' (One Tael) — the Hu Bu Tael, Pei Yang Tael, Chung-Tze Tael each representing attempts to reclaim minting authority. Every tael pattern coin is physical evidence of institutional struggle.">首批试铸为七钱三分「反版」——英文居正、龙图在背——因不合体例旋改为七钱二分正版。广东首铸后，湖北、江南、北洋、奉天、吉林等十余省各自设局仿铸，龙纹各异，实质是地方财权的银质化表达。「圆两之争」贯穿始终：各省以「圆」计重铸币（七钱二分），而清廷主张「两」制统一（壹两）——户部壹两、北洋壹两、中字壹两，正是中央对地方铸币权的收回尝试。每一枚壹两样币都是制度博弈的实物证据。</p>
-<p style="margin-top:14px" data-cn="宣统二年（1910），度支部颁布《币制则例》，统一币制为「圆」，天津造币总厂聘请意大利雕刻师 Luigi Giorgi 设计「大清银币」系列——长须龙、短须龙、反龙诸版由此诞生。这是清末机制工艺的最高峰，后世无法复现。然而翌年辛亥革命爆发，这批承载着帝国最后一次币制统一意志的银币未及流通即成绝响。民国初年，中央造币厂终于在1914年实现袁世凯像壹圆的全国统一铸行——意大利雕刻师 Giorgi 的签字版与七分脸试铸，标志着中国货币主权从清末地方分权到民国中央定型的历史性转折。1913-1914年，是国家制度终于成功的年份。" data-en="In 1910, the Qing Currency Reform unified the system around 'Yuan.' Tientsin Central Mint hired Luigi Giorgi to design the Ta-Ching series — Long Whisker, Short Whisker, Reverse Dragon emerged. These represent the absolute apex of late Qing minting technology, unreproducible by later generations. Yet the 1911 Revolution struck before circulation, turning these final expressions of imperial monetary will into supreme rarities. In 1914, the Republic achieved what the Qing could not — Yuan Shikai's national dollar, with Giorgi's signed pattern and the '7/10 face' trial strike, marking the historic transition from Qing decentralization to Republican central authority. 1913-1914: the year the national system finally succeeded.">宣统二年（1910），度支部颁布《币制则例》，统一币制为「圆」，天津造币总厂聘请意大利雕刻师 Luigi Giorgi 设计「大清银币」系列——长须龙、短须龙、反龙诸版由此诞生。这是清末机制工艺的最高峰，后世无法复现。然而翌年辛亥革命爆发，这批承载着帝国最后一次币制统一意志的银币未及流通即成绝响。民国初年，中央造币厂终于在1914年实现袁世凯像壹圆的全国统一铸行——意大利雕刻师 Giorgi 的签字版与七分脸试铸，标志着中国货币主权从清末地方分权到民国中央定型的历史性转折。1913-1914年，是国家制度终于成功的年份。</p>
-<p style="margin-top:14px" data-cn="而在所有这些制度博弈的样本之上，有一枚币凌驾于整条逻辑链之上——广东省造寿字双龙壹两。它不属于圆两之争的任何一方，它是超越制度框架的帝国献礼，是清末铸币工艺与政治象征的极致合一。存世仅五枚评级。它是这条收藏逻辑的最终封顶。" data-en="Above all institutional specimens sits one coin that transcends the entire logical chain — the Kwangtung Shou-Zi (Longevity) Double Dragon One Tael. It belongs to neither side of the Dollar-Tael debate. It is an imperial tribute beyond institutional frameworks, the ultimate fusion of late Qing minting artistry and political symbolism. Only five graded. It is the capstone of this collecting thesis.">而在所有这些制度博弈的样本之上，有一枚币凌驾于整条逻辑链之上——广东省造寿字双龙壹两。它不属于圆两之争的任何一方，它是超越制度框架的帝国献礼，是清末铸币工艺与政治象征的极致合一。存世仅五枚评级。它是这条收藏逻辑的最终封顶。</p>
-<p style="margin-top:14px" data-cn="1024 Collection 所构建的，正是这条从清末地方财政极限到民国国家币制成型的完整逻辑链——覆盖制度史与工艺史两端。那些样币是清末机制工艺不可复现的巅峰；那些壹两是中央与地方货币主权博弈的实物档案；那些签字版是国家制度终于成型的历史见证。" data-en="What the 1024 Collection constructs is precisely this complete logical chain — from the limits of late Qing local fiscal power to the formation of Republican national coinage. Covering both institutional history and the history of craft. The pattern coins are unreproducible peaks of Qing minting art; the taels are physical archives of central-local monetary sovereignty contests; the signed dollars are historical witnesses to the moment national institutions finally crystallized.">1024 Collection 所构建的，正是这条从清末地方财政极限到民国国家币制成型的完整逻辑链——覆盖制度史与工艺史两端。那些样币是清末机制工艺不可复现的巅峰；那些壹两是中央与地方货币主权博弈的实物档案；那些签字版是国家制度终于成型的历史见证。</p>
-<p style="margin-top:14px;border-top:1px solid var(--lz-b);padding-top:14px" data-cn="我们正处于旧秩序被AI摧毁、新秩序重新建立的时代——文艺复兴2.0。AI将重塑智能与文明，放大人文之光。参与这一次秩序重构的人，也收藏历史上秩序重建的样本。当前机制币的估值体系更多由收藏圈内部的评级标准分级决定，但它们真正的价值，应当放在文明更替与制度重建的坐标中去衡量。不只是中国，不只是机制币。" data-en="We live in an era where the old order is being dismantled by AI and a new one is being rebuilt — Renaissance 2.0. AI will reshape intelligence and civilization, amplifying the light of humanity. Those who participate in this reconstruction of order also collect specimens from history's previous moments of institutional rebirth. The current valuation framework for Chinese coins is largely determined by internal collecting-circle grading standards, but their true value should be measured against the coordinates of civilizational transition and institutional rebuilding. Not just China. Not just coins.">我们正处于旧秩序被AI摧毁、新秩序重新建立的时代——文艺复兴2.0。AI将重塑智能与文明，放大人文之光。参与这一次秩序重构的人，也收藏历史上秩序重建的样本。当前机制币的估值体系更多由收藏圈内部的评级标准分级决定，但它们真正的价值，应当放在文明更替与制度重建的坐标中去衡量。不只是中国，不只是机制币。</p>
-<p style="margin-top:14px" data-cn="耿爱德（Eduard Kann）、施嘉干、张璜以系统性著录奠定学术根基；鸿禧美术馆（Chang Foundation）以空前规模将机制币收藏推至博物馆殿堂。1024 Collection 接续这一传统，以制度史逻辑重新审视每一枚珍币的定位。以下，是它们的故事。" data-en="Eduard Kann, Shi Jiagan, and Zhang Huang built the scholarly foundation; the Chang Foundation elevated collecting to museum-grade institution. The 1024 Collection continues this tradition, re-examining each rarity through the lens of institutional history. What follows is their story.">耿爱德（Eduard Kann）、施嘉干、张璜以系统性著录奠定学术根基；鸿禧美术馆（Chang Foundation）以空前规模将机制币收藏推至博物馆殿堂。1024 Collection 接续这一传统，以制度史逻辑重新审视每一枚珍币的定位。以下，是它们的故事。</p></div>`;
+document.getElementById('prologue').innerHTML=`<div class="story">
+<h3 style="color:var(--g);font-size:1.2rem;letter-spacing:.15em;margin-bottom:6px;text-align:center">Collector Manifesto</h3>
+<h2 style="color:var(--cr);font-size:1.6rem;letter-spacing:.2em;margin-bottom:28px;text-align:center;font-family:'Noto Serif SC',serif">收藏宣言</h2>
+<p class="drop-cap">1024 Collection 不是一组珍稀银币的简单聚合。</p>
+<p style="margin-top:14px;font-weight:600;color:var(--cr)">它是一条关于制度、权力与文明重建的历史逻辑链。</p>
+<p style="margin-top:18px">19 世纪末，当清帝国的财政体系在地方分权与全球贸易压力下走向极限，机器铸币被引入中国。广东龙银由此诞生，中国第一次进入现代货币体系。</p>
+<p style="margin-top:14px;font-weight:600;color:var(--cr)">这不仅是一次技术革新，更是国家货币主权重建的开端。</p>
+<p style="margin-top:18px">随后的二十余年间，中国经历了一场围绕货币主权展开的制度博弈。</p>
+<p style="margin-top:14px;padding-left:24px;border-left:2px solid var(--gd)">地方各省纷纷铸造银圆，以龙纹表达财政权力；<br>中央则以壹两体系试图重建统一货币秩序。</p>
+<p style="margin-top:14px">所谓「圆两之争」，本质上是中央权力与地方财政之间的制度博弈。</p>
+<p style="margin-top:14px;font-weight:600;color:var(--cr)">这些银币，是这一历史过程最直接的物证。</p>
+<p style="margin-top:18px">清末最后一次币制统一尝试诞生了「大清银币」系列——长须龙、短须龙、反龙。</p>
+<p style="margin-top:14px;font-weight:600;color:var(--cr)">这是中国机制铸币工艺的巅峰。</p>
+<p style="margin-top:14px">然而辛亥革命使这一制度工程戛然而止。</p>
+<p style="margin-top:14px">直到 1914 年，袁世凯像壹圆的全国统一铸行，才真正完成中国现代货币制度的定型。</p>
+<p style="margin-top:24px;border-top:1px solid var(--lz-b);padding-top:24px">因此，在 1024 Collection 的叙事中：</p>
+<div style="margin:16px 0;padding:16px 24px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;line-height:2.2">
+<strong style="color:var(--g)">地方龙银</strong>代表财政分权的极限<br>
+<strong style="color:var(--g)">壹两样币</strong>代表中央权力的收回尝试<br>
+<strong style="color:var(--g)">大清银币</strong>代表帝制最后的制度设计<br>
+<strong style="color:var(--g)">袁像壹圆</strong>代表国家货币制度的最终定型
+</div>
+<p style="margin-top:18px">而<strong style="color:var(--ch)">广东寿字双龙壹两</strong>，则站在这条逻辑链之上。</p>
+<p style="margin-top:14px">它不是制度的一部分，而是帝国象征的极致表达——政治权力、艺术雕刻与铸币技术的完美合一。</p>
+<p style="margin-top:18px;font-weight:600;color:var(--cr);font-size:1.05rem">1024 Collection 所构建的，正是一部以银圆为文本的中国近代制度史。</p>
+<p style="margin-top:28px;border-top:1px solid var(--lz-b);padding-top:24px">今天，我们正处于另一次秩序重构之中。</p>
+<p style="margin-top:14px">人工智能正在重塑智能、经济与文明结构。旧秩序正在崩解，新秩序尚未完成。</p>
+<p style="margin-top:14px">在这样的时代，收藏那些曾经见证制度重建时刻的物件，本身也成为一种历史参与。</p>
+<p style="margin-top:18px;font-style:italic;color:var(--g)">它提醒我们：</p>
+<p style="margin-top:10px;padding-left:24px;border-left:2px solid var(--g);font-weight:600;color:var(--cr);line-height:2">文明并非线性演进。<br>秩序总是在崩解之后重新建立。</p>
+<p style="margin-top:18px;font-weight:600;color:var(--cr)">而历史留下的物证，是理解未来最可靠的坐标。</p>
+</div>`;
 
 // HIGHLIGHTS (至臻之选 — 大珍标准：一级币/二级币，非评级高分)
 const DAZHEN_IDS=['C010','C011','C044','C031','C032','C045','C030','C033','C034','C037','C013','C046','C014','C038','C039','C017','C012','C040','C041','C042','C043'];
