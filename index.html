@@ -155,7 +155,8 @@ nav button:hover,nav button.active{background:var(--g);color:var(--lz-deep);bord
 footer{text-align:center;padding:44px 20px;color:var(--tm);font-size:.75rem;border-top:1px solid var(--lz-b);margin-top:44px;letter-spacing:.04em}
 footer .gold{color:var(--gd)}
 
-@media(max-width:640px){.hero h1{font-size:2rem}.hero .cn-title{font-size:1.3rem}.stats-bar{gap:6px}.stat{min-width:90px;padding:8px 12px}.coin-grid{grid-template-columns:1fr}.dragon-list{grid-template-columns:1fr}.stat-expand-inner{columns:1}.detail-panel{padding:20px}}
+.coll-regions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px}
+@media(max-width:640px){.hero h1{font-size:2rem}.hero .cn-title{font-size:1.3rem}.stats-bar{gap:6px}.stat{min-width:90px;padding:8px 12px}.coin-grid{grid-template-columns:1fr}.dragon-list{grid-template-columns:1fr}.stat-expand-inner{columns:1}.detail-panel{padding:20px}.coll-regions-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -211,7 +212,7 @@ const NAV=[
   {id:'dragons',cn:'各省龙洋',en:'Provincial Dragons'},
   {id:'yuanPortraits',cn:'袁像银圆',en:'Yuan Shikai'},
   {id:'sunPortraits',cn:'孙像银圆',en:'Sun Yat-sen'},
-  {id:'warlords',cn:'民国地方银圆',en:'Republic Provincial'},
+  {id:'warlords',cn:'军阀银圆',en:'Republic Provincial'},
   {id:'fullCollection',cn:'全部拍品',en:'Full Collection'},
   {id:'database',cn:'全部藏品',en:'Full Holdings'},
   {id:'wishlist',cn:'圣杯',en:'The Grails'},
@@ -483,7 +484,7 @@ const dbWanted=COINS.filter(c=>c.myStatus==='want');
 const dbTotalEst=COINS.filter(c=>c.est_rmb).reduce((s,c)=>{const v=String(c.est_rmb).replace(/[^0-9]/g,'');return s+(parseInt(v)||0)},0);
 const dbOwnedEst=dbOwned.reduce((s,c)=>{const v=String(c.est_rmb).split(/[+(]/)[0].replace(/[^0-9]/g,'');return s+(parseInt(v)||0)},0);
 const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Holdings">全部藏品</div><div class="chapter-line"></div></div>
-<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚。" data-en="Full holdings — ${COINS.length} varieties, ${dbOwned.length} owned.">全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚。</p></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。" data-en="A complete collecting path from late Qing dragon dollars to Republican pattern coins — each piece fills a coordinate in China's modern monetary history. A numismatic logic spanning the late Qing and Republic is gradually taking shape.">这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。</p></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
 <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
   <div style="font-size:2rem;font-weight:700;color:var(--g)">${COINS.length}</div>
@@ -1008,7 +1009,7 @@ function makeSortBtns(gridId,coins){
 (function(){
   const warlordCoins=COINS.filter(c=>c.cat==='republic-warlord'||c.cat==='republic-portrait');
   window._coins_warlordGrid=warlordCoins;
-  let html=`<div class="chapter"><div class="chapter-num" data-cn="第柒章" data-en="Chapter VII">第柒章</div><div class="chapter-title" data-cn="民国地方银圆" data-en="Republic Provincial Dollars">民国地方银圆</div><div class="chapter-line"></div></div>`;
+  let html=`<div class="chapter"><div class="chapter-num" data-cn="第柒章" data-en="Chapter VII">第柒章</div><div class="chapter-title" data-cn="军阀银圆" data-en="Republic Provincial Dollars">军阀银圆</div><div class="chapter-line"></div></div>`;
   html+=`<div class="story" style="margin-bottom:20px"><p data-cn="民国军阀割据时代的货币见证——张作霖、黎元洪、段祺瑞、曹锟……每一枚都是乱世枭雄的权力象征。本馆收录${warlordCoins.length}枚军阀时期银圆珍品。" data-en="Coinage witnesses of China's Warlord Era — Zhang Zuolin, Li Yuanhong, Duan Qirui, Cao Kun… each coin a symbol of power in an age of turmoil. ${warlordCoins.length} warlord-era rarities catalogued.">民国军阀割据时代的货币见证——张作霖、黎元洪、段祺瑞、曹锟……每一枚都是乱世枭雄的权力象征。本馆收录${warlordCoins.length}枚军阀时期银圆珍品。</p></div>`;
   html+=makeSortBtns('warlordGrid',warlordCoins);
   html+=`<div id="warlordGrid"></div>`;
@@ -1108,10 +1109,11 @@ const collRegions=[
   {id:'twhk',cn:'台港澳藏家',en:'Taiwan / HK / Macau'},
   {id:'overseas',cn:'海外藏家',en:'Overseas'}
 ];
+collHTML+=`<div class="coll-regions-grid">`;
 collRegions.forEach(reg=>{
   const group=COLLECTORS.filter(c=>collRegion(c.loc_cn)===reg.id);
-  if(!group.length) return;
-  collHTML+=`<h3 style="color:var(--g);margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--lz-b);display:flex;align-items:center;gap:10px" data-cn="${reg.cn} (${group.length})" data-en="${reg.en} (${group.length})">${reg.cn} <span style="font-size:.78rem;color:var(--td);font-weight:400">(${group.length})</span></h3>`;
+  collHTML+=`<div style="min-width:0">`;
+  collHTML+=`<h3 style="color:var(--g);margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--lz-b);display:flex;align-items:center;gap:10px;font-size:.95rem" data-cn="${reg.cn} (${group.length})" data-en="${reg.en} (${group.length})">${reg.cn} <span style="font-size:.78rem;color:var(--td);font-weight:400">(${group.length})</span></h3>`;
   group.forEach(c=>{
   const modeMap={buy:{cls:'buy',label:'买入'},sell:{cls:'sell',label:'出售'},hold:{cls:'hold',label:'持有'},liquidated:{cls:'sell',label:'出清'}};
   const m=modeMap[c.mode]||{cls:'hold',label:''};
@@ -1130,7 +1132,9 @@ collRegions.forEach(reg=>{
     </div>
   </div>`;
   });
+  collHTML+=`</div>`;
 });
+collHTML+=`</div>`;
 document.getElementById('collectors').innerHTML=collHTML;
 
 // COIN FLOW MAP — separate section
@@ -1301,7 +1305,7 @@ document.getElementById('collectors').innerHTML+=`
   ];
 
   let fc=`<div class="chapter"><div class="chapter-num" data-cn="第捌章" data-en="Chapter VIII">第捌章</div><div class="chapter-title" data-cn="全部拍品" data-en="Full Collection">全部拍品</div><div class="chapter-line"></div></div>`;
-  fc+=`<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 完整购藏清单——${totalLots}件拍品，来自4家拍卖行，含${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}（汇率 ${FX}）。" data-en="Complete acquisition inventory — ${totalLots} lots from 4 houses, ${gradedCount} graded. Grand total ~$${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()} (FX ${FX}).">完整购藏清单——${totalLots}件拍品，${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}。</p></div>`;
+  fc+=`<div class="story" style="margin-bottom:20px"><p data-cn="自2025年10月以来，1024的完整拍卖清单 — ${totalLots}件拍品，${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}。" data-en="Since October 2025, 1024's complete auction list — ${totalLots} lots, ${gradedCount} graded. Grand total ~$${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}.">自2025年10月以来，1024的完整拍卖清单 — ${totalLots}件拍品，${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}。</p></div>`;
 
   // ── Summary cards ──
   fc+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px">`;
@@ -1354,9 +1358,12 @@ document.getElementById('collectors').innerHTML+=`
     fc+=`<div class="fc-house" data-house="${hid}" style="margin-bottom:24px">`;
     fc+=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding:10px 14px;background:var(--lz-s);border-left:3px solid ${houseColors[hid]};border-radius:4px">`;
     fc+=`<div style="font-weight:700;color:var(--cr);font-size:.95rem">${houseMap[hid]} <span style="font-size:.76rem;color:var(--td);font-weight:400">${items.length} lots</span></div>`;
+    const hTotalUSD=hUSD+Math.round(hRMB/FX);
+    const hTotalRMB=hRMB+Math.round(hUSD*FX);
     fc+=`<div style="font-size:.82rem">`;
-    if(hUSD>0) fc+=`<span style="color:var(--g);font-weight:700">$${hUSD.toLocaleString()}</span> `;
-    if(hRMB>0) fc+=`<span style="color:var(--g);font-weight:700">¥${hRMB.toLocaleString()}</span>`;
+    fc+=`<span style="color:var(--g);font-weight:700">$${hTotalUSD.toLocaleString()}</span> `;
+    fc+=`<span style="color:var(--td);font-size:.72rem">/</span> `;
+    fc+=`<span style="color:var(--g);font-weight:700">¥${hTotalRMB.toLocaleString()}</span>`;
     fc+=`</div></div>`;
     fc+=renderFCTable(items);
     fc+=`</div>`;
@@ -1383,9 +1390,12 @@ document.getElementById('collectors').innerHTML+=`
     fc+=`<div class="fc-cat" data-cat="${cd.id}" style="margin-bottom:24px">`;
     fc+=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding:10px 14px;background:var(--lz-s);border-left:3px solid var(--g);border-radius:4px">`;
     fc+=`<div style="font-weight:700;color:var(--cr);font-size:.95rem" data-cn="${cd.cn}" data-en="${cd.en}">${cd.cn} <span style="font-size:.76rem;color:var(--td);font-weight:400">${items.length} lots</span></div>`;
+    const catTotalUSD=catUSD+Math.round(catRMB/FX);
+    const catTotalRMB=catRMB+Math.round(catUSD*FX);
     fc+=`<div style="font-size:.82rem">`;
-    if(catUSD>0) fc+=`<span style="color:var(--g);font-weight:700">$${catUSD.toLocaleString()}</span> `;
-    if(catRMB>0) fc+=`<span style="color:var(--g);font-weight:700">¥${catRMB.toLocaleString()}</span>`;
+    fc+=`<span style="color:var(--g);font-weight:700">$${catTotalUSD.toLocaleString()}</span> `;
+    fc+=`<span style="color:var(--td);font-size:.72rem">/</span> `;
+    fc+=`<span style="color:var(--g);font-weight:700">¥${catTotalRMB.toLocaleString()}</span>`;
     fc+=`</div></div>`;
     fc+=renderFCTable(items);
     fc+=`</div>`;
@@ -1402,20 +1412,24 @@ document.getElementById('collectors').innerHTML+=`
       <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="来源" data-en="Source">来源</th>
       <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="拍品" data-en="Item">拍品</th>
       <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="评级" data-en="Grade">评级</th>
-      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="含佣总价" data-en="Total">含佣总价</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em">USD</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em">RMB</th>
       <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="预估市价" data-en="Est.">预估市价</th>
     </tr></thead><tbody>`;
     items.forEach((it,i)=>{
-      const sym=it.cur==='USD'?'$':'¥';
+      const usdVal=it.cur==='USD'?it.t:Math.round(it.t/FX);
+      const rmbVal=it.cur==='USD'?Math.round(it.t*FX):it.t;
       const isGraded=it.grade&&(it.grade.includes('PCGS')||it.grade.includes('NGC')||it.grade.includes('GBCA'));
       const gc=isGraded?'color:var(--ch);font-weight:600':'color:var(--td)';
+      const origUSD=it.cur==='USD';
       t+=`<tr class="fc-row" data-house="${it.house}" data-cat="${it._cat}" data-graded="${isGraded?1:0}" style="border-bottom:1px solid rgba(26,58,102,.2)">
         <td style="padding:5px 8px;color:var(--td)">${i+1}</td>
         <td style="padding:5px 8px;color:var(--gd);font-weight:600;font-size:.72rem">${it.lot}</td>
         <td style="padding:5px 8px;font-size:.68rem;color:${houseColors[it.house]};font-weight:600">${it.house}</td>
         <td style="padding:5px 8px;color:var(--cr);max-width:300px;font-family:'Noto Serif SC',serif">${it.cn}</td>
         <td style="padding:5px 8px;${gc};font-size:.74rem;white-space:nowrap">${it.grade||'—'}</td>
-        <td style="padding:5px 8px;color:var(--g);font-weight:600;white-space:nowrap">${sym}${it.t.toLocaleString()}</td>
+        <td style="padding:5px 8px;${origUSD?'color:var(--g);font-weight:600':'color:var(--td)'};white-space:nowrap">$${usdVal.toLocaleString()}</td>
+        <td style="padding:5px 8px;${origUSD?'color:var(--td)':'color:var(--g);font-weight:600'};white-space:nowrap">¥${rmbVal.toLocaleString()}</td>
         <td style="padding:5px 8px;color:var(--gr);font-size:.76rem;white-space:nowrap">${it.est_mkt||'—'}</td>
       </tr>`;
     });

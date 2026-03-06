@@ -284,7 +284,7 @@ const COINS = [
       { holder:"1024 Collection", grade:"AU58 / MS64 / MS67", acquired:"", price:"", status:"入藏三枚", note:"MS67为亚军分" },
     ],
     myStatus:"owned", myGrade:"MS67", myRank:"亚军",
-    est_rmb:"3,000,000+ (MS67)",
+    est_rmb:"3,000,000+",
     myCopies:[{grade:"AU58",source:"拍卖",date:"",cost:"",est:"¥200,000+"},{grade:"MS64",source:"拍卖",date:"",cost:"",est:"¥1,000,000+"},{grade:"MS67",source:"拍卖",date:"",cost:"",est:"¥3,000,000+"}],
   },
   {
@@ -346,7 +346,7 @@ const COINS = [
       { holder:"LA陈医生", grade:"MS64?", acquired:"", price:"", status:"持有", note:"估值4000-5000万" },
     ],
     myStatus:"owned", myGrade:"MS61", myRank:null,
-    est_rmb:"3,000,000+ (MS61)",
+    est_rmb:"3,000,000+",
   },
   {
     id:"C018", cat:"qing-provincial",
@@ -514,7 +514,7 @@ const COINS = [
       { holder:"kent（杭州）", grade:"", acquired:"", price:"600-1900万不等", status:"持有大量", note:"和强关系好" },
     ],
     myStatus:"owned", myGrade:"MS64", myRank:null,
-    est_rmb:"800,000+ (MS64)",
+    est_rmb:"800,000+",
     myCopies:[{grade:"AU53",source:"拍卖",date:"",cost:"",est:"¥100,000+"},{grade:"MS61",source:"拍卖",date:"",cost:"",est:"¥300,000+"},{grade:"MS62+",source:"拍卖",date:"",cost:"",est:"¥500,000+"},{grade:"MS64",source:"拍卖",date:"",cost:"",est:"¥800,000+"}],
   },
   // ─── MORE OWNED PIECES (COMPACT) ───
