@@ -236,6 +236,7 @@ function coinImgTag(c,size){
 const owned=COINS.filter(c=>c.myStatus==='owned');
 const wanted=COINS.filter(c=>c.myStatus==='want');
 const champs=owned.filter(c=>c.myRank&&(c.myRank.includes('冠军')||c.myRank.includes('亚军')||c.myRank.includes('季军')));
+const DAZHEN_IDS=['C010','C011','C044','C031','C032','C045','C030','C033','C034','C037','C013','C046','C014','C038','C039','C017','C012','C040','C041','C042','C043'];
 (function(){
   const track=document.getElementById('showcaseTrack');
   const showcase=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned').sort((a,b)=>b.rarity-a.rarity);
@@ -441,7 +442,6 @@ document.getElementById('prologue').innerHTML=`<div class="story">
 </div>`;
 
 // HIGHLIGHTS (至臻之选 — 大珍标准：一级币/二级币，非评级高分)
-const DAZHEN_IDS=['C010','C011','C044','C031','C032','C045','C030','C033','C034','C037','C013','C046','C014','C038','C039','C017','C012','C040','C041','C042','C043'];
 const dzTier1=COINS.filter(c=>DAZHEN_IDS.includes(c.id)&&c.myStatus==='owned'&&c.tier<=2&&(c.rarity>=8||c.myRank)).sort((a,b)=>b.rarity-a.rarity);
 const dzTier2=COINS.filter(c=>DAZHEN_IDS.includes(c.id)&&c.myStatus==='owned'&&!dzTier1.includes(c)).sort((a,b)=>b.rarity-a.rarity);
 document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="至臻之选" data-en="The Finest">至臻之选</div><div class="chapter-line"></div></div>
