@@ -1076,11 +1076,14 @@ document.getElementById('collectors').innerHTML+=`
   houseOrder.forEach(hid=>{(MY_PURCHASES[hid]||[]).forEach(it=>{if(it.t>0)allItems.push({...it,house:hid})})});
 
   // Count totals
+  const FX=6.89; // USD/CNY exchange rate
   let totalLots=allItems.length,totalUSD=0,totalRMB=0,gradedCount=0;
   allItems.forEach(i=>{
     if(i.cur==='USD')totalUSD+=i.t; else totalRMB+=i.t;
     if(i.grade&&(i.grade.includes('PCGS')||i.grade.includes('NGC')||i.grade.includes('GBCA')))gradedCount++;
   });
+  const grandUSD=totalUSD+Math.round(totalRMB/FX);
+  const grandRMB=totalRMB+Math.round(totalUSD*FX);
 
   // Category classifier based on coin name
   function classifyItem(cn){
@@ -1104,7 +1107,7 @@ document.getElementById('collectors').innerHTML+=`
   ];
 
   let fc=`<div class="chapter"><div class="chapter-num" data-cn="第捌章" data-en="Chapter VIII">第捌章</div><div class="chapter-title" data-cn="全部拍品" data-en="Full Collection">全部拍品</div><div class="chapter-line"></div></div>`;
-  fc+=`<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 完整购藏清单——${totalLots}件拍品，来自4家拍卖行。含${gradedCount}件评级币。" data-en="Complete acquisition inventory — ${totalLots} lots from 4 auction houses, ${gradedCount} graded pieces.">完整购藏清单——${totalLots}件拍品，${gradedCount}件评级币。</p></div>`;
+  fc+=`<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 完整购藏清单——${totalLots}件拍品，来自4家拍卖行，含${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}（汇率 ${FX}）。" data-en="Complete acquisition inventory — ${totalLots} lots from 4 houses, ${gradedCount} graded. Grand total ~$${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()} (FX ${FX}).">完整购藏清单——${totalLots}件拍品，${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}。</p></div>`;
 
   // ── Summary cards ──
   fc+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px">`;
@@ -1115,11 +1118,13 @@ document.getElementById('collectors').innerHTML+=`
     <div style="font-size:2rem;font-weight:700;color:var(--ch)">${gradedCount}</div>
     <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="评级币" data-en="Graded">评级币</div></div>`;
   fc+=`<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
-    <div style="font-size:1.2rem;font-weight:700;color:var(--g)">$${totalUSD.toLocaleString()}</div>
-    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em">USD</div></div>`;
+    <div style="font-size:1.4rem;font-weight:700;color:var(--g)">$${grandUSD.toLocaleString()}</div>
+    <div style="font-size:.7rem;color:var(--td);margin-top:2px">$${totalUSD.toLocaleString()} + ¥${totalRMB.toLocaleString()}÷${FX}</div>
+    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em;margin-top:4px" data-cn="总计 (USD)" data-en="Grand Total (USD)">总计 (USD)</div></div>`;
   fc+=`<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
-    <div style="font-size:1.2rem;font-weight:700;color:var(--g)">¥${totalRMB.toLocaleString()}</div>
-    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em">RMB</div></div>`;
+    <div style="font-size:1.4rem;font-weight:700;color:var(--g)">¥${grandRMB.toLocaleString()}</div>
+    <div style="font-size:.7rem;color:var(--td);margin-top:2px">¥${totalRMB.toLocaleString()} + $${totalUSD.toLocaleString()}×${FX}</div>
+    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em;margin-top:4px" data-cn="总计 (RMB)" data-en="Grand Total (RMB)">总计 (RMB)</div></div>`;
   fc+=`</div>`;
 
   // ── Auction Highlights (from AUCTION_RECORDS global) ──
