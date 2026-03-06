@@ -522,10 +522,11 @@ const numisSourceCards = NUMIS_SOURCES.map((s,i) => {
   const isAgg = s.type==='aggregator';
   const dotColor = isAgg ? 'var(--gd)' : 'var(--g)';
   const badge = isAgg ? '<span style="display:inline-block;background:var(--gd);color:#fff;font-size:.55rem;padding:1px 6px;border-radius:3px;margin-left:6px;font-weight:700;vertical-align:middle">聚合</span>' : '';
-  return `<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s;cursor:default" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+  return `<div onclick="openSourceDetail(${i})" style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.15)';this.style.borderColor='var(--g)'" onmouseout="this.style.transform='';this.style.boxShadow='';this.style.borderColor='var(--lz-b)'">
     <div style="display:flex;align-items:center;gap:8px">
       <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0"></span>
       <span style="font-size:.95rem;font-weight:600;color:var(--cr)">${s.name}</span>${badge}
+      <span style="margin-left:auto;font-size:.65rem;color:var(--td);opacity:.6">点击查看 ›</span>
     </div>
     <div style="font-size:.72rem;color:var(--td);font-family:'EB Garamond',serif;letter-spacing:.04em">${s.nameEn}</div>
     <div style="font-size:.78rem;color:var(--g);line-height:1.5">${s.desc}</div>
@@ -536,6 +537,91 @@ const numisSourceCards = NUMIS_SOURCES.map((s,i) => {
     </div>
   </div>`;
 }).join('');
+// openSourceDetail — click a data source card to see matching auction records
+function openSourceDetail(index){
+  const s=NUMIS_SOURCES[index];if(!s)return;
+  const isAgg=s.type==='aggregator';
+  // Match auction records by house name
+  const matchKeys=s.matchKeys||[s.nameEn,s.name];
+  const matched=isAgg?AUCTION_RECORDS.slice():AUCTION_RECORDS.filter(r=>matchKeys.some(k=>r.house.includes(k)||k.includes(r.house)));
+  matched.sort((a,b)=>(b.rmb||0)-(a.rmb||0)||(b.usd||0)-(a.usd||0));
+  const top=matched.slice(0,30);
+  // Also find matching coins in our COINS db
+  const coinMatches=isAgg?COINS.slice(0,12):COINS.filter(c=>c.auctions?.some(a=>matchKeys.some(k=>a.house?.includes(k)||k.includes(a.house||'')))).slice(0,12);
+
+  const dp=document.getElementById('detailPanel');
+  let h=`<button class="detail-close" onclick="closeDetail()">&times;</button>`;
+  h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+    <span style="width:12px;height:12px;border-radius:50%;background:${isAgg?'var(--gd)':'var(--g)'}"></span>
+    <h2 style="margin:0;font-size:1.4rem">${s.name}</h2>
+    <span style="padding:3px 10px;background:${isAgg?'rgba(154,125,58,.2)':'rgba(197,162,88,.15)'};color:${isAgg?'var(--gd)':'var(--g)'};border-radius:4px;font-size:.7rem;font-weight:600">${isAgg?'数据聚合平台':'拍卖行直连'}</span>
+  </div>`;
+  h+=`<div style="font-size:.82rem;color:var(--td);font-style:italic;margin-bottom:20px;font-family:'EB Garamond',serif">${s.nameEn}</div>`;
+  h+=`<div style="font-size:.88rem;color:var(--g);line-height:1.7;margin-bottom:20px">${s.desc}</div>`;
+  // Stats grid
+  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px">
+    <div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
+      <div style="font-size:1.2rem;font-weight:700;color:var(--ch)">${s.records}</div>
+      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">收录记录</div></div>
+    <div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
+      <div style="font-size:1.2rem;font-weight:700;color:var(--g)">${s.volume}</div>
+      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
+    ${s.houses?`<div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
+      <div style="font-size:1.2rem;font-weight:700;color:var(--cr)">${s.houses}家</div>
+      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">覆盖拍卖行</div></div>`:''}
+    <div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
+      <div style="font-size:1.2rem;font-weight:700;color:var(--cr)">${top.length}</div>
+      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">本库匹配</div></div>
+  </div>`;
+  // Auction records list
+  if(top.length){
+    h+=`<div style="font-size:.88rem;font-weight:700;color:var(--g);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">来自${isAgg?'全球拍场':s.name}的成交纪录 (${matched.length}条)</div>`;
+    top.forEach(r=>{
+      const price=r.rmb?'¥'+r.rmb.toLocaleString():r.usd?'$'+r.usd.toLocaleString():'—';
+      h+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--lz-s2);border-radius:6px;margin-bottom:6px;border:1px solid var(--lz-b);transition:border-color .2s;cursor:default" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--lz-b)'">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.85rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.cn}</div>
+          <div style="font-size:.72rem;color:var(--td);margin-top:2px">${r.house} · ${r.date}${r.grade?' · '+r.grade:''}</div>
+        </div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--ch);flex-shrink:0;white-space:nowrap">${price}</div>
+      </div>`;
+    });
+    if(matched.length>30) h+=`<div style="text-align:center;padding:10px;font-size:.75rem;color:var(--td)">… 及更多 ${matched.length-30} 条纪录</div>`;
+  } else {
+    h+=`<div style="padding:20px;text-align:center;color:var(--td);font-size:.85rem;background:var(--lz-s2);border-radius:6px">本库暂无来自${s.name}的成交记录<br><span style="font-size:.72rem;opacity:.6">该数据源包含 ${s.records} 条外部数据</span></div>`;
+  }
+  // Related coins from our DB
+  if(coinMatches.length){
+    h+=`<div style="font-size:.88rem;font-weight:700;color:var(--g);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">本库相关藏品 (${coinMatches.length})</div>`;
+    h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">`;
+    coinMatches.forEach(c=>{
+      h+=`<div onclick="closeDetail();setTimeout(()=>showDetail('${c.id}'),300)" style="padding:10px 12px;background:var(--lz-s2);border-radius:6px;border:1px solid var(--lz-b);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--lz-b)'">
+        <div style="font-size:.82rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.cn}</div>
+        <div style="display:flex;gap:6px;margin-top:4px;font-size:.7rem">
+          <span style="color:var(--td)">${c.era}</span>
+          <span style="color:var(--g)">¥${c.est_rmb}</span>
+          ${c.myStatus==='owned'?'<span style="color:var(--ch)">已藏</span>':''}
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  dp.innerHTML=h;
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+// Add matchKeys to sources that need special matching
+NUMIS_SOURCES[0].matchKeys=['首席收藏','ShouXi']; // aggregator — shows all
+NUMIS_SOURCES[1].matchKeys=['诚轩','ChengXuan','北京诚轩'];
+NUMIS_SOURCES[2].matchKeys=['泓盛','Holly','Hosane','上海泓盛'];
+NUMIS_SOURCES[3].matchKeys=['SBP','Stack','Bowers'];
+NUMIS_SOURCES[4].matchKeys=['Heritage'];
+NUMIS_SOURCES[5].matchKeys=['嘉德','Guardian','中国嘉德'];
+NUMIS_SOURCES[6].matchKeys=['SPINK','Spink'];
+NUMIS_SOURCES[7].matchKeys=['保利','Poly','北京保利'];
+NUMIS_SOURCES[8].matchKeys=['Champion'];
+NUMIS_SOURCES[9].matchKeys=['西泠','Xiling'];
+NUMIS_SOURCES[10].matchKeys=['华夏','Huaxia'];
 document.getElementById('numisDB').innerHTML=`
 <div class="chapter"><div class="chapter-num" data-cn="第拾叁章" data-en="Chapter XIII">第拾叁章</div><div class="chapter-title" data-cn="机制币数据库" data-en="Numismatic Database">机制币数据库</div><div class="chapter-line"></div></div>
 <div class="story"><p data-cn="机制币拍卖数据追踪系统——聚合首席收藏 120万+ 拍卖记录，直连全球 11 大拍卖行与数据平台，覆盖成交总额 ¥300亿+。整合 PCGS 评级数据、价格走势、存世量统计及传承链追溯。" data-en="Milled coin auction tracking system — aggregating 1.2M+ records from ShouXi.com, directly connected to 11 major auction houses, covering ¥30B+ in total volume. Integrates PCGS data, price trends, population stats and provenance tracking.">机制币拍卖数据追踪系统——聚合首席收藏 120万+ 拍卖记录，直连全球 11 大拍卖行与数据平台，覆盖成交总额 ¥300亿+。整合 PCGS 评级数据、价格走势、存世量统计及传承链追溯。</p></div>
