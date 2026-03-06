@@ -48,7 +48,6 @@ const P_HA = [
   {lot:"35049",cn:"江南省造光绪元宝喜敦版库平七钱二分样币 (1897)",grade:"PCGS SP",h:1250000,bp:250000,t:1500000,cur:"USD",est_mkt:"$1,800,000+"},
   {lot:"36015",cn:"光绪元宝库平壹两金质样币 (Kuping Tael Gold)",grade:"PCGS SP",h:460000,bp:92000,t:552000,cur:"USD",est_mkt:"$600,000+"},
   {lot:"35042",cn:"湖北省造光绪元宝库平壹两大字版 (1904)",grade:"",h:320000,bp:64000,t:384000,cur:"USD",est_mkt:"$400,000+"},
-  {lot:"50305",cn:"[→SBP重复，此处为HA Session]",grade:"",h:0,bp:0,t:0,cur:"USD",est_mkt:""},
   {lot:"36034",cn:"江南省造光绪元宝七钱二分 无纪年 (1897) MS63",grade:"PCGS MS63",h:200000,bp:40000,t:240000,cur:"USD",est_mkt:"$280,000+"},
   {lot:"35076",cn:"袁世凯像飞龙壹圆样币 Plumed Hat SP",grade:"PCGS SP",h:200000,bp:40000,t:240000,cur:"USD",est_mkt:"$280,000+"},
   {lot:"35096",cn:"孙中山像壹圆银质样币 (Sun Yat-sen Pattern $)",grade:"PCGS SP",h:170000,bp:34000,t:204000,cur:"USD",est_mkt:"$220,000+"},

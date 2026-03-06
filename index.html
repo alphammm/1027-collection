@@ -1124,7 +1124,7 @@ document.getElementById('collectors').innerHTML+=`
 
   // ── Auction Highlights (from AUCTION_RECORDS global) ──
   fc+=`<details style="margin-bottom:24px"><summary style="cursor:pointer;color:var(--g);font-weight:700;font-size:1rem;padding:10px 0;border-bottom:1px solid var(--lz-b)" data-cn="拍卖亮点 · 全球成交纪录 (${AUCTION_RECORDS.length}条)" data-en="Auction Highlights · Global Records (${AUCTION_RECORDS.length})">拍卖亮点 · 全球成交纪录 (${AUCTION_RECORDS.length}条)</summary>`;
-  fc+=`<div style="overflow-x:auto;margin-top:12px"><table class="at"><thead><tr><th>Date</th><th data-cn="拍卖行" data-en="House">拍卖行</th><th data-cn="币种" data-en="Coin">币种</th><th data-cn="评级" data-en="Grade">评级</th><th>Lot</th><th>USD</th><th>RMB</th></tr></thead><tbody>${AUCTION_RECORDS.sort((a,b)=>(b.usd||0)-(a.usd||0)||(b.rmb||0)-(a.rmb||0)).map(r=>`<tr><td>${r.date}</td><td>${r.house}</td><td style="color:var(--cr)">${r.cn}</td><td>${r.grade}</td><td>${r.lot||''}</td><td class="price">${r.usd?'$'+r.usd.toLocaleString():''}</td><td class="price">${r.rmb?'¥'+r.rmb.toLocaleString():''}</td></tr>`).join('')}</tbody></table></div></details>`;
+  fc+=`<div style="overflow-x:auto;margin-top:12px"><table style="width:100%;border-collapse:collapse;font-size:.82rem"><thead><tr style="background:var(--lz-s2);text-align:left"><th style="padding:6px 10px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600">Date</th><th style="padding:6px 10px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600" data-cn="拍卖行" data-en="House">拍卖行</th><th style="padding:6px 10px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600" data-cn="币种" data-en="Coin">币种</th><th style="padding:6px 10px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600" data-cn="评级" data-en="Grade">评级</th><th style="padding:6px 10px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600">Lot</th><th style="padding:6px 10px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600">USD</th><th style="padding:6px 10px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600">RMB</th></tr></thead><tbody>${AUCTION_RECORDS.sort((a,b)=>(b.usd||0)-(a.usd||0)||(b.rmb||0)-(a.rmb||0)).map(r=>`<tr style="border-bottom:1px solid rgba(26,58,102,.2)"><td style="padding:5px 10px;color:var(--td);font-size:.76rem">${r.date}</td><td style="padding:5px 10px;color:var(--td);font-size:.76rem">${r.house}</td><td style="padding:5px 10px;color:var(--cr)">${r.cn}</td><td style="padding:5px 10px;color:var(--td);font-size:.76rem">${r.grade}</td><td style="padding:5px 10px;color:var(--gd);font-size:.72rem">${r.lot||''}</td><td style="padding:5px 10px;color:var(--g);font-weight:600;white-space:nowrap">${r.usd?'$'+r.usd.toLocaleString():''}</td><td style="padding:5px 10px;color:var(--g);font-weight:600;white-space:nowrap">${r.rmb?'¥'+r.rmb.toLocaleString():''}</td></tr>`).join('')}</tbody></table></div></details>`;
 
   // ── Classification mode toggle ──
   fc+=`<div style="display:flex;gap:6px;margin-bottom:16px;align-items:center">
@@ -1150,13 +1150,14 @@ document.getElementById('collectors').innerHTML+=`
   houseOrder.forEach(hid=>{
     const items=allItems.filter(i=>i.house===hid);
     if(!items.length) return;
-    const ht=HOUSE_TOTALS[hid]||{};
+    const hUSD=items.filter(i=>i.cur==='USD').reduce((s,i)=>s+i.t,0);
+    const hRMB=items.filter(i=>i.cur!=='USD').reduce((s,i)=>s+i.t,0);
     fc+=`<div class="fc-house" data-house="${hid}" style="margin-bottom:24px">`;
     fc+=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding:10px 14px;background:var(--lz-s);border-left:3px solid ${houseColors[hid]};border-radius:4px">`;
     fc+=`<div style="font-weight:700;color:var(--cr);font-size:.95rem">${houseMap[hid]} <span style="font-size:.76rem;color:var(--td);font-weight:400">${items.length} lots</span></div>`;
     fc+=`<div style="font-size:.82rem">`;
-    if(ht.total_usd>0) fc+=`<span style="color:var(--g);font-weight:700">$${ht.total_usd.toLocaleString()}</span> `;
-    if(ht.total_rmb>0) fc+=`<span style="color:var(--g);font-weight:700">¥${ht.total_rmb.toLocaleString()}</span>`;
+    if(hUSD>0) fc+=`<span style="color:var(--g);font-weight:700">$${hUSD.toLocaleString()}</span> `;
+    if(hRMB>0) fc+=`<span style="color:var(--g);font-weight:700">¥${hRMB.toLocaleString()}</span>`;
     fc+=`</div></div>`;
     fc+=renderFCTable(items);
     fc+=`</div>`;
@@ -1196,14 +1197,14 @@ document.getElementById('collectors').innerHTML+=`
 
   // Helper: render a table of items
   function renderFCTable(items){
-    let t=`<div style="overflow-x:auto"><table class="at" style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr style="background:var(--lz-s2);text-align:left">
-      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)">#</th>
-      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)">Lot</th>
-      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="来源" data-en="Source">来源</th>
-      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="拍品" data-en="Item">拍品</th>
-      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="评级" data-en="Grade">评级</th>
-      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="含佣总价" data-en="Total">含佣总价</th>
-      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="预估市价" data-en="Est.">预估市价</th>
+    let t=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr style="background:var(--lz-s2);text-align:left">
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em">#</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em">Lot</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="来源" data-en="Source">来源</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="拍品" data-en="Item">拍品</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="评级" data-en="Grade">评级</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="含佣总价" data-en="Total">含佣总价</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600;letter-spacing:.04em" data-cn="预估市价" data-en="Est.">预估市价</th>
     </tr></thead><tbody>`;
     items.forEach((it,i)=>{
       const sym=it.cur==='USD'?'$':'¥';
