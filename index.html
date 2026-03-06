@@ -580,7 +580,7 @@ ${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substrin
 // RANKINGS — 高分典藏
 const ranked=owned.filter(c=>c.myRank).sort((a,b)=>b.rarity-a.rarity);
 document.getElementById('rankings').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第贰章" data-en="Chapter II">第贰章</div><div class="chapter-title" data-cn="高分藏品" data-en="Top-Graded Holdings">高分藏品</div><div class="chapter-line"></div></div>
-<div class="story" style="margin-bottom:20px"><p data-cn="${champs.length}枚冠军、亚军或季军评级——在PCGS全球评级体系中位居该品种最高分或并列最高分。点击查看完整档案。" data-en="${champs.length} coins holding Champion, Runner-up, or 3rd-place grades in the PCGS global registry. Click for full profiles.">${champs.length}枚冠军、亚军或季军评级——在PCGS全球评级体系中位居该品种最高分或并列最高分。点击查看完整档案。</p></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="这些冠军、亚军或季军评级的藏品在PCGS全球评级体系中位居该品种最高分或并列最高分。点击查看完整档案。" data-en="These champion, runner-up, and 3rd-place graded pieces hold the highest or tied-highest grades in the PCGS global registry. Click for full profiles.">这些冠军、亚军或季军评级的藏品在PCGS全球评级体系中位居该品种最高分或并列最高分。点击查看完整档案。</p></div>
 ${ranked.map((c,i)=>{
   const isChamp=c.myRank.includes('冠军');const isRunner=c.myRank.includes('亚军');
   const badge=isChamp?'background:var(--ch);color:var(--lz-deep)':isRunner?'background:var(--g);color:var(--lz-deep)':'background:var(--lz-bl);color:var(--cr)';
@@ -589,7 +589,6 @@ ${ranked.map((c,i)=>{
     <div style="flex-shrink:0">${coinImgTag(c,100)}</div>
     <div style="flex:1;min-width:180px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-        <span style="font-size:1.2rem;font-weight:700;color:var(--ch)">#${i+1}</span>
         <span style="${badge};font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:700">${c.myRank}</span>
         <span class="gt owned" style="font-size:.78rem">${c.myGrade}</span>
       </div>
