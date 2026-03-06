@@ -216,7 +216,7 @@ const NAV=[
   {id:'yuanPortraits',cn:'袁像银圆',en:'Yuan Shikai'},
   {id:'sunPortraits',cn:'孙像银圆',en:'Sun Yat-sen'},
   {id:'warlords',cn:'军阀银圆',en:'Republic Provincial'},
-  {id:'fullCollection',cn:'全部拍品',en:'Full Collection'},
+  {id:'fullCollection',cn:'拍卖溯源',en:'Auction Provenance'},
   {id:'database',cn:'全部藏品',en:'Full Holdings'},
   {id:'wishlist',cn:'圣杯',en:'The Grails'},
   {id:'strategy',cn:'收藏体系',en:'Collection System'},
@@ -1605,7 +1605,7 @@ document.getElementById('collectors').innerHTML+=`
     return t;
   }
 
-  let fc=`<div class="chapter"><div class="chapter-num" data-cn="第捌章" data-en="Chapter VIII">第捌章</div><div class="chapter-title" data-cn="全部拍品" data-en="Full Collection">全部拍品</div><div class="chapter-line"></div></div>`;
+  let fc=`<div class="chapter"><div class="chapter-num" data-cn="第捌章" data-en="Chapter VIII">第捌章</div><div class="chapter-title" data-cn="拍卖溯源" data-en="Auction Provenance">拍卖溯源</div><div class="chapter-line"></div></div>`;
   fc+=`<div class="story" style="margin-bottom:20px"><p data-cn="自2025年10月以来，1024的完整拍卖清单 — ${totalLots}件拍品，${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}。" data-en="Since October 2025, 1024's complete auction list — ${totalLots} lots, ${gradedCount} graded. Grand total ~$${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}.">自2025年10月以来，1024的完整拍卖清单 — ${totalLots}件拍品，${gradedCount}件评级币。总计约 $${grandUSD.toLocaleString()} / ¥${grandRMB.toLocaleString()}。</p></div>`;
 
   // ── Summary cards ──
