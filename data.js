@@ -814,15 +814,63 @@ const COLLECTORS = [
     bg_cn:"资深藏家，持仓深度极高。长期持有策略。",
     profile_cn:"「长期持有型」顶级藏家。持有三套七三反版是惊人的集中度（全世界可能不超过十套），魏碑体MS64、湖南、陕西等均为一级珍品。银币不卖的表态一贯坚定。他的藏品结构在澳门藏家圈中首屈一指，品种覆盖清末地方极珍和民国样币两大板块。若未来这批藏品有流转的可能，将是市场最重大的收藏事件之一。",
     coins:[
-      { cn:"七三反版（三套）", grade:"", cost:"", current_est:"60,000,000+（三套合计）" },
+      // 样币 · 地方极珍
+      { cn:"陕西省造七钱二分样币", grade:"", cost:"", current_est:"25,000,000+" },
+      { cn:"湖南省造七钱二分样币", grade:"", cost:"", current_est:"25,000,000+" },
+      // 宣三大清系列
+      { cn:"宣三长须龙", grade:"SP60", cost:"", current_est:"15,000,000+" },
+      { cn:"宣三短须龙", grade:"", cost:"", current_est:"20,000,000+" },
+      { cn:"宣三长须龙配普通大清字面", grade:"", cost:"", current_est:"8,000,000+" },
+      { cn:"宣三反龙", grade:"SP65+", cost:"", current_est:"10,000,000+" },
+      { cn:"大清立龙五角样币", grade:"SP61", cost:"", current_est:"5,000,000+" },
+      { cn:"大清金币", grade:"PCGS SP61", cost:"", current_est:"8,000,000+" },
+      { cn:"大清水龙一套", grade:"", cost:"", current_est:"5,000,000+" },
+      { cn:"大清立龙二角样币", grade:"SP62", cost:"", current_est:"3,000,000+" },
+      // 中央 · 壹两系列
+      { cn:"中字壹两", grade:"", cost:"", current_est:"10,000,000+" },
+      { cn:"丁未壹两", grade:"", cost:"", current_est:"8,000,000+" },
+      { cn:"户部壹两", grade:"", cost:"", current_est:"15,000,000+" },
+      // 本省
+      { cn:"本省", grade:"NGC SP50 红龙", cost:"", current_est:"15,000,000+" },
+      // 双龙壹两
+      { cn:"大字双龙壹两", grade:"PCGS SP50", cost:"", current_est:"8,000,000+" },
+      { cn:"小字双龙壹两", grade:"SP62", cost:"", current_est:"10,000,000+" },
+      // 广东
+      { cn:"广东七二反版", grade:"", cost:"", current_est:"8,000,000+" },
+      { cn:"广东七三反版（三套）", grade:"", cost:"", current_est:"60,000,000+（三套合计）" },
+      { cn:"广东七三流通版", grade:"", cost:"", current_est:"3,000,000+" },
+      { cn:"广东七三镜面版", grade:"", cost:"", current_est:"5,000,000+" },
+      { cn:"广东七三加厚光边版", grade:"", cost:"", current_est:"5,000,000+" },
+      // 浙江
       { cn:"魏碑体浙江壹圆", grade:"MS64", cost:"", current_est:"25,000,000+" },
-      { cn:"大清（两枚）", grade:"", cost:"", current_est:"10,000,000+" },
-      { cn:"张作霖", grade:"", cost:"", current_est:"20,000,000+" },
-      { cn:"湖南 / 陕西七钱二分", grade:"", cost:"", current_est:"50,000,000+" },
+      { cn:"浙江楷书一角、二角", grade:"", cost:"", current_est:"3,000,000+" },
+      { cn:"浙江二十三年一角", grade:"", cost:"", current_est:"2,000,000+" },
+      // 京局
+      { cn:"京局造庚子壹圆", grade:"", cost:"", current_est:"5,000,000+" },
+      // 孙像
+      { cn:"孙像三帆壹圆", grade:"", cost:"", current_est:"3,000,000+" },
+      { cn:"孙像签字版一套", grade:"", cost:"", current_est:"8,000,000+" },
+      { cn:"孙像小三帆", grade:"", cost:"", current_est:"3,000,000+" },
+      // 袁像
+      { cn:"袁像飞龙异版红龙", grade:"MS63", cost:"", current_est:"5,000,000+" },
+      { cn:"袁像七分脸", grade:"AU55", cost:"", current_est:"5,000,000+" },
+      // 军阀 · 纪念币
+      { cn:"张作霖纪念币", grade:"SP66", cost:"", current_est:"30,000,000+" },
+      { cn:"张作霖纪念币（红龙版）", grade:"MS62", cost:"", current_est:"15,000,000+" },
+      { cn:"徐世昌纪念币（两枚）", grade:"MS65+ / MS65", cost:"", current_est:"10,000,000+" },
+      { cn:"段祺瑞纪念币", grade:"MS67", cost:"", current_est:"8,000,000+" },
+      { cn:"曹锟武装像", grade:"MS65 (PCGS 原味)", cost:"", current_est:"5,000,000+" },
+      { cn:"曹锟文装像", grade:"MS64 (PCGS 原味)", cost:"", current_est:"4,000,000+" },
+      // 金币
+      { cn:"五彩袁世凯金币（十年、二十年）", grade:"PCGS 有分", cost:"", current_est:"5,000,000+" },
+      { cn:"龙凤二角金币", grade:"PCGS 有分", cost:"", current_est:"3,000,000+" },
+      { cn:"龙凤大字壹圆", grade:"MS60", cost:"", current_est:"5,000,000+" },
+      { cn:"山东龙凤金币（十元、二十元）", grade:"PCGS MS63", cost:"", current_est:"8,000,000+" },
+      // 其他
       { cn:"奥地利中圆", grade:"", cost:"", current_est:"5,000,000+" },
     ],
-    est_total:"2亿+",
-    analysis_cn:"澳门最重要的资深藏家。三套七三反版（极罕）、魏碑体MS64、湖南、陕西、张作霖等一级珍品。总持仓估值超2亿。长期持有风格坚定，藏品结构在华人圈中首屈一指。",
+    est_total:"5亿+",
+    analysis_cn:"澳门最重要的资深藏家，持仓深度在华人圈中首屈一指。三套七三反版（极罕）、魏碑体MS64、陕西/湖南样币、宣三全系列（长须龙SP60、短须龙、反龙SP65+）、户部/中字/丁未壹两、本省NGC红龙SP50、张作霖SP66、双龙壹两、京局庚子、大清金币等一级珍品。金币板块亦极深：袁世凯金币、龙凤金币、山东龙凤金币MS63。总持仓估值超5亿。长期持有风格坚定。",
   },
   {
     id:"COL12", cn:"何代水", en:"He Daishui",
