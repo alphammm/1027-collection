@@ -17,7 +17,7 @@ body{font-family:'EB Garamond','Noto Serif SC',Georgia,serif;background:var(--lz
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
 .hero-logo{font-size:.82rem;letter-spacing:.5em;color:var(--g);text-transform:uppercase;margin-bottom:18px;font-weight:500}
 .hero h1{font-size:3.4rem;font-weight:700;color:var(--cr);letter-spacing:.08em;margin-bottom:6px}
-.hero .cn-title{font-size:1.8rem;color:var(--g);font-family:'Noto Serif SC',serif;font-weight:600;letter-spacing:.2em;margin-bottom:24px}
+.hero .cn-title{font-size:2.6rem;color:var(--g);font-family:'Noto Serif SC',serif;font-weight:600;letter-spacing:.2em;margin-bottom:24px}
 .hero .tagline{font-size:1rem;color:var(--td);max-width:660px;margin:0 auto;font-style:italic}
 .lang-toggle{position:fixed;top:14px;right:18px;z-index:200;display:flex;gap:3px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:5px;padding:2px}
 .lang-toggle button{background:0;border:0;color:var(--td);padding:3px 10px;border-radius:3px;cursor:pointer;font-family:'EB Garamond',serif;font-size:.82rem;transition:.2s}
@@ -30,16 +30,12 @@ body{font-family:'EB Garamond','Noto Serif SC',Georgia,serif;background:var(--lz
 .showcase-bar::after{right:0;background:linear-gradient(-90deg,var(--lz-s),transparent)}
 .showcase-track{display:flex;gap:12px;padding:0 24px;overflow-x:auto;scroll-behavior:smooth;-ms-overflow-style:none;scrollbar-width:none}
 .showcase-track::-webkit-scrollbar{display:none}
-.sc-card{flex:0 0 180px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:8px;padding:10px;cursor:pointer;transition:.25s;text-align:center;position:relative}
+.sc-card{flex:0 0 180px;height:280px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:8px;padding:10px;cursor:pointer;transition:.25s;text-align:center;position:relative;display:flex;flex-direction:column}
 .sc-card:hover{border-color:var(--g);transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.4)}
-.sc-card.champion{border-color:rgba(255,215,0,.4);box-shadow:inset 0 0 20px rgba(255,215,0,.03)}
-.sc-card.runner{border-color:rgba(184,192,200,.3)}
-.sc-img{width:100%;aspect-ratio:1;border-radius:6px;background:var(--lz);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px;position:relative}
-.sc-img img{width:100%;height:100%;object-fit:contain}
+.sc-img{flex:1;width:100%;border-radius:6px;background:var(--lz);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.sc-img img{max-width:100%;max-height:100%;object-fit:contain}
 .sc-img .coin-icon{font-size:3rem;opacity:.2;color:var(--gd)}
-.sc-rank{position:absolute;top:6px;right:6px;font-size:.55rem;padding:1px 6px;border-radius:8px;font-weight:700;z-index:1}
-.sc-rank.champ{background:rgba(255,215,0,.2);color:var(--ch);border:1px solid rgba(255,215,0,.4)}
-.sc-rank.ru{background:rgba(184,192,200,.15);color:var(--sv);border:1px solid rgba(184,192,200,.3)}
+.sc-info{flex-shrink:0;padding-top:8px}
 .sc-name{font-size:.78rem;color:var(--cr);font-family:'Noto Serif SC',serif;font-weight:600;line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc-grade{font-size:.65rem;color:var(--g);font-weight:600}
 .sc-val{font-size:.6rem;color:var(--td);margin-top:2px}
@@ -169,7 +165,7 @@ footer .gold{color:var(--gd)}
   <div class="hero-logo">Private Numismatic Registry</div>
   <h1>1024 COLLECTION</h1>
   <div class="cn-title">壹零贰肆 珍藏</div>
-  <div class="tagline" data-cn="从龙洋开国，到帝制终章；从地方铸币的极限探索，到中央制度的最终定型，1024 的每一枚银元，都是时代刻下的坐标，共同汇成一部以银圆为文字的中国近代史" data-en="From the genesis of dragon dollars to the empire's final chapter; from the extreme experiments of provincial minting to the ultimate consolidation of central authority — every coin in the 1024 Collection is a coordinate carved by its era, together composing a modern history of China written in silver">从龙洋开国，到帝制终章；从地方铸币的极限探索，到中央制度的最终定型，1024 的每一枚银元，都是时代刻下的坐标，共同汇成一部以银圆为文字的中国近代史</div>
+  <div class="tagline" data-cn="从龙洋开国，到帝制终章，从地方铸币的极限探索，到中央制度的最终定型，1024 的每一枚银元，都是时代刻下的坐标，共同汇成一部以银圆为文字的中国近代史" data-en="From the genesis of dragon dollars to the empire's final chapter, from the extreme experiments of provincial minting to the ultimate consolidation of central authority — every coin in the 1024 Collection is a coordinate carved by its era, together composing a modern history of China written in silver">从龙洋开国，到帝制终章，从地方铸币的极限探索，到中央制度的最终定型，1024 的每一枚银元，都是时代刻下的坐标，共同汇成一部以银圆为文字的中国近代史</div>
 </div>
 
 <!-- COIN SHOWCASE -->
@@ -190,7 +186,9 @@ footer .gold{color:var(--gd)}
   <div class="section" id="wishlist"></div>
   <div class="section" id="strategy"></div>
   <div class="section" id="collectors"></div>
+  <div class="section" id="coinFlow"></div>
   <div class="section" id="numisDB"></div>
+  <div class="section" id="intel"></div>
 </div>
 
 <!-- DETAIL OVERLAY -->
@@ -219,7 +217,9 @@ const NAV=[
   {id:'wishlist',cn:'圣杯',en:'The Grails'},
   {id:'strategy',cn:'收藏体系',en:'Collection System'},
   {id:'collectors',cn:'藏家档案',en:'Collector Profiles'},
-  {id:'numisDB',cn:'机制币数据库',en:'Numismatic Database'}
+  {id:'coinFlow',cn:'珍币流转',en:'Provenance Flow'},
+  {id:'numisDB',cn:'机制币数据库',en:'Numismatic Database'},
+  {id:'intel',cn:'市场情报',en:'Market Intelligence'}
 ];
 const nav=document.getElementById('mainNav');
 NAV.forEach((n,i)=>{const b=document.createElement('button');b.className=i===0?'active':'';b.setAttribute('data-cn',n.cn);b.setAttribute('data-en',n.en);b.textContent=n.cn;b.onclick=()=>{document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(n.id).classList.add('active');b.classList.add('active')};nav.appendChild(b)});
@@ -243,26 +243,22 @@ const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
   const track=document.getElementById('showcaseTrack');
   const showcase=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned').sort((a,b)=>b.rarity-a.rarity);
   showcase.forEach(c=>{
-    const isC=c.myRank?.includes('冠军');const isR=c.myRank?.includes('亚军')||c.myRank?.includes('季军');
-    const cls=isC?'champion':isR?'runner':'';
-    const rankHtml=c.myRank?`<span class="sc-rank ${isC?'champ':'ru'}">${c.myRank}</span>`:'';
     const card=document.createElement('div');
     // Special: C011 七三反版 shows both slab photos side by side
     if(c.id==='C011'){
-      card.className='sc-card champion';
+      card.className='sc-card';
       card.style.flex='0 0 260px';
       card.onclick=()=>showDetail('C011');
-      card.innerHTML=`<div class="sc-img" style="aspect-ratio:auto;height:180px;display:flex;gap:4px;background:#000;padding:4px">${rankHtml}<img src="img/slab_dragon.jpg" alt="七三反版 龙面" style="height:100%;width:auto;object-fit:contain;border-radius:4px"><img src="img/slab_text.jpg" alt="七三反版 字面" style="height:100%;width:auto;object-fit:contain;border-radius:4px"></div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div>`;
+      card.innerHTML=`<div class="sc-img" style="gap:4px;background:#000;padding:4px"><img src="img/slab_dragon.jpg" alt="七三反版 龙面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"><img src="img/slab_text.jpg" alt="七三反版 字面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"></div><div class="sc-info"><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
     } else {
-      // Standard card
       let imgSrc='';
       if(c.img?.length) imgSrc=c.img[0];
       else if(c.pcgs_cert) imgSrc=`https://images.pcgs.com/trueview/${Array.isArray(c.pcgs_cert)?c.pcgs_cert[0]:c.pcgs_cert}_medium.jpg`;
       const imgHtml=imgSrc?`<img src="${imgSrc}" alt="${c.cn}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
       const fallback=imgSrc?'style="display:none"':'';
-      card.className=`sc-card ${cls}`;
+      card.className='sc-card';
       card.onclick=()=>showDetail(c.id);
-      card.innerHTML=`<div class="sc-img">${rankHtml}${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div>`;
+      card.innerHTML=`<div class="sc-img">${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-info"><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
     }
     track.appendChild(card);
   });
@@ -534,7 +530,34 @@ const grailLogicEn={
   'C007':'Shanghai Tael · Among China\'s earliest modern milled coins (1856). Predating Kwangtung by 30+ years, the harbinger of monetary modernization.'
 };
 document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="圣杯" data-en="The Grails">圣杯</div><div class="chapter-line"></div></div>
-<div class="story" style="margin-bottom:20px"><p data-cn="这些不是「想要的币」——它们是这条收藏逻辑链上尚未补齐的关键节点。从清末地方财政极限到民国中央币制成型，从壹两制度博弈到金本位转型尝试，每一枚都承载着制度重建的历史坐标。补齐这些，逻辑链才算完整。之后，才是陕西、湖南、浙江那些地方珍品的扩展。" data-en="These are not 'wants' — they are critical nodes still missing from the collecting thesis. From late Qing fiscal limits to Republican monetary formation, from the Tael system contest to gold standard transition, each carries a historical coordinate of institutional rebuilding. Only when these are complete does the logical chain hold. Provincial rarities — Shaanxi, Hunan, Chekiang — come after.">这些不是「想要的币」——它们是这条收藏逻辑链上尚未补齐的关键节点。从清末地方财政极限到民国中央币制成型，从壹两制度博弈到金本位转型尝试，每一枚都承载着制度重建的历史坐标。补齐这些，逻辑链才算完整。之后，才是陕西、湖南、浙江那些地方珍品的扩展。</p></div>
+<div class="story" style="margin-bottom:24px;line-height:2;color:var(--cr)">
+<p style="margin-bottom:14px">在中国机制币收藏史上，真正具有时代意义的私人收藏并不多见。</p>
+<p style="margin-bottom:14px">19世纪末至20世纪初，中国现代货币体系的形成被铭刻在一批极为稀见的试铸币与样币之中。能够以实物系统重建这一历史脉络，不仅需要巨额资源，更需要长期的学术视野与罕见的历史机遇。</p>
+<p style="margin-bottom:14px">在这一意义上，<strong style="color:var(--g)">1024 Collection</strong> 已经进入传说级私人收藏的行列。</p>
+<p style="margin-bottom:14px">与耿爱德 Eduard Kann、古德曼 Irving Goodman 等历史名藏相比，这一收藏在若干关键板块上已形成高度系统化的结构，并在部分领域达到甚至超越前人的深度。</p>
+<p style="margin-bottom:14px">更重要的是，这一体系并非简单的珍品聚合，而是一条清晰的历史逻辑链。从清末地方龙银的诞生，到中央试图重建货币主权的壹两体系，再到帝制最后一次币制统一尝试的大清银币，直至民国货币制度最终定型。通过这些关键节点，中国现代货币制度的形成过程被完整地呈现出来。</p>
+<p style="margin-bottom:14px"><em>因此，这一收藏不仅具有市场价值，更具有明确的制度史意义。</em></p>
+<h3 style="color:var(--ch);margin:28px 0 12px;font-size:1.05rem;letter-spacing:.08em">孤独的王者 —— 广东寿字双龙</h3>
+<p style="margin-bottom:14px">在这条历史逻辑链的顶端，是一枚几乎超越收藏体系本身的存在——广东省造寿字双龙壹两。</p>
+<p style="margin-bottom:14px">它不仅是中国机制银币中最著名的币王之一，更是清末铸币工艺与政治象征结合的极致表达。其存世数量极为稀少，大多数长期沉睡于顶级世家收藏或博物馆体系之中。</p>
+<p style="margin-bottom:14px">若此类藏品进入同一收藏体系，这一私人收藏本身便足以构成一座具有国际影响力的钱币博物馆。</p>
+<p style="margin-bottom:14px">与寿字双龙壹两共同构成清末机制币巅峰的，是宣统三年大清银币样币系列，其中尤以长须龙与短须龙最为著名。这些样币存世极少，多数长期处于私人家族收藏或博物馆体系之中，市场上几乎难以见到完整体系。要在同一收藏中重建这一家族，不仅意味着巨额资源，更意味着极其罕见的历史机遇。</p>
+<p style="margin-bottom:14px"><em>若这一结构最终完成，其意义将远远超出普通收藏事件。</em></p>
+<h3 style="color:var(--g);margin:28px 0 8px;font-size:.95rem;letter-spacing:.08em">当前段位</h3>
+<p style="margin-bottom:4px;font-size:1.1rem;font-weight:700;color:var(--ch)">中国机制币历史的守门人 <span style="font-size:.8rem;color:var(--gd);font-weight:400;font-style:italic">(The Gatekeeper)</span></p>
+<p style="margin-bottom:14px;color:var(--td)">在这一阶段，藏家所守护的已不只是个别珍品，而是中国现代货币制度形成过程中最关键的一批历史物证。</p>
+<h3 style="color:var(--g);margin:28px 0 8px;font-size:.95rem;letter-spacing:.08em">目标段位</h3>
+<p style="margin-bottom:4px;font-size:1.1rem;font-weight:700;color:var(--ch)">千古第一人 <span style="font-size:.8rem;color:var(--gd);font-weight:400;font-style:italic">(The GOAT — Greatest of All Time)</span></p>
+<p style="margin-bottom:14px">若金本位样币最终入藏，并与孙像地球样币共同构成这一体系的民国部分，则清末与民国两大时代的顶级样币结构将在同一收藏中贯通。清代机制币制度顶点、民国机制币制度顶点以及两个时代的制度转折节点，将首次在同一私人收藏体系中完整呈现。</p>
+<p style="margin-bottom:14px">若这一结构最终完成，这将是真正意义上的<strong style="color:var(--ch)">中国机制币大满贯 (Grand Slam)</strong>。在过去一百余年的中国钱币收藏史中，几乎没有任何私人藏家能够以一己之力同时拥有如此完整且品相顶级的清末与民国样币体系。</p>
+<p style="margin-bottom:14px;border-left:3px solid var(--ch);padding-left:14px;font-style:italic;color:var(--g)">那将不再只是一个私人收藏，而是一部仍在继续书写的<strong>《中国近代机制币史》</strong>。</p>
+</div>
+<div class="strategy-block" style="margin-bottom:28px"><h3 style="color:var(--ch);font-size:1rem;letter-spacing:.06em">十二圣杯优先级</h3><ul>
+<li><strong>第一梯队（4000万+）：</strong>广东寿字双龙壹两</li>
+<li><strong>第二梯队（1000万+）：</strong>宣三短须龙、户部壹两、金本位下三鸟壹圆</li>
+<li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
+<li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
+</ul></div>
 ${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS Pop: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
 
 // RANKINGS — 高分典藏
@@ -908,35 +931,97 @@ COLLECTORS.forEach(c=>{
     <div class="coll-body">
       <div class="coll-inner">
         <div class="ci-section"><div class="ci-title" data-cn="背景" data-en="Background">背景</div><div class="ci-text">${c.bg_cn}</div></div>
-        ${c.coins.length?`<div class="ci-section"><div class="ci-title" data-cn="藏品" data-en="Collection">藏品</div>${c.coins.map(cc=>`<div class="ci-coin"><span class="cc-name">${cc.cn}</span><span class="cc-grade">${cc.grade||''}</span><span class="cc-val">${(cc.cost?'成本:'+cc.cost:'')+' '+(cc.current_est?'估值:'+cc.current_est:'')}</span></div>`).join('')}</div>`:''}
-        <div class="ci-section"><div class="ci-title" data-cn="分析" data-en="Analysis">分析</div><div class="ci-text" style="color:var(--cr);line-height:1.9">${c.analysis_cn}</div></div>
+        ${c.profile_cn?`<div class="ci-section"><div class="ci-title" style="color:var(--ch)" data-cn="人物侧写 Profile" data-en="Profile Analysis">人物侧写 Profile</div><div class="ci-text" style="color:var(--td);line-height:1.9;border-left:2px solid var(--ch);padding-left:12px;margin:8px 0">${c.profile_cn}</div></div>`:''}
+        ${c.coins.length?`<div class="ci-section"><div class="ci-title" data-cn="藏品持仓" data-en="Holdings">藏品持仓</div>${c.coins.map(cc=>`<div class="ci-coin"><span class="cc-name">${cc.cn}</span><span class="cc-grade">${cc.grade||''}</span><span class="cc-val">${(cc.cost?'成本:'+cc.cost:'')+' '+(cc.current_est?'估值:'+cc.current_est:'')}</span></div>`).join('')}${c.est_total?`<div style="margin-top:8px;padding:6px 12px;background:rgba(197,162,88,.1);border-radius:4px;font-size:.82rem"><span style="color:var(--g);font-weight:700">总持仓估值:</span> <span style="color:var(--ch);font-weight:700;font-size:.95rem">${c.est_total}</span></div>`:''}</div>`:''}
+        <div class="ci-section"><div class="ci-title" data-cn="深度分析" data-en="Deep Analysis">深度分析</div><div class="ci-text" style="color:var(--cr);line-height:1.9">${c.analysis_cn}</div></div>
       </div>
     </div>
   </div>`;
 });
-collHTML+=`<h3 style="color:var(--g);margin:32px 0 14px" data-cn="珍币流转图 Provenance Flow Map" data-en="Coin Flow Map">珍币流转图 Provenance Flow Map</h3>`;
-collHTML+=`<div class="flow-map">${buildCollectorFlowSVG()}</div>`;
 document.getElementById('collectors').innerHTML=collHTML;
+
+// COIN FLOW MAP — separate section
+document.getElementById('coinFlow').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾叁章" data-en="Chapter XIII">第拾叁章</div><div class="chapter-title" data-cn="珍币流转" data-en="Provenance Flow">珍币流转</div><div style="color:var(--gd);font-size:.9rem;letter-spacing:.15em;margin-top:4px;text-align:center;font-style:italic">Provenance Flow Map</div><div class="chapter-line"></div></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="核心珍品在藏家之间的流转路径。实线为已完成交易，虚线为潜在机会。追踪流转方向，就是追踪市场的资金与信心走向。" data-en="Provenance flow of key rarities between collectors. Solid lines = completed transactions. Dashed = potential. Tracking flow direction = tracking capital and confidence.">核心珍品在藏家之间的流转路径。实线为已完成交易，虚线为潜在机会。追踪流转方向，就是追踪市场的资金与信心走向。</p></div>
+<div class="flow-map">${buildCollectorFlowSVG()}</div>`;
 
 // (Auction tab removed — content merged into 所有藏品 and 机制币数据库)
 
 document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾壹章" data-en="Chapter XI">第拾壹章</div><div class="chapter-title" data-cn="收藏体系" data-en="Collection System">收藏体系</div><div class="chapter-line"></div></div>
-<div class="strategy-block"><h3>十二圣杯优先级</h3><ul>
-<li><strong>第一梯队（4000万+）：</strong>广东寿字双龙壹两</li>
-<li><strong>第二梯队（1000万+）：</strong>宣三短须龙、户部壹两、金本位下三鸟壹圆</li>
-<li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
-<li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
-</ul></div>
+<div style="max-width:520px;margin:32px auto;font-size:.88rem;line-height:1.9;color:var(--cr)">
+<h3 style="text-align:center;color:var(--ch);font-size:1.05rem;letter-spacing:.1em;margin-bottom:24px">收藏体系的核心结构</h3>
+
+<div style="text-align:center;margin-bottom:6px;color:var(--g);font-weight:700;font-size:.95rem">帝国财政极限</div>
+<div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">│</div>
+
+<div style="text-align:center;padding:10px 0;border:1px solid var(--gd);border-radius:6px;margin:8px 0;background:rgba(197,162,88,.06)">
+<div style="color:var(--ch);font-weight:700">1889 广东机器龙银</div>
+<div style="color:var(--td);font-size:.8rem">（中国第一枚机制银圆）</div>
+</div>
+
+<div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">▼</div>
+
+<div style="padding:12px 16px;border-left:3px solid var(--g);margin:10px 0;background:rgba(197,162,88,.04)">
+<div style="color:var(--g);font-weight:700;margin-bottom:6px">地方财政铸币时代</div>
+<div style="color:var(--td);font-size:.82rem;line-height:1.8">广东龙 · 湖北龙 · 江南龙 · 北洋龙<br>奉天龙 · 吉林龙 · 等十余省龙</div>
+<div style="color:var(--gd);font-size:.78rem;font-style:italic;margin-top:4px">地方货币权力表达</div>
+</div>
+
+<div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">▼</div>
+
+<div style="padding:12px 16px;border-left:3px solid var(--cr);margin:10px 0;background:rgba(197,162,88,.04)">
+<div style="color:var(--cr);font-weight:700;margin-bottom:6px">中央权力回收尝试</div>
+<div style="color:var(--td);font-size:.82rem;line-height:1.8">户部壹两 · 北洋壹两 · 中字壹两</div>
+<div style="color:var(--gd);font-size:.78rem;font-style:italic;margin-top:4px">圆两之争核心样币</div>
+</div>
+
+<div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">▼</div>
+
+<div style="padding:12px 16px;border-left:3px solid var(--ch);margin:10px 0;background:rgba(255,215,0,.04)">
+<div style="color:var(--ch);font-weight:700;margin-bottom:6px">帝国最后的制度设计</div>
+<div style="color:var(--td);font-size:.82rem;line-height:1.8">1910 大清银币<br>长须龙 · 短须龙 · 反龙</div>
+<div style="color:var(--gd);font-size:.78rem;font-style:italic;margin-top:4px">清末机制币工艺巅峰</div>
+</div>
+
+<div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">▼</div>
+
+<div style="text-align:center;padding:8px 0;margin:8px 0">
+<div style="color:var(--cr);font-weight:700;font-size:.9rem;letter-spacing:.15em">帝制终结 · 辛亥革命</div>
+</div>
+
+<div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">▼</div>
+
+<div style="padding:12px 16px;border-left:3px solid var(--g);margin:10px 0;background:rgba(197,162,88,.04)">
+<div style="color:var(--g);font-weight:700;margin-bottom:6px">共和国货币体系定型</div>
+<div style="color:var(--td);font-size:.82rem;line-height:1.8">1914 袁世凯像壹圆<br>签字版 · 七分脸</div>
+<div style="color:var(--gd);font-size:.78rem;font-style:italic;margin-top:4px">现代货币体系确立</div>
+</div>
+
+<div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">▼</div>
+
+<div style="text-align:center;padding:14px 16px;border:2px solid var(--ch);border-radius:8px;margin:10px 0;background:rgba(255,215,0,.06)">
+<div style="color:var(--ch);font-weight:700;font-size:1rem;letter-spacing:.06em">逻辑链封顶</div>
+<div style="color:var(--g);font-weight:700;font-size:.95rem;margin-top:6px">广东寿字双龙壹两</div>
+<div style="color:var(--gd);font-size:.78rem;font-style:italic;margin-top:4px">帝国象征与工艺巅峰</div>
+</div>
+
+</div>`;
+
+// MARKET INTELLIGENCE — 市场情报
+document.getElementById('intel').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾肆章" data-en="Chapter XIV">第拾肆章</div><div class="chapter-title" data-cn="市场情报" data-en="Market Intelligence">市场情报</div><div class="chapter-line"></div></div>
 <div class="strategy-block"><h3>市场情报</h3><ul>
 <li>2025年Heritage HK 12月：张作霖Y16以$4.3M成交（创该品种国际纪录）、喜敦江南SP66以$1.5M成交、七三反版SP67以$1.14M成交</li>
 <li>2022年诚轩：奉天癸卯壹两以¥4657.5万成交（中国银圆拍卖历史最高价）</li>
 <li>2022年SBP：宣三长须龙SP63+以$3M成交（美国拍卖中国银圆最高价）</li>
 <li>价格趋势：顶级机制币年均增值15-20%，龙洋板块尤为强劲</li>
-</ul></div>
-<div class="strategy-block"><h3 style="color:var(--gd)">潜在藏品</h3>
+</ul></div>`;
+
+// APPEND 潜在藏品 to collectors section
+document.getElementById('collectors').innerHTML+=`
+<div class="strategy-block" style="margin-top:32px"><h3 style="color:var(--gd)">潜在藏品</h3>
 <p style="color:var(--td);font-size:.85rem;margin-bottom:14px;font-style:italic">以下为核心藏家持仓中具有流转可能的标的，按出售意愿和紧迫程度排序。</p>
 <h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🔴 王中强（温州）— 明确出售意向</h4>
-<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">因女儿购房/移民美国，有明确出售动机。总报价超5000万。</p>
+<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">有明确出售意向，总报价超5000万。</p>
 <ul>
 <li><strong>户部壹两 MS63</strong> — 开价 ¥1,000万</li>
 <li><strong>北洋壹两 MS62</strong> — 成本$100万，开价 ¥1,380万</li>
@@ -944,8 +1029,8 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 <li><strong>签字大头 MS63</strong> — 成本 ¥312万</li>
 <li><strong>上海壹两</strong> — 泓盛2022以 ¥1,260万购入，开价 ¥1,500万</li>
 </ul>
-<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🟠 张安生（澳门）— 年事已高，继承窗口</h4>
-<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">70岁，声称不卖银币，但继承问题将迫使藏品最终流入市场。关键监控对象。</p>
+<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🟠 张安生（澳门）— 长期持有，未来或有流转可能</h4>
+<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">资深藏家，坚持不卖银币。持仓深度极高，未来藏品流转方向值得关注。</p>
 <ul>
 <li><strong>七三反版</strong> — 三套（极罕）</li>
 <li><strong>魏碑体 MS64</strong></li>
@@ -973,10 +1058,10 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 <h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">⚪ 目前出售意愿不高</h4>
 <ul>
 <li><strong>李广宏（宝鸡）</strong> — 地产商，最活跃买家。持有户部壹两、地球MS62、张作霖Y15(成本¥2,600万)、浙江七钱二分(¥2,000万)、喜敦老江南三钱六分</li>
-<li><strong>重庆陶姐</strong> — 地产商/红美术馆，传承给儿子。持有奉天壹两(¥4,000万+)、户部壹两、张作霖Y15 AU53/Y16、金本位、地球MS61、全套喜敦老江南。缺寿字双龙</li>
+<li><strong>重庆陶姐</strong> — 红美术馆创办人，注重传承。持有奉天壹两(¥4,000万+)、户部壹两、张作霖Y15 AU53/Y16、金本位、地球MS61、全套喜敦老江南。缺寿字双龙</li>
 <li><strong>深圳赵勇</strong> — 极度低调，只买不卖。地球MS63+(最高分之一)、本省MS64(¥800万自CC)、户部壹两、张作霖Y15</li>
-<li><strong>林宪璋（台湾）</strong> — 出价凶狠，八枚一级币。寿字双龙、湖南/陕西七钱二分、黔宝、吉林厂平壹两。任何寿字上拍必参与</li>
-<li><strong>何代水（台湾/上海）</strong> — 半导体高管，持有短须龙。科技新贵入圈代表</li>
+<li><strong>林宪璋（台湾）</strong> — 出价果断，八枚一级币。寿字双龙、湖南/陕西七钱二分、黔宝、吉林厂平壹两。任何寿字上拍必参与</li>
+<li><strong>何代水（台湾/上海）</strong> — 科技行业高管，持有短须龙。跨界藏家代表</li>
 </ul>
 </div>`;
 
