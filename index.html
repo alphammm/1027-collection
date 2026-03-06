@@ -185,11 +185,12 @@ footer .gold{color:var(--gd)}
   <div class="section" id="yuanPortraits"></div>
   <div class="section" id="sunPortraits"></div>
   <div class="section" id="warlords"></div>
-  <div class="section" id="wishlist"></div>
   <div class="section" id="fullCollection"></div>
+  <div class="section" id="database"></div>
+  <div class="section" id="wishlist"></div>
   <div class="section" id="strategy"></div>
   <div class="section" id="collectors"></div>
-  <div class="section" id="database"></div>
+  <div class="section" id="numisDB"></div>
 </div>
 
 <!-- DETAIL OVERLAY -->
@@ -206,18 +207,19 @@ function setLang(l){CL=l;document.querySelectorAll('.lang-toggle button').forEac
 // NAV
 const NAV=[
   {id:'prologue',cn:'序言',en:'Prologue'},
-  {id:'highlights',cn:'馆藏精选',en:'Curated Highlights'},
+  {id:'highlights',cn:'至臻之藏',en:'The Finest'},
   {id:'rankings',cn:'高分藏品',en:'Top Grades'},
-  {id:'masterpieces',cn:'重器',en:'Masterpieces'},
+  {id:'masterpieces',cn:'大珍',en:'Masterpieces'},
   {id:'dragons',cn:'各省龙银',en:'Provincial Dragons'},
   {id:'yuanPortraits',cn:'袁像银圆',en:'Yuan Shikai'},
   {id:'sunPortraits',cn:'孙像银圆',en:'Sun Yat-sen'},
   {id:'warlords',cn:'民国地方银圆',en:'Republic Provincial'},
-  {id:'wishlist',cn:'巅峰藏品',en:'Summit Grails'},
-  {id:'fullCollection',cn:'全部馆藏',en:'Full Collection'},
+  {id:'fullCollection',cn:'全部藏品',en:'Full Collection'},
+  {id:'database',cn:'藏品列表',en:'Catalogue'},
+  {id:'wishlist',cn:'圣杯',en:'The Grails'},
   {id:'strategy',cn:'收藏体系',en:'Collection System'},
   {id:'collectors',cn:'关于藏家',en:'About Collectors'},
-  {id:'database',cn:'机制银币数据库',en:'Database'}
+  {id:'numisDB',cn:'机制币数据库',en:'Numismatic Database'}
 ];
 const nav=document.getElementById('mainNav');
 NAV.forEach((n,i)=>{const b=document.createElement('button');b.className=i===0?'active':'';b.setAttribute('data-cn',n.cn);b.setAttribute('data-en',n.en);b.textContent=n.cn;b.onclick=()=>{document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(n.id).classList.add('active');b.classList.add('active')};nav.appendChild(b)});
@@ -451,7 +453,7 @@ document.getElementById('prologue').innerHTML=`<div class="story">
 // HIGHLIGHTS (至臻之选 — 大珍标准：一级币/二级币，非评级高分)
 const dzTier1=COINS.filter(c=>DAZHEN_IDS.includes(c.id)&&c.myStatus==='owned'&&c.tier<=2&&(c.rarity>=8||c.myRank)).sort((a,b)=>b.rarity-a.rarity);
 const dzTier2=COINS.filter(c=>DAZHEN_IDS.includes(c.id)&&c.myStatus==='owned'&&!dzTier1.includes(c)).sort((a,b)=>b.rarity-a.rarity);
-document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="馆藏精选" data-en="Curated Highlights">馆藏精选</div><div class="chapter-line"></div></div>
+document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="至臻之藏" data-en="The Finest">至臻之藏</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 入藏大珍${DAZHEN_IDS.length}枚——每一枚都是中国机制银圆收藏界公认的一级币或二级币。大珍的定义不取决于评级分数的高低，而在于币种本身的历史地位、存世稀缺度与制度史价值。普通版币即使获得高分评级，也无法跻身大珍之列。" data-en="The 1024 Collection holds ${DAZHEN_IDS.length} masterpieces — each recognized as a Tier I or Tier II rarity in Chinese numismatics. 'Da Zhen' status is defined not by grade, but by historical significance, survival rarity, and institutional importance.">1024 Collection 入藏大珍${DAZHEN_IDS.length}枚——每一枚都是中国机制银圆收藏界公认的一级币或二级币。大珍的定义不取决于评级分数的高低，而在于币种本身的历史地位、存世稀缺度与制度史价值。普通版币即使获得高分评级，也无法跻身大珍之列。</p></div>
 <h3 style="color:var(--ch);font-size:1rem;margin-bottom:12px;letter-spacing:.06em" data-cn="一级大珍 Tier I Masterpieces" data-en="Tier I Masterpieces">一级大珍 Tier I Masterpieces</h3>
 <div class="coin-grid" style="margin-bottom:28px">${dzTier1.map(c=>{const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:var(--ch);color:var(--lz-deep)">大珍</span>`;return`<div class="coin-card champion" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,100)}</div><div style="flex:1">${rankBadge}<div class="prov">${c.era} · ${'★'.repeat(Math.min(c.rarity,5))}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">Pop ${c.pcgs_pop.total}</span>`:''}</div><div class="meta" style="line-height:1.6;margin-top:8px">${c.history_cn.substring(0,100)}...</div><div class="value">¥${c.est_rmb}</div></div></div>`}).join('')}</div>
@@ -475,12 +477,14 @@ let calendarHTML='';
   });
   calendarHTML+=`</div>`;
 })();
-const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="机制银币数据库" data-en="Numismatic Database">机制银币数据库</div><div class="chapter-line"></div></div>
+const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="藏品列表" data-en="Catalogue">藏品列表</div><div class="chapter-line"></div></div>
 <div class="section-subtitle" data-cn="机制币数据库 — 含拍卖日历、PCGS评级数据、传承链追溯" data-en="Numismatic database with auction calendar, PCGS data, provenance chains">机制币数据库 — 含拍卖日历、PCGS评级数据、传承链追溯</div>
 ${calendarHTML}
 <div class="search-bar"><input type="text" id="dbSearch" placeholder="搜索币种 Search coins..." oninput="filterDB()"><select id="dbFilter" onchange="filterDB()"><option value="all">全部 All</option><option value="qing-tael">清·壹两 Tael</option><option value="qing-dragon">清·龙洋 Dragon</option><option value="qing-provincial">清·省造 Provincial</option><option value="republic-yuan">民国·袁像 Yuan</option><option value="republic-sun">民国·孙像 Sun</option><option value="republic-warlord">军阀 Warlord</option></select></div>
 <div class="coin-grid" id="dbGrid"></div>`;
 document.getElementById('database').innerHTML=dbHTML;
+// numisDB — 机制币数据库 (broader reference)
+document.getElementById('numisDB').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾叁章" data-en="Chapter XIII">第拾叁章</div><div class="chapter-title" data-cn="机制币数据库" data-en="Numismatic Database">机制币数据库</div><div class="chapter-line"></div></div><div class="story"><p data-cn="中国机制银币全品种参考数据库。涵盖清代各省龙洋、中央造币、民国人像币等全系列，整合 PCGS 评级数据、拍卖成交纪录、存世量统计及传承链追溯。持续更新中。" data-en="Comprehensive reference database for Chinese milled silver coinage. Covers Qing provincial dragons, central mint issues, Republic portrait coins, with PCGS data, auction records, and provenance tracking. Continuously updated.">中国机制银币全品种参考数据库。涵盖清代各省龙洋、中央造币、民国人像币等全系列，整合 PCGS 评级数据、拍卖成交纪录、存世量统计及传承链追溯。持续更新中。</p></div><div style="margin-top:20px;padding:24px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;text-align:center"><div style="color:var(--g);font-size:2.5rem;margin-bottom:12px">&#x1F4DA;</div><div style="color:var(--cr);font-size:1.1rem;margin-bottom:8px">数据库建设中</div><div style="color:var(--td);font-size:.85rem">当前已收录 ${COINS.length} 个品种 · ${COINS.filter(c=>c.auctions?.length).reduce((s,c)=>s+c.auctions.length,0)} 条拍卖纪录 · ${COINS.filter(c=>c.provenance?.length).reduce((s,c)=>s+c.provenance.length,0)} 条传承记录</div></div>`;
 function renderDB(list){
   document.getElementById('dbGrid').innerHTML=list.map(c=>{
     const st=c.myStatus==='owned'?'border-left:3px solid var(--g)':c.myStatus==='want'?'border-left:3px solid var(--gd)':'';
@@ -526,7 +530,7 @@ const grailLogicEn={
   'C002':'Fengtian Tael · Highest auction record for Chinese silver (¥46.575M). Peak expression of Northeast local minting authority.',
   'C007':'Shanghai Tael · Among China\'s earliest modern milled coins (1856). Predating Kwangtung by 30+ years, the harbinger of monetary modernization.'
 };
-document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第捌章" data-en="Chapter VIII">第捌章</div><div class="chapter-title" data-cn="巅峰藏品" data-en="Summit Grails">巅峰藏品</div><div class="chapter-line"></div></div>
+document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="圣杯" data-en="The Grails">圣杯</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="这些不是「想要的币」——它们是这条收藏逻辑链上尚未补齐的关键节点。从清末地方财政极限到民国中央币制成型，从壹两制度博弈到金本位转型尝试，每一枚都承载着制度重建的历史坐标。补齐这些，逻辑链才算完整。之后，才是陕西、湖南、浙江那些地方珍品的扩展。" data-en="These are not 'wants' — they are critical nodes still missing from the collecting thesis. From late Qing fiscal limits to Republican monetary formation, from the Tael system contest to gold standard transition, each carries a historical coordinate of institutional rebuilding. Only when these are complete does the logical chain hold. Provincial rarities — Shaanxi, Hunan, Chekiang — come after.">这些不是「想要的币」——它们是这条收藏逻辑链上尚未补齐的关键节点。从清末地方财政极限到民国中央币制成型，从壹两制度博弈到金本位转型尝试，每一枚都承载着制度重建的历史坐标。补齐这些，逻辑链才算完整。之后，才是陕西、湖南、浙江那些地方珍品的扩展。</p></div>
 ${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS Pop: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
 
@@ -561,7 +565,7 @@ ${ranked.map((c,i)=>{
 
 // MASTERPIECES — 大珍 (all COINS with category sub-tabs)
 (function(){
-  let mhtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章" data-en="Chapter III">第叁章</div><div class="chapter-title" data-cn="重器" data-en="Masterpieces">重器</div><div class="chapter-line"></div></div>`;
+  let mhtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章" data-en="Chapter III">第叁章</div><div class="chapter-title" data-cn="大珍" data-en="Masterpieces">大珍</div><div class="chapter-line"></div></div>`;
   mhtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="收录${COINS.length}枚中国机制币核心品种——涵盖壹两、中央龙洋、地方龙洋、孙像、袁像、军阀人像。按稀缺程度与历史地位排列，点击查看完整档案。" data-en="A curated registry of ${COINS.length} core Chinese milled coin types — taels, central dragons, provincial dragons, Sun Yat-sen, Yuan Shikai, and warlord portraits. Sorted by rarity and historical significance.">收录${COINS.length}枚中国机制币核心品种。按稀缺程度与历史地位排列，点击查看完整档案。</p></div>`;
   // Category filter tabs
   mhtml+=`<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">`;
@@ -849,7 +853,7 @@ function buildCollectorFlowSVG(){
   return svg;
 }
 
-let collHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾壹章" data-en="Chapter XI">第拾壹章</div><div class="chapter-title" data-cn="关于藏家" data-en="About Collectors">关于藏家</div><div class="chapter-line"></div></div>`;
+let collHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="关于藏家" data-en="About Collectors">关于藏家</div><div class="chapter-line"></div></div>`;
 collHTML+=`<div class="story" style="margin-bottom:20px"><p data-cn="中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。" data-en="The world of top Chinese numismatics is fewer than fifty people. Below: ${COLLECTORS.length} core collector profiles, holdings analysis, and coin flow paths. Click to expand.">中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。</p></div>`;
 collHTML+=`<h3 style="color:var(--g);margin:0 0 14px" data-cn="藏家深度档案 (点击展开)" data-en="Collector Deep Profiles (click to expand)">藏家深度档案 (点击展开)</h3>`;
 COLLECTORS.forEach(c=>{
@@ -875,7 +879,7 @@ document.getElementById('collectors').innerHTML=collHTML;
 
 // (Auction tab removed — content merged into 所有藏品 and 机制币数据库)
 
-document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="收藏体系" data-en="Collection System">收藏体系</div><div class="chapter-line"></div></div>
+document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾壹章" data-en="Chapter XI">第拾壹章</div><div class="chapter-title" data-cn="收藏体系" data-en="Collection System">收藏体系</div><div class="chapter-line"></div></div>
 <div class="strategy-block"><h3>十二圣杯优先级</h3><ul>
 <li><strong>第一梯队（4000万+）：</strong>广东寿字双龙壹两</li>
 <li><strong>第二梯队（1000万+）：</strong>宣三短须龙、户部壹两、金本位下三鸟壹圆</li>
@@ -973,7 +977,7 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     {id:'other',cn:'其他',en:'Others'}
   ];
 
-  let fc=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部馆藏" data-en="Full Collection">全部馆藏</div><div class="chapter-line"></div></div>`;
+  let fc=`<div class="chapter"><div class="chapter-num" data-cn="第捌章" data-en="Chapter VIII">第捌章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Collection">全部藏品</div><div class="chapter-line"></div></div>`;
   fc+=`<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 完整购藏清单——${totalLots}件拍品，来自4家拍卖行。含${gradedCount}件评级币。" data-en="Complete acquisition inventory — ${totalLots} lots from 4 auction houses, ${gradedCount} graded pieces.">完整购藏清单——${totalLots}件拍品，${gradedCount}件评级币。</p></div>`;
 
   // ── Summary cards ──
