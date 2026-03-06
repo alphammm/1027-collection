@@ -597,27 +597,27 @@ ${ranked.map((c,i)=>{
 // DRAGONS (龙银) — vertical card format with detailed info, region tabs
 (function(){
   const dragonData=[
-    {p:"北洋",cn:"北洋机器局二十二年",era:"清·光绪二十二年",year:"1896",mint:"北洋机器局",note:"北洋最早期铸币，光绪二十二年（1896）天津北洋机器局开铸。存世稀少。"},
+    {p:"北洋",cn:"北洋机器局二十二年",era:"清·光绪二十二年",year:"1896",mint:"北洋机器局",note:"北洋最早期铸币，光绪二十二年（1896）天津北洋机器局开铸。存世稀少。",owned:true},
     {p:"云南",cn:"云南省造宣统庚戌春季七钱二分",era:"清·宣统二年",year:"1910",mint:"云南造币厂",note:"云南春季版，宣统庚戌年铸造。「春季」二字为该版独有标识，极为珍贵。"},
     {p:"吉林",cn:"吉林省造戊申七钱二分（花篮版）",era:"清·光绪戊申",year:"1908",mint:"吉林造币厂",note:"花篮版为吉林省造独有设计，面文配有花篮图案装饰。"},
     {p:"吉林",cn:"吉林省造戊申七钱二分（数字11版）",era:"清·光绪戊申",year:"1908",mint:"吉林造币厂",note:"面值以阿拉伯数字「11」标注，吉林银圆独特的面值标记方式。"},
     {p:"吉林",cn:"吉林省造戊申七钱二分（满文版）",era:"清·光绪戊申",year:"1908",mint:"吉林造币厂",note:"满文版以满文标注面值与省名，体现东北地区的满汉并行传统。"},
-    {p:"吉林",cn:"吉林省造丁未七钱二分",era:"清·光绪丁未",year:"1907",mint:"吉林造币厂",note:"光绪丁未年铸造。吉林龙银因版别繁多、年份跨度大，被誉为龙银收藏的「百科全书」。"},
+    {p:"吉林",cn:"吉林省造丁未七钱二分",era:"清·光绪丁未",year:"1907",mint:"吉林造币厂",note:"光绪丁未年铸造。吉林龙银因版别繁多、年份跨度大，被誉为龙银收藏的「百科全书」。",owned:true},
     {p:"江南",cn:"江南省造戊戌珍珠龙七钱二分",era:"清·光绪戊戌",year:"1898",mint:"江南造币厂",note:"珍珠龙版——龙身环绕珍珠纹饰，为江南戊戌年独有版别，极为珍稀。"},
     {p:"奉天",cn:"奉天机器局二十五年七钱二分",era:"清·光绪二十五年",year:"1899",mint:"奉天机器局",note:"光绪二十五年奉天机器局铸造。奉天龙银系列是东北铸币史的重要组成。"},
     {p:"奉天",cn:"奉天省造癸卯七钱二分（宝奉版）",era:"清·光绪癸卯",year:"1903",mint:"奉天省造币厂",note:"宝奉版以满文「宝奉」标识。癸卯年奉天龙银分宝奉、奉宝两版，以满文排列顺序区分。"},
     {p:"奉天",cn:"奉天省造癸卯七钱二分（奉宝版）",era:"清·光绪癸卯",year:"1903",mint:"奉天省造币厂",note:"奉宝版满文排列与宝奉版相反，两版共同构成癸卯年奉天龙银的版别学研究基础。"},
     {p:"四川",cn:"四川省造宣统三钱六分",era:"清·宣统",year:"c.1910",mint:"四川造币厂",note:"半圆面额三钱六分。四川造币厂铸造的小面额龙银，存世量少于七钱二分主币。"},
-    {p:"吉林",cn:"吉林省造丙午三钱二分（错版）",era:"清·光绪丙午",year:"1906",mint:"吉林造币厂",note:"面值错铸为三钱二分（正确应为三钱六分或七钱二分），为吉林龙银中的著名错版。"},
+    {p:"吉林",cn:"吉林省造丙午三钱二分（错版）",era:"清·光绪丙午",year:"1906",mint:"吉林造币厂",note:"面值错铸为三钱二分（正确应为三钱六分或七钱二分），为吉林龙银中的著名错版。",owned:true},
     {p:"奉天",cn:"奉天机器局二十四年七钱二分",era:"清·光绪二十四年",year:"1898",mint:"奉天机器局",note:"光绪二十四年铸造，为奉天龙银早期品种。"},
-    {p:"广东",cn:"喜敦版广东省造光绪元宝七钱二分",era:"清·光绪十五年",year:"1889",mint:"广东造币厂（喜敦原模）",note:"中国机制银圆的开端。广东造币厂以英国喜敦原模首铸，开启了近代中国各省仿铸的序幕。"},
+    {p:"广东",cn:"喜敦版广东省造光绪元宝七钱二分",era:"清·光绪十五年",year:"1889",mint:"广东造币厂（喜敦原模）",note:"中国机制银圆的开端。广东造币厂以英国喜敦原模首铸，开启了近代中国各省仿铸的序幕。",owned:true},
     {p:"江南",cn:"江南省造己亥老龙七钱二分",era:"清·光绪己亥",year:"1899",mint:"江南造币厂",note:"老龙版龙纹较粗犷古朴，与后期新龙风格迥异。己亥年老龙为江南龙银的重要早期版别。"},
     {p:"江南",cn:"江南省造戊戌七钱二分",era:"清·光绪戊戌",year:"1898",mint:"江南造币厂",note:"江南戊戌年标准版，与珍珠龙版同年但龙纹设计不同。"},
     {p:"安徽",cn:"安徽省造无纪年七钱二分",era:"清·光绪",year:"c.1897",mint:"安徽造币厂",note:"安徽龙银极为稀少。无纪年版为最早期铸造，存世量极小。安徽造币厂运营时间短暂。"},
     {p:"安徽",cn:"安徽省造戊戌七钱二分",era:"清·光绪戊戌",year:"1898",mint:"安徽造币厂",note:"戊戌年铸造，安徽龙银中的重要年份品种。"},
     {p:"安徽",cn:"安徽省造二十四年七钱二分",era:"清·光绪二十四年",year:"1898",mint:"安徽造币厂",note:"以帝号纪年标注的安徽版别。安徽龙银因造币厂早期关闭，各版均为珍品。"},
-    {p:"北洋",cn:"北洋造二十三年七钱二分",era:"清·光绪二十三年",year:"1897",mint:"北洋机器局",note:"光绪二十三年北洋铸造，早期北洋龙银品种。"},
-    {p:"北洋",cn:"北洋造二十四年七钱二分",era:"清·光绪二十四年",year:"1898",mint:"北洋机器局",note:"光绪二十四年铸造，北洋龙银序列中的重要年份。"},
+    {p:"北洋",cn:"北洋造二十三年七钱二分",era:"清·光绪二十三年",year:"1897",mint:"北洋机器局",note:"光绪二十三年北洋铸造，早期北洋龙银品种。",owned:true},
+    {p:"北洋",cn:"北洋造二十四年七钱二分",era:"清·光绪二十四年",year:"1898",mint:"北洋机器局",note:"光绪二十四年铸造，北洋龙银序列中的重要年份。",owned:true},
     {p:"江南",cn:"江南省造己亥新龙七钱二分",era:"清·光绪己亥",year:"1899",mint:"江南造币厂",note:"新龙版龙纹较精细流畅，与老龙版形成鲜明对比。反映了模具设计的演进。"},
     {p:"江南",cn:"江南省造乙巳七钱二分",era:"清·光绪乙巳",year:"1905",mint:"江南造币厂",note:"乙巳年为江南龙银的晚期品种。"},
     {p:"北洋",cn:"北洋造二十三年三角眼版",era:"清·光绪二十三年",year:"1897",mint:"北洋机器局",note:"三角眼版——龙目呈三角形，为北洋二十三年的著名版别，版别学研究的重要标本。"},
@@ -633,8 +633,8 @@ ${ranked.map((c,i)=>{
     {p:"北洋",cn:"北洋造二十三年圆眼龙版",era:"清·光绪二十三年",year:"1897",mint:"北洋机器局",note:"圆眼龙版——龙目呈圆形，与三角眼版对应。北洋二十三年版别研究的核心品种之一。"},
     {p:"造总",cn:"造币总厂光绪元宝七钱二分",era:"清·光绪",year:"c.1908",mint:"天津造币总厂",note:"中央造币总厂铸造的光绪元宝，代表清末币制统一的尝试。"},
     {p:"吉林",cn:"吉林省造辛丑七钱二分",era:"清·光绪辛丑",year:"1901",mint:"吉林造币厂",note:"辛丑年铸造。"},
-    {p:"吉林",cn:"吉林省造甲辰七钱二分",era:"清·光绪甲辰",year:"1904",mint:"吉林造币厂",note:"甲辰年铸造。"},
-    {p:"吉林",cn:"吉林省造乙巳七钱二分",era:"清·光绪乙巳",year:"1905",mint:"吉林造币厂",note:"乙巳年铸造。"},
+    {p:"吉林",cn:"吉林省造甲辰七钱二分",era:"清·光绪甲辰",year:"1904",mint:"吉林造币厂",note:"甲辰年铸造。",owned:true},
+    {p:"吉林",cn:"吉林省造乙巳七钱二分",era:"清·光绪乙巳",year:"1905",mint:"吉林造币厂",note:"乙巳年铸造。",owned:true},
     {p:"吉林",cn:"吉林省造无纪年花篮七钱二分",era:"清·光绪",year:"c.1898",mint:"吉林造币厂",note:"无纪年花篮版，吉林龙银中的早期品种。花篮图案为吉林省造独有装饰元素。"},
     {p:"云南",cn:"云南省造光绪老龙七钱二分",era:"清·光绪",year:"c.1908",mint:"云南造币厂",note:"老龙版为云南龙银的标志性品种。龙纹粗犷有力，地方特色鲜明。"},
     {p:"中央",cn:"大清银币宣统三年壹圆",era:"清·宣统三年",year:"1911",mint:"天津造币总厂",note:"宣统三年大清银币正龙版——清末币制统一的最终成果。意大利雕刻师Giorgi设计。含长须龙、短须龙、反龙等珍稀版别。"},
@@ -642,7 +642,7 @@ ${ranked.map((c,i)=>{
     {p:"北洋",cn:"北洋造三十三年七钱二分",era:"清·光绪三十三年",year:"1907",mint:"北洋造币局",note:"光绪三十三年铸造，北洋龙银晚期品种。"},
     {p:"江南",cn:"江南省造辛丑七钱二分",era:"清·光绪辛丑",year:"1901",mint:"江南造币厂",note:"辛丑年铸造。"},
     {p:"北洋",cn:"北洋造二十九年七钱二分",era:"清·光绪二十九年",year:"1903",mint:"北洋造币局",note:"光绪二十九年铸造。"},
-    {p:"广东",cn:"广东省造光绪元宝七钱二分",era:"清·光绪",year:"c.1890",mint:"广东造币厂",note:"广东标准流通版龙银。广东为中国最早开铸机制银圆的省份。"},
+    {p:"广东",cn:"广东省造光绪元宝七钱二分",era:"清·光绪",year:"c.1890",mint:"广东造币厂",note:"广东标准流通版龙银。广东为中国最早开铸机制银圆的省份。",owned:true},
     {p:"广东",cn:"广东省造宣统元宝七钱二分",era:"清·宣统",year:"c.1909",mint:"广东造币厂",note:"宣统年号广东龙银，为该省最后期的龙银铸造。"},
     {p:"北洋",cn:"北洋造三十四年七钱二分",era:"清·光绪三十四年",year:"1908",mint:"北洋造币局",note:"北洋龙银最晚期品种之一。三十四年为光绪帝驾崩之年。"},
     {p:"湖北",cn:"湖北省造光绪元宝七钱二分",era:"清·光绪",year:"c.1895",mint:"湖北造币厂",note:"湖北为继广东之后第二个开铸机制银圆的省份。张之洞调任湖广总督后将广东经验带至湖北。"},
@@ -672,12 +672,15 @@ ${ranked.map((c,i)=>{
 
   function renderDragonCards(list){
     document.getElementById('dragonGrid').innerHTML=list.map((d,i)=>{
-      return `<div class="coin-card" style="margin-bottom:10px;padding:16px;display:flex;gap:14px;align-items:flex-start">
+      const ownedStyle=d.owned?'border-left:3px solid var(--g);background:rgba(197,162,88,.04)':'';
+      const ownedBadge=d.owned?'<span style="background:var(--g);color:var(--lz-deep);font-size:.65rem;padding:1px 8px;border-radius:3px;font-weight:700">已入藏</span>':'';
+      return `<div class="coin-card" style="margin-bottom:10px;padding:16px;display:flex;gap:14px;align-items:flex-start;${ownedStyle}">
         <div style="flex-shrink:0;width:80px;height:80px;border-radius:8px;background:var(--lz);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gd);opacity:.3">龙</div>
         <div style="flex:1;min-width:180px">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
             <span style="background:var(--lz-bl);color:var(--g);font-size:.65rem;padding:1px 8px;border-radius:3px;font-weight:600">${d.p}</span>
             <span style="color:var(--td);font-size:.72rem">${d.era} · ${d.year}</span>
+            ${ownedBadge}
           </div>
           <div class="name-cn" style="font-size:1.05rem;margin-bottom:2px">${d.cn}</div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:6px">${d.mint}</div>
