@@ -578,71 +578,78 @@ const numisSourceCards = NUMIS_SOURCES.slice(1).map((s,ii) => {
     </div>
   </div>`;
 }).join('');
+// Gather all coin-level auction records for source detail panels
+const _coinAuctions=[];
+COINS.forEach(c=>{
+  if(!c.auctions) return;
+  c.auctions.forEach(a=>{
+    _coinAuctions.push({cn:c.cn,house:a.house||'',date:a.date||'',grade:a.grade||'',rmb:a.rmb||0,usd:a.usd||0,lot:a.lot||''});
+  });
+});
 // openSourceDetail — click a data source card to see matching auction records + purchases
 function openSourceDetail(index){
   const s=NUMIS_SOURCES[index];if(!s)return;
   const isAgg=s.type==='aggregator';
-  // Match from AUCTION_RECORDS (global top records)
   const matchKeys=s.matchKeys||[s.nameEn,s.name];
-  const matched=isAgg?AUCTION_RECORDS.slice():AUCTION_RECORDS.filter(r=>matchKeys.some(k=>r.house.includes(k)||k.includes(r.house)));
-  matched.sort((a,b)=>(b.rmb||0)-(a.rmb||0)||(b.usd||0)-(a.usd||0));
-  const top=matched.slice(0,30);
-  // Match from MY_PURCHASES (personal purchases)
+  const keyMatch=function(house){return matchKeys.some(function(k){return house.includes(k)||k.includes(house)})};
+  // Merge AUCTION_RECORDS + COINS[].auctions
+  const fromAR=isAgg?AUCTION_RECORDS.slice():AUCTION_RECORDS.filter(function(r){return keyMatch(r.house)});
+  const fromCoins=isAgg?_coinAuctions.slice():_coinAuctions.filter(function(r){return keyMatch(r.house)});
+  // Deduplicate: skip coin auctions whose cn+date already in AR
+  const arKeys=new Set(fromAR.map(function(r){return r.cn.substring(0,10)+r.date}));
+  fromCoins.forEach(function(r){if(!arKeys.has(r.cn.substring(0,10)+r.date)) fromAR.push(r)});
+  const matched=fromAR;
+  matched.sort(function(a,b){return (b.rmb||0)-(a.rmb||0)||(b.usd||0)-(a.usd||0)});
+  // Match MY_PURCHASES
   const purchaseKeys={0:'ALL',1:[],2:['HS'],3:['SBP'],4:['HA'],5:['JD'],6:[],7:[],8:[],9:[],10:[]};
   const pKeys=purchaseKeys[index]||[];
-  const myMatched=pKeys==='ALL'?_allPurchases:_allPurchases.filter(p=>pKeys.includes(p._house));
-  myMatched.sort((a,b)=>(b.t||0)-(a.t||0));
+  const myMatched=pKeys==='ALL'?_allPurchases:_allPurchases.filter(function(p){return pKeys.includes(p._house)});
+  myMatched.sort(function(a,b){return (b.t||0)-(a.t||0)});
+  var _sdUid=Date.now();
+  var auctionBlockId='sd_auc_'+_sdUid;
+  var purchaseBlockId='sd_pur_'+_sdUid;
   const dp=document.getElementById('detailPanel');
-  let h=`<button class="detail-close" onclick="closeDetail()">&times;</button>`;
-  h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-    <span style="width:12px;height:12px;border-radius:50%;background:${isAgg?'var(--gd)':'var(--g)'}"></span>
-    <h2 style="margin:0;font-size:1.4rem">${s.name}</h2>
-    <span style="padding:3px 10px;background:${isAgg?'rgba(154,125,58,.2)':'rgba(197,162,88,.15)'};color:${isAgg?'var(--gd)':'var(--g)'};border-radius:4px;font-size:.7rem;font-weight:600">${isAgg?'数据聚合平台':'拍卖行直连'}</span>
-  </div>`;
-  h+=`<div style="font-size:.82rem;color:var(--td);font-style:italic;margin-bottom:20px;font-family:'EB Garamond',serif">${s.nameEn}</div>`;
-  h+=`<div style="font-size:.88rem;color:var(--g);line-height:1.7;margin-bottom:20px">${s.desc}</div>`;
+  let h='<button class="detail-close" onclick="closeDetail()">&times;</button>';
+  h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">';
+  h+='<span style="width:12px;height:12px;border-radius:50%;background:'+(isAgg?'var(--gd)':'var(--g)')+'"></span>';
+  h+='<h2 style="margin:0;font-size:1.4rem">'+s.name+'</h2>';
+  h+='<span style="padding:3px 10px;background:'+(isAgg?'rgba(154,125,58,.2)':'rgba(197,162,88,.15)')+';color:'+(isAgg?'var(--gd)':'var(--g)')+';border-radius:4px;font-size:.7rem;font-weight:600">'+(isAgg?'数据聚合平台':'拍卖行直连')+'</span>';
+  h+='</div>';
+  h+='<div style="font-size:.82rem;color:var(--td);font-style:italic;margin-bottom:20px;font-family:\'EB Garamond\',serif">'+s.nameEn+'</div>';
+  h+='<div style="font-size:.88rem;color:var(--g);line-height:1.7;margin-bottom:20px">'+s.desc+'</div>';
   // Stats grid
-  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px">
-    <div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
-      <div style="font-size:1.2rem;font-weight:700;color:var(--ch)">${s.records}</div>
-      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">收录记录</div></div>
-    <div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
-      <div style="font-size:1.2rem;font-weight:700;color:var(--g)">${s.volume}</div>
-      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
-    ${s.houses?`<div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
-      <div style="font-size:1.2rem;font-weight:700;color:var(--cr)">${s.houses}家</div>
-      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">覆盖拍卖行</div></div>`:''}
-  </div>`;
-  // Auction records list
-  if(top.length){
-    h+=`<div style="font-size:.88rem;font-weight:700;color:var(--g);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">来自${isAgg?'全球拍场':s.name}的成交纪录 (${matched.length}条)</div>`;
-    top.forEach(r=>{
-      const price=r.rmb?'¥'+r.rmb.toLocaleString():r.usd?'$'+r.usd.toLocaleString():'—';
-      h+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--lz-s2);border-radius:6px;margin-bottom:6px;border:1px solid var(--lz-b);transition:border-color .2s;cursor:default" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--lz-b)'">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.85rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.cn}</div>
-          <div style="font-size:.72rem;color:var(--td);margin-top:2px">${r.house} · ${r.date}${r.grade?' · '+r.grade:''}</div>
-        </div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--ch);flex-shrink:0;white-space:nowrap">${price}</div>
-      </div>`;
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px">';
+  h+='<div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:700;color:var(--ch)">'+s.records+'</div><div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">收录记录</div></div>';
+  h+='<div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:700;color:var(--g)">'+s.volume+'</div><div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>';
+  if(s.houses) h+='<div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:700;color:var(--cr)">'+s.houses+'家</div><div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">覆盖拍卖行</div></div>';
+  h+='</div>';
+  // Render a list of record items with 20-item fold
+  function renderRecordList(records,blockId,borderLeft){
+    var out='';
+    records.forEach(function(r,i){
+      var price=r.rmb?'¥'+r.rmb.toLocaleString():r.usd?'$'+r.usd.toLocaleString():(r.t?(r.cur==='USD'?'$'+r.t.toLocaleString():'¥'+r.t.toLocaleString()):'—');
+      var hidden=i>=20?' style="display:none" class="sd-fold sd-fold-'+blockId+'"':'';
+      var bl=borderLeft||'';
+      out+='<div'+hidden+'><div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--lz-s2);border-radius:6px;margin-bottom:6px;border:1px solid var(--lz-b);'+bl+'transition:border-color .2s;cursor:default" onmouseover="this.style.borderColor=\'var(--g)\'" onmouseout="this.style.borderColor=\'var(--lz-b)\'">';
+      out+='<div style="flex:1;min-width:0"><div style="font-size:.85rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.cn||'')+'</div>';
+      out+='<div style="font-size:.72rem;color:var(--td);margin-top:2px">'+(r.house||'')+(r.date?' · '+r.date:'')+(r.grade?' · '+r.grade:'')+(r.lot?' · Lot '+r.lot:'')+'</div></div>';
+      out+='<div style="font-size:.95rem;font-weight:700;color:var(--ch);flex-shrink:0;white-space:nowrap">'+price+'</div>';
+      out+='</div></div>';
     });
-    if(matched.length>30) h+=`<div style="text-align:center;padding:10px;font-size:.75rem;color:var(--td)">… 及更多 ${matched.length-30} 条纪录</div>`;
+    if(records.length>20){
+      out+='<div style="text-align:center;padding:10px"><button id="btn_'+blockId+'" onclick="var els=document.querySelectorAll(\'.sd-fold-'+blockId+'\');var show=els[0]&&els[0].style.display===\'none\';els.forEach(function(e){e.style.display=show?\'block\':\'none\'});this.textContent=show?\'收起 ▲\':\'展开更多 ('+( records.length-20)+') ▼\'" style="padding:6px 20px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--g);cursor:pointer;font-size:.78rem">展开更多 ('+(records.length-20)+') ▼</button></div>';
+    }
+    return out;
   }
-  // My purchases from this source
+  // Auction records
+  if(matched.length){
+    h+='<div style="font-size:.88rem;font-weight:700;color:var(--g);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">成交纪录 ('+matched.length+'条)</div>';
+    h+=renderRecordList(matched,auctionBlockId,'');
+  }
+  // My purchases
   if(myMatched.length){
-    const myTop=myMatched.slice(0,30);
-    h+=`<div style="font-size:.88rem;font-weight:700;color:var(--ch);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">1024 Collection 购藏纪录 (${myMatched.length}件)</div>`;
-    myTop.forEach(p=>{
-      const price=p.cur==='USD'?'$'+p.t.toLocaleString():'¥'+p.t.toLocaleString();
-      h+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--lz-s2);border-radius:6px;margin-bottom:6px;border:1px solid var(--lz-b);border-left:3px solid var(--ch)">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.85rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.cn}</div>
-          <div style="font-size:.72rem;color:var(--td);margin-top:2px">Lot ${p.lot}${p.grade?' · '+p.grade:''}</div>
-        </div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--ch);flex-shrink:0;white-space:nowrap">${price}</div>
-      </div>`;
-    });
-    if(myMatched.length>30) h+=`<div style="text-align:center;padding:10px;font-size:.75rem;color:var(--td)">… 及更多 ${myMatched.length-30} 件拍品</div>`;
+    h+='<div style="font-size:.88rem;font-weight:700;color:var(--ch);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">1024 Collection 购藏纪录 ('+myMatched.length+'件)</div>';
+    h+=renderRecordList(myMatched,purchaseBlockId,'border-left:3px solid var(--ch);');
   }
   dp.innerHTML=h;
   document.getElementById('detailOverlay').classList.add('open');
@@ -651,9 +658,9 @@ function openSourceDetail(index){
 // Add matchKeys to sources that need special matching
 NUMIS_SOURCES[0].matchKeys=['首席收藏','ShouXi']; // aggregator — shows all
 NUMIS_SOURCES[1].matchKeys=['诚轩','ChengXuan','北京诚轩'];
-NUMIS_SOURCES[2].matchKeys=['泓盛','Holly','Hosane','上海泓盛'];
-NUMIS_SOURCES[3].matchKeys=['SBP','Stack','Bowers'];
-NUMIS_SOURCES[4].matchKeys=['Heritage'];
+NUMIS_SOURCES[2].matchKeys=['泓盛','Holly','Hosane','上海泓盛','HS'];
+NUMIS_SOURCES[3].matchKeys=['SBP','Stack','Bowers','Stack\'s Bowers'];
+NUMIS_SOURCES[4].matchKeys=['Heritage','Heritage Auctions','Heritage HKINF','Heritage Hong Kong'];
 NUMIS_SOURCES[5].matchKeys=['嘉德','Guardian','中国嘉德'];
 NUMIS_SOURCES[6].matchKeys=['SPINK','Spink'];
 NUMIS_SOURCES[7].matchKeys=['保利','Poly','北京保利'];
