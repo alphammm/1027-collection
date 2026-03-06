@@ -194,10 +194,14 @@ const COINS = [
     history_cn:"喜敦造币厂原模试铸，光边无纪年。1897年英国伯明翰喜敦厂制模运抵江南，首批试铸品。存世仅两枚获MS66高分。本藏品为冠军分之一。",
     history_en:"Heaton Mint original die trial strike, smooth edge, no date mark. Only two examples graded MS66. This piece is co-Champion finest known.",
     auctions:[
-      { date:"2025-12-07", house:"Heritage Auctions", lot:"35049", grade:"PCGS SP66", price_rmb:null, price_usd:1500000, note:"Kiangnan SP66 $1.5M (comparable)" },
+      { date:"2025-12", house:"Heritage Auctions", lot:"35049", grade:"PCGS SP66", price_rmb:null, price_usd:1500000, note:"Peh Family Collection Part III, HKINF香港" },
+      { date:"2021-10", house:"Stack's Bowers", lot:"", grade:"NGC MS64", price_rmb:null, price_usd:384000, note:"SBP香港，同品种齿边版 ornamental edge" },
+      { date:"2017-05", house:"北京诚轩", lot:"", grade:"PCGS SP66", price_rmb:3910000, price_usd:null, note:"诚轩春拍，光边版最高分纪录" },
     ],
     provenance:[
-      { holder:"1024 Collection", grade:"MS66", acquired:"", price:"", status:"入藏", note:"冠军分 1/2" },
+      { holder:"英国伯明翰喜敦造币厂", grade:"", acquired:"1897", price:"", status:"制模试铸", note:"Heaton Mint原模" },
+      { holder:"历代藏家递传", grade:"", acquired:"", price:"", status:"私人收藏", note:"存世极罕" },
+      { holder:"1024 Collection", grade:"MS66", acquired:"", price:"", status:"入藏", note:"冠军分 1/2，PCGS仅2枚获此分" },
     ],
     img:["img/cert_184682176_obverse.jpg"], pcgs_cert:"184682176",
     myStatus:"owned", myGrade:"MS66", myRank:"冠军 1/2",
