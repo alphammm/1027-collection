@@ -706,6 +706,11 @@ function renderCoinCards(coins){
     const borderSt=isOwned?'border-left:3px solid var(--g)':isWant?'border-left:3px solid var(--gd)':'';
     const statusBadge=isOwned?`<span style="background:var(--g);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">已入藏 ${c.myGrade||''}</span>`:isWant?`<span style="background:var(--gd);color:#fff;font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">圣杯目标</span>`:'';
     const rankBadge=c.myRank?`<span style="background:var(--ch);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700;margin-left:4px">${c.myRank}</span>`:'';
+    // myCopies table for owned coins with multiple copies
+    let copiesHtml='';
+    if(isOwned&&c.myCopies&&c.myCopies.length>0){
+      copiesHtml=`<div style="margin-top:10px;border-top:1px solid var(--lz-b);padding-top:8px"><div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">我的藏品明细 (${c.myCopies.length}枚)</div><table style="width:100%;font-size:.75rem;color:var(--td);border-collapse:collapse"><tr style="color:var(--g);font-size:.68rem"><td>评级</td><td>来源</td><td>时间</td><td>成本</td><td>估价</td></tr>${c.myCopies.map(cp=>`<tr style="border-top:1px solid var(--lz-b)"><td style="padding:3px 4px;color:var(--cr)">${cp.grade}</td><td style="padding:3px 4px">${cp.source||'-'}</td><td style="padding:3px 4px">${cp.date||'-'}</td><td style="padding:3px 4px">${cp.cost||'-'}</td><td style="padding:3px 4px;color:var(--g)">${cp.est||'-'}</td></tr>`).join('')}</table></div>`;
+    }
     return `<div class="coin-card" style="${borderSt};margin-bottom:10px;padding:16px" onclick="showDetail('${c.id}')">
       <div style="display:flex;gap:14px;align-items:flex-start">
         <div style="flex-shrink:0">${coinImgTag(c,100)}</div>
@@ -718,6 +723,7 @@ function renderCoinCards(coins){
           <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
           <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,120)||''}${c.history_cn?.length>120?'...':''}</div>
+          ${copiesHtml}
         </div>
         <div style="text-align:right;min-width:120px;flex-shrink:0">
           <div style="color:var(--g);font-weight:700;font-size:1rem;margin-bottom:4px">¥${c.est_rmb}</div>
@@ -729,35 +735,47 @@ function renderCoinCards(coins){
     </div>`;
   }).join('');
 }
+// Sort helpers
+function sortByYear(coins){return [...coins].sort((a,b)=>{const ya=parseInt(a.year)||1900;const yb=parseInt(b.year)||1900;return ya-yb})}
+function sortByCost(coins){return [...coins].sort((a,b)=>{const ca=parseFloat((a.est_rmb||'0').replace(/[^0-9.]/g,''))||0;const cb=parseFloat((b.est_rmb||'0').replace(/[^0-9.]/g,''))||0;return cb-ca})}
+function makeSortBtns(gridId,coins){
+  return `<div style="display:flex;gap:6px;margin-bottom:14px"><button class="dr-btn" style="background:var(--g);border:1px solid var(--lz-b);color:var(--lz-deep);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="document.getElementById('${gridId}').innerHTML=renderCoinCards(sortByYear(window._coins_${gridId}));this.style.background='var(--g)';this.style.color='var(--lz-deep)';this.nextElementSibling.style.background='var(--lz-s)';this.nextElementSibling.style.color='var(--td)'">按时间</button><button class="dr-btn" style="background:var(--lz-s);border:1px solid var(--lz-b);color:var(--td);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="document.getElementById('${gridId}').innerHTML=renderCoinCards(sortByCost(window._coins_${gridId}));this.style.background='var(--g)';this.style.color='var(--lz-deep)';this.previousElementSibling.style.background='var(--lz-s)';this.previousElementSibling.style.color='var(--td)'">按估价</button></div>`;
+}
 
 // SUN YAT-SEN PORTRAITS (孙像)
 (function(){
   const sunCoins=COINS.filter(c=>c.cat==='republic-sun');
+  window._coins_sunGrid=sunCoins;
   let html=`<div class="chapter"><div class="chapter-num" data-cn="第伍章" data-en="Chapter V">第伍章</div><div class="chapter-title" data-cn="孙像银圆" data-en="Sun Yat-sen Portrait Dollars">孙像银圆</div><div class="chapter-line"></div></div>`;
-  html+=`<div class="story" style="margin-bottom:20px"><p data-cn="从民国元年开国纪念壹角到二十四年帆船中圆，孙中山像银圆贯穿民国币制改革全程。本馆收录${sunCoins.length}枚孙像核心品种——含签字版、铜质样币、帆船系列等。" data-en="From the 1912 Memento 10 Cents to the Year 24 Junk Half Dollar, Sun Yat-sen portrait coins span the entire Republic monetary reform. ${sunCoins.length} core types catalogued here.">从民国元年开国纪念壹角到二十四年帆船中圆，孙中山像银圆贯穿民国币制改革全程。本馆收录${sunCoins.length}枚孙像核心品种——含签字版、铜质样币、帆船系列等。</p></div>`;
+  html+=`<div class="story" style="margin-bottom:20px"><p data-cn="从民国元年开国纪念壹角到二十五年帆船中圆，孙中山像银圆贯穿民国币制改革全程。本馆收录${sunCoins.length}枚孙像品种——含签字版、铜质样币、帆船系列等。" data-en="From the 1912 Memento 10 Cents to the Year 25 Junk Half Dollar, Sun Yat-sen portrait coins span the entire Republic monetary reform. ${sunCoins.length} types catalogued here.">从民国元年开国纪念壹角到二十五年帆船中圆，孙中山像银圆贯穿民国币制改革全程。本馆收录${sunCoins.length}枚孙像品种——含签字版、铜质样币、帆船系列等。</p></div>`;
+  html+=makeSortBtns('sunGrid',sunCoins);
   html+=`<div id="sunGrid"></div>`;
   document.getElementById('sunPortraits').innerHTML=html;
-  document.getElementById('sunGrid').innerHTML=renderCoinCards(sunCoins);
+  document.getElementById('sunGrid').innerHTML=renderCoinCards(sortByYear(sunCoins));
 })();
 
 // YUAN SHIKAI PORTRAITS (袁像)
 (function(){
   const yuanCoins=COINS.filter(c=>c.cat==='republic-yuan');
+  window._coins_yuanGrid=yuanCoins;
   let html=`<div class="chapter"><div class="chapter-num" data-cn="第陆章" data-en="Chapter VI">第陆章</div><div class="chapter-title" data-cn="袁像银圆" data-en="Yuan Shikai Portrait Dollars">袁像银圆</div><div class="chapter-line"></div></div>`;
   html+=`<div class="story" style="margin-bottom:20px"><p data-cn="袁世凯像银圆是民国货币体系的核心——从民国三年标准壹圆到飞龙洪宪纪念、共和签字版，每一版都映射着从共和到帝制的政治风云。本馆收录${yuanCoins.length}枚袁像核心品种。" data-en="Yuan Shikai portrait dollars form the backbone of Republic coinage — from the standard Year 3 dollar to the Flying Dragon and Gonghe signed patterns. ${yuanCoins.length} core types catalogued here.">袁世凯像银圆是民国货币体系的核心——从民国三年标准壹圆到飞龙洪宪纪念、共和签字版，每一版都映射着从共和到帝制的政治风云。本馆收录${yuanCoins.length}枚袁像核心品种。</p></div>`;
+  html+=makeSortBtns('yuanGrid',yuanCoins);
   html+=`<div id="yuanGrid"></div>`;
   document.getElementById('yuanPortraits').innerHTML=html;
-  document.getElementById('yuanGrid').innerHTML=renderCoinCards(yuanCoins);
+  document.getElementById('yuanGrid').innerHTML=renderCoinCards(sortByYear(yuanCoins));
 })();
 
 // WARLORDS (军阀)
 (function(){
   const warlordCoins=COINS.filter(c=>c.cat==='republic-warlord'||c.cat==='republic-portrait');
+  window._coins_warlordGrid=warlordCoins;
   let html=`<div class="chapter"><div class="chapter-num" data-cn="第柒章" data-en="Chapter VII">第柒章</div><div class="chapter-title" data-cn="军阀银圆" data-en="Warlord Era Dollars">军阀银圆</div><div class="chapter-line"></div></div>`;
   html+=`<div class="story" style="margin-bottom:20px"><p data-cn="民国军阀割据时代的货币见证——张作霖、黎元洪、段祺瑞、曹锟……每一枚都是乱世枭雄的权力象征。本馆收录${warlordCoins.length}枚军阀时期银圆珍品。" data-en="Coinage witnesses of China's Warlord Era — Zhang Zuolin, Li Yuanhong, Duan Qirui, Cao Kun… each coin a symbol of power in an age of turmoil. ${warlordCoins.length} warlord-era rarities catalogued.">民国军阀割据时代的货币见证——张作霖、黎元洪、段祺瑞、曹锟……每一枚都是乱世枭雄的权力象征。本馆收录${warlordCoins.length}枚军阀时期银圆珍品。</p></div>`;
+  html+=makeSortBtns('warlordGrid',warlordCoins);
   html+=`<div id="warlordGrid"></div>`;
   document.getElementById('warlords').innerHTML=html;
-  document.getElementById('warlordGrid').innerHTML=renderCoinCards(warlordCoins);
+  document.getElementById('warlordGrid').innerHTML=renderCoinCards(sortByYear(warlordCoins));
 })();
 
 // COLLECTORS — with expandable cards and provenance flow SVG map
