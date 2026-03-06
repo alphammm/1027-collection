@@ -1168,7 +1168,7 @@ function renderCoinCards(coins){
   return coins.map(c=>{
     const isOwned=c.myStatus==='owned';const isWant=c.myStatus==='want';
     const borderSt=isOwned?'border-left:3px solid var(--g)':isWant?'border-left:3px solid var(--gd)':'';
-    const statusBadge=isOwned?`<span style="background:var(--g);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">已入藏 ${c.myGrade||''}</span>`:isWant?`<span style="background:var(--gd);color:#fff;font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">圣杯目标</span>`:'';
+    const statusBadge=isOwned?`<span style="background:var(--g);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">已入藏</span>`:isWant?`<span style="background:var(--gd);color:#fff;font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">圣杯目标</span>`:'';
     const rankBadge=c.myRank?`<span style="background:var(--ch);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700;margin-left:4px">${c.myRank}</span>`:'';
     // myCopies table for owned coins with multiple copies
     let copiesHtml='';
