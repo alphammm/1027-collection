@@ -1537,10 +1537,67 @@ document.getElementById('collectors').innerHTML+=`
 
   // Helper: extract year from coin name
   function extractYear(cn){
-    const m=cn.match(/\((\d{4})\)/);
+    // 1. Parenthesized 4-digit year like (1899) or (1899/二十五年)
+    const m=cn.match(/\(?(\d{4})\)?/);
     if(m) return m[1];
-    const ym=cn.match(/(光绪|宣统|民国|洪宪|嘉庆|道光|咸丰|同治)[\u4e00-\u9fff]*?(\d+)年/);
-    if(ym) return ym[0];
+    // 2. 民国/宣统/光绪 + Chinese numeral year → convert to AD
+    const mgMap={'元':1912,'二':1913,'三':1914,'四':1915,'五':1916,'六':1917,'七':1918,'八':1919,'九':1920,'十':1921,'十一':1922,'十二':1923,'十三':1924,'十四':1925,'十五':1926,'十六':1927,'十七':1928,'十八':1929,'十九':1930,'二十':1931,'二十一':1932,'二十二':1933,'二十三':1934,'二十四':1935,'二十五':1936,'二十六':1937,'二十七':1938,'二十八':1939,'二十九':1940,'三十':1941,'三十一':1942,'三十七':1948,'三十八':1949};
+    const mgm=cn.match(/民国([\u4e00-\u9fff]{1,4})年/);
+    if(mgm&&mgMap[mgm[1]]) return String(mgMap[mgm[1]]);
+    // 3. 宣统X年
+    const xtMap={'元':1909,'二':1910,'三':1911};
+    const xtm=cn.match(/宣统([\u4e00-\u9fff]{1,2})年/);
+    if(xtm&&xtMap[xtm[1]]) return String(xtMap[xtm[1]]);
+    // 4. 光绪年号 二十X年 — only when 北洋/奉天/光绪 context present and NO 民国
+    const gxMap={'二十二':1896,'二十三':1897,'二十四':1898,'二十五':1899,'二十六':1900,'二十七':1901,'二十八':1902,'二十九':1903,'三十':1904,'三十一':1905,'三十二':1906,'三十三':1907,'三十四':1908};
+    const gxm=cn.match(/([\u4e8c\u4e09][\u5341][\u4e00-\u9fff]?)年/);
+    if(gxm&&gxMap[gxm[1]]&&!cn.includes('民国')&&(cn.includes('光绪')||cn.includes('北洋')||cn.includes('奉天'))) return String(gxMap[gxm[1]]);
+    // 4b. 二十X年 without 光绪 context → likely 民国
+    if(gxm&&mgMap[gxm[1]]&&!cn.includes('光绪')&&!cn.includes('北洋')) return String(mgMap[gxm[1]]);
+    // 5. Cyclical years (干支纪年)
+    const gzMap={'甲辰':1904,'乙巳':1905,'丙午':1906,'丁未':1907,'戊申':1908,'己酉':1909,'庚戌':1910,'辛亥':1911,'壬子':1912,'癸丑':1913,'甲寅':1914,'庚子':1900,'辛丑':1901,'壬寅':1902,'癸卯':1903,'戊戌':1898};
+    const gzm=cn.match(/(甲辰|乙巳|丙午|丁未|戊申|己酉|庚戌|辛亥|壬子|癸丑|甲寅|庚子|辛丑|壬寅|癸卯|戊戌)/);
+    if(gzm&&gzMap[gzm[1]]) return String(gzMap[gzm[1]]);
+    // 6. 宣统/光绪 without specific year
+    // 7. Keyword-based year for known coin types
+    if(cn.includes('宣统')) return 'c.1909';
+    if(cn.includes('光绪')) return 'c.1900';
+    if(cn.includes('飞龙')) return '1916';
+    if(cn.includes('黎元洪')||cn.includes('开国纪念')) return '1912';
+    if(cn.includes('三鸟')) return '1932';
+    if(cn.includes('帆船')&&cn.includes('铜')) return '1932';
+    if(cn.includes('龙凤')) return '1923';
+    if(cn.includes('张学良')) return 'c.1928';
+    if(cn.includes('张作霖')) return 'c.1927';
+    if(cn.includes('唐继尧')) return 'c.1916';
+    if(cn.includes('徐世昌')) return '1921';
+    if(cn.includes('曹锟')) return '1923';
+    if(cn.includes('袁世凯像共和')||cn.includes('签字版中圆')) return '1914';
+    if(cn.includes('甘肃加字')) return 'c.1920';
+    if(cn.includes('川陕苏维埃')) return 'c.1933';
+    if(cn.includes('中华苏维埃')) return 'c.1932';
+    if(cn.includes('新疆饷银')) return 'c.1910';
+    if(cn.includes('湖北')&&cn.includes('壹两')) return 'c.1902';
+    if(cn.includes('军政府')&&cn.includes('四川')) return 'c.1912';
+    if(cn.includes('孙中山像壹圆')||cn.includes('总理纪念')) return 'c.1927';
+    if(cn.includes('布图')&&cn.includes('半圆')) return 'c.1929';
+    if(cn.includes('洪宪')) return '1916';
+    if(cn.includes('褚玉璞')) return 'c.1927';
+    if(cn.includes('段祺瑞')) return '1924';
+    if(cn.includes('乾隆')) return 'c.1770';
+    if(cn.includes('嘉庆')) return 'c.1810';
+    if(cn.includes('南宋')) return 'c.1200';
+    if(cn.includes('孙中山像中圆')) return 'c.1929';
+    if(cn.includes('咸丰')) return 'c.1855';
+    if(cn.includes('伯明翰造币厂')) return 'c.1900';
+    if(cn.includes('造币厂')&&(cn.includes('厂条')||cn.includes('厂片'))) return 'c.1930';
+    if(cn.includes('天津')&&cn.includes('金锭')) return 'c.1930';
+    if(cn.includes('成都')&&cn.includes('金币')) return 'c.1930';
+    if(cn.includes('墨西哥鹰洋')) return 'c.1890';
+    if(cn.includes('清代')||cn.includes('清末')||cn.includes('清三')||cn.includes('清一')||cn.includes('清西')) return 'c.1880';
+    if(cn.startsWith('元')) return 'c.1300';
+    if(cn.includes('南宋')) return 'c.1200';
+    if(cn.includes('民国')) return 'c.1920';
     return '—';
   }
   // Helper: split grade into company + score
