@@ -213,7 +213,7 @@ const NAV=[
   {id:'sunPortraits',cn:'孙像银圆',en:'Sun Yat-sen'},
   {id:'warlords',cn:'民国地方银圆',en:'Republic Provincial'},
   {id:'fullCollection',cn:'全部拍品',en:'Full Collection'},
-  {id:'database',cn:'藏品列表',en:'Catalogue'},
+  {id:'database',cn:'全部藏品',en:'Full Holdings'},
   {id:'wishlist',cn:'圣杯',en:'The Grails'},
   {id:'strategy',cn:'收藏体系',en:'Collection System'},
   {id:'collectors',cn:'藏家档案',en:'Collector Profiles'},
@@ -476,8 +476,26 @@ let calendarHTML='';
   });
   calendarHTML+=`</div>`;
 })();
-const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="藏品列表" data-en="Catalogue">藏品列表</div><div class="chapter-line"></div></div>
-<div class="section-subtitle" data-cn="机制币数据库 — PCGS评级数据、拍卖纪录、传承链追溯" data-en="Numismatic database with PCGS data, auction records, provenance chains">机制币数据库 — PCGS评级数据、拍卖纪录、传承链追溯</div>
+const dbOwned=COINS.filter(c=>c.myStatus==='owned');
+const dbWanted=COINS.filter(c=>c.myStatus==='want');
+const dbTotalEst=COINS.filter(c=>c.est_rmb).reduce((s,c)=>{const v=String(c.est_rmb).replace(/[^0-9]/g,'');return s+(parseInt(v)||0)},0);
+const dbOwnedEst=dbOwned.reduce((s,c)=>{const v=String(c.est_rmb).split(/[+(]/)[0].replace(/[^0-9]/g,'');return s+(parseInt(v)||0)},0);
+const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Holdings">全部藏品</div><div class="chapter-line"></div></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚，圣杯目标${dbWanted.length}枚。" data-en="Full holdings — ${COINS.length} varieties, ${dbOwned.length} owned, ${dbWanted.length} grails targeted.">全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚，圣杯目标${dbWanted.length}枚。</p></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
+<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+  <div style="font-size:2rem;font-weight:700;color:var(--g)">${COINS.length}</div>
+  <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="总品种" data-en="Varieties">总品种</div></div>
+<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+  <div style="font-size:2rem;font-weight:700;color:var(--ch)">${dbOwned.length}</div>
+  <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="已入藏" data-en="Owned">已入藏</div></div>
+<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+  <div style="font-size:2rem;font-weight:700;color:var(--gd)">${dbWanted.length}</div>
+  <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="圣杯目标" data-en="Grails">圣杯目标</div></div>
+<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+  <div style="font-size:1.4rem;font-weight:700;color:var(--g)">¥${dbOwnedEst.toLocaleString()}</div>
+  <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="持仓估值 (RMB)" data-en="Est. Value (RMB)">持仓估值 (RMB)</div></div>
+</div>
 <div class="search-bar"><input type="text" id="dbSearch" placeholder="搜索币种 Search coins..." oninput="filterDB()"><select id="dbFilter" onchange="filterDB()"><option value="all">全部 All</option><option value="qing-tael">清·壹两 Tael</option><option value="qing-dragon">清·龙洋 Dragon</option><option value="qing-provincial">清·省造 Provincial</option><option value="republic-yuan">民国·袁像 Yuan</option><option value="republic-sun">民国·孙像 Sun</option><option value="republic-warlord">军阀 Warlord</option></select></div>
 <div class="coin-grid" id="dbGrid"></div>`;
 document.getElementById('database').innerHTML=dbHTML;
