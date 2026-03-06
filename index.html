@@ -218,7 +218,7 @@ const NAV=[
   {id:'database',cn:'藏品列表',en:'Catalogue'},
   {id:'wishlist',cn:'圣杯',en:'The Grails'},
   {id:'strategy',cn:'收藏体系',en:'Collection System'},
-  {id:'collectors',cn:'关于藏家',en:'About Collectors'},
+  {id:'collectors',cn:'藏家档案',en:'Collector Profiles'},
   {id:'numisDB',cn:'机制币数据库',en:'Numismatic Database'}
 ];
 const nav=document.getElementById('mainNav');
@@ -814,46 +814,84 @@ function makeSortBtns(gridId,coins){
 
 // COLLECTORS — with expandable cards and provenance flow SVG map
 function buildCollectorFlowSVG(){
-  // Build a provenance flow map showing coin movements between collectors
-  const W=900,H=520;
-  const nodes=[
-    {id:'CC',x:80,y:60,cn:'周大为(CC)',r:22},{id:'CJM',x:80,y:180,cn:'陈吉茂',r:18},
-    {id:'LGH',x:280,y:100,cn:'李广宏',r:22},{id:'ZY',x:280,y:240,cn:'赵勇',r:22},
-    {id:'TAO',x:480,y:60,cn:'陶姐',r:22},{id:'WZQ',x:480,y:180,cn:'王中强',r:20},
-    {id:'XZJ',x:480,y:300,cn:'肖志军',r:18},{id:'LYM',x:680,y:60,cn:'李跃明',r:18},
-    {id:'ME',x:680,y:180,cn:'1024',r:26},{id:'LXZ',x:680,y:300,cn:'林宪璋',r:18},
-    {id:'ZAS',x:280,y:380,cn:'张安生',r:18},{id:'HDS',x:480,y:420,cn:'何代水',r:16},
+  // Coin-centric provenance flow: key coins as central nodes, collectors on the sides
+  const W=900,H=620;
+  // Coin nodes (center column)
+  const coins=[
+    {id:'shou',x:450,y:60,cn:'寿字双龙',color:'#ffd700'},
+    {id:'hubu',x:450,y:130,cn:'户部壹两',color:'#C5A258'},
+    {id:'globe',x:450,y:200,cn:'地球壹圆',color:'#C5A258'},
+    {id:'bensh',x:450,y:270,cn:'本省 MS64',color:'#C5A258'},
+    {id:'73rev',x:450,y:340,cn:'七三反版',color:'#C5A258'},
+    {id:'zz15',x:450,y:410,cn:'张作霖Y15',color:'#C5A258'},
+    {id:'sh12',x:450,y:480,cn:'上海壹两',color:'#C5A258'},
+    {id:'sign',x:450,y:550,cn:'签字大头',color:'#C5A258'},
   ];
-  const edges=[
-    {from:'CC',to:'ZY',cn:'本省MS64 ¥800万',color:'#C5A258'},
-    {from:'CJM',to:'LGH',cn:'地球MS62 ¥1200万',color:'#C5A258'},
-    {from:'CJM',to:'LGH',cn:'孙24年 ¥1000万',color:'#9a7d3a',dy:14},
-    {from:'WZQ',to:'ME',cn:'户部/北洋/中字 (潜在)',color:'#4a9868',dash:true},
-    {from:'LYM',to:'ME',cn:'老江南 (参考)',color:'#2a4a7a',dash:true},
-    {from:'ZAS',to:'ME',cn:'七三反版 (远期)',color:'#2a4a7a',dash:true},
+  // Collector nodes (left & right)
+  const colls=[
+    {id:'CC',x:80,y:180,cn:'周大为CC'},{id:'CJM',x:80,y:300,cn:'陈吉茂'},
+    {id:'ZAS',x:80,y:420,cn:'张安生'},{id:'CAI',x:80,y:60,cn:'蔡先生'},
+    {id:'LGH',x:800,y:130,cn:'李广宏'},{id:'ZY',x:800,y:230,cn:'赵勇'},
+    {id:'TAO',x:800,y:330,cn:'陶姐'},{id:'WZQ',x:800,y:430,cn:'王中强'},
+    {id:'LYM',x:200,y:540,cn:'李跃明'},{id:'ME',x:700,y:540,cn:'1024'},
+    {id:'LXZ',x:200,y:60,cn:'林宪璋'},{id:'XZJ',x:200,y:170,cn:'肖志军'},
   ];
-  let svg=`<svg viewBox="0 0 ${W} ${H+60}" xmlns="http://www.w3.org/2000/svg">`;
+  // Flows: from → coin → to
+  const flows=[
+    {from:'CAI',coin:'shou',to:null,cn:'出品人 泓盛1500万',color:'#C5A258'},
+    {from:'LXZ',coin:'shou',to:null,cn:'八枚一级币之一',color:'#9a7d3a'},
+    {from:'CC',coin:'bensh',to:'ZY',cn:'¥800万 (2016)',color:'#C5A258'},
+    {from:'CC',coin:'globe',to:null,cn:'出清',color:'#9a7d3a'},
+    {from:'CJM',coin:'globe',to:'LGH',cn:'¥1200万',color:'#C5A258'},
+    {from:null,coin:'globe',to:'ZY',cn:'MS63+ 最高分',color:'#4a9868'},
+    {from:'CJM',coin:null,to:'LGH',cn:'孙24年 ¥1000万',color:'#9a7d3a'},
+    {from:null,coin:'hubu',to:'XZJ',cn:'MS64+ (¥291万裸币)',color:'#4a9868'},
+    {from:null,coin:'hubu',to:'WZQ',cn:'MS63 开价¥1000万',color:'#9a7d3a'},
+    {from:null,coin:'zz15',to:'LGH',cn:'成本¥2600万',color:'#C5A258'},
+    {from:null,coin:'zz15',to:'TAO',cn:'AU53',color:'#9a7d3a'},
+    {from:'ZAS',coin:'73rev',to:null,cn:'三套 (极罕)',color:'#ffd700'},
+    {from:'WZQ',coin:'sh12',to:null,cn:'开价¥1500万',color:'#9a7d3a'},
+    {from:null,coin:'sign',to:'WZQ',cn:'MS63 成本¥312万',color:'#9a7d3a'},
+    {from:null,coin:'sign',to:'LYM',cn:'MS64',color:'#4a9868'},
+    {from:'WZQ',coin:'hubu',to:'ME',cn:'(潜在)',color:'#4a9868',dash:true},
+    {from:'ZAS',coin:'73rev',to:'ME',cn:'(远期)',color:'#2a4a7a',dash:true},
+  ];
+  let svg=`<svg viewBox="0 0 ${W} ${H+30}" xmlns="http://www.w3.org/2000/svg" style="font-family:'EB Garamond','Noto Serif SC',serif">`;
   svg+=`<defs><marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--gd)"/></marker></defs>`;
-  // edges
-  edges.forEach(e=>{
-    const f=nodes.find(n=>n.id===e.from),t=nodes.find(n=>n.id===e.to);
-    const dy=e.dy||0;
-    svg+=`<line x1="${f.x}" y1="${f.y+dy}" x2="${t.x}" y2="${t.y+dy}" stroke="${e.color}" stroke-width="1.5" ${e.dash?'stroke-dasharray="6,4"':''} marker-end="url(#ah)" opacity=".7"/>`;
-    const mx=(f.x+t.x)/2,my=(f.y+t.y)/2+dy;
-    svg+=`<text x="${mx}" y="${my-6}" fill="${e.color}" font-size="9" text-anchor="middle" opacity=".9">${e.cn}</text>`;
+  // Coin nodes (rounded rectangles)
+  coins.forEach(c=>{
+    svg+=`<rect x="${c.x-55}" y="${c.y-14}" width="110" height="28" rx="6" fill="var(--lz-s2)" stroke="${c.color}" stroke-width="1.5"/>`;
+    svg+=`<text x="${c.x}" y="${c.y+5}" fill="${c.color}" font-size="11" text-anchor="middle" font-weight="600">${c.cn}</text>`;
   });
-  // nodes
-  nodes.forEach(n=>{
+  // Collector nodes (circles)
+  colls.forEach(n=>{
     const isMe=n.id==='ME';
-    svg+=`<circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${isMe?'var(--g)':'var(--lz-s2)'}" stroke="${isMe?'var(--ch)':'var(--lz-bl)'}" stroke-width="${isMe?2:1}"/>`;
-    svg+=`<text x="${n.x}" y="${n.y+4}" fill="${isMe?'var(--lz-deep)':'var(--cr)'}" font-size="${isMe?12:10}" text-anchor="middle" font-weight="${isMe?700:500}">${n.cn}</text>`;
+    svg+=`<circle cx="${n.x}" cy="${n.y}" r="${isMe?22:16}" fill="${isMe?'var(--g)':'var(--lz-s2)'}" stroke="${isMe?'var(--ch)':'var(--lz-bl)'}" stroke-width="${isMe?2:1}"/>`;
+    svg+=`<text x="${n.x}" y="${n.y+4}" fill="${isMe?'var(--lz-deep)':'var(--cr)'}" font-size="${isMe?11:9}" text-anchor="middle" font-weight="${isMe?700:500}">${n.cn}</text>`;
   });
-  svg+=`<text x="${W/2}" y="${H+40}" fill="var(--gd)" font-size="10" text-anchor="middle" font-style="italic">实线=已完成交易 Completed | 虚线=潜在机会 Potential</text>`;
+  // Draw flows
+  flows.forEach(f=>{
+    let x1,y1,x2,y2;
+    const coinNode=coins.find(c=>c.id===f.coin);
+    const fromNode=colls.find(c=>c.id===f.from);
+    const toNode=colls.find(c=>c.id===f.to);
+    if(fromNode&&coinNode){x1=fromNode.x;y1=fromNode.y;x2=coinNode.x-60;y2=coinNode.y;
+      svg+=`<line x1="${x1+16}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${f.color}" stroke-width="1" ${f.dash?'stroke-dasharray="4,3"':''} marker-end="url(#ah)" opacity=".6"/>`;
+      const mx=(x1+16+x2)/2,my=(y1+y2)/2;
+      svg+=`<text x="${mx}" y="${my-5}" fill="${f.color}" font-size="8" text-anchor="middle" opacity=".8">${f.cn}</text>`;
+    }
+    if(coinNode&&toNode){x1=coinNode.x+60;y1=coinNode.y;x2=toNode.x;y2=toNode.y;
+      svg+=`<line x1="${x1}" y1="${y1}" x2="${x2-16}" y2="${y2}" stroke="${f.color}" stroke-width="1" ${f.dash?'stroke-dasharray="4,3"':''} marker-end="url(#ah)" opacity=".6"/>`;
+      const mx=(x1+x2-16)/2,my=(y1+y2)/2;
+      svg+=`<text x="${mx}" y="${my-5}" fill="${f.color}" font-size="8" text-anchor="middle" opacity=".8">${f.cn}</text>`;
+    }
+  });
+  svg+=`<text x="${W/2}" y="${H+20}" fill="var(--gd)" font-size="9" text-anchor="middle" font-style="italic">藏品流转图 — 实线=已完成 | 虚线=潜在机会 | 中间=核心藏品 | 两侧=藏家</text>`;
   svg+=`</svg>`;
   return svg;
 }
 
-let collHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="关于藏家" data-en="About Collectors">关于藏家</div><div class="chapter-line"></div></div>`;
+let collHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="藏家档案" data-en="Collector Profiles">藏家档案</div><div class="chapter-line"></div></div>`;
 collHTML+=`<div class="story" style="margin-bottom:20px"><p data-cn="中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。" data-en="The world of top Chinese numismatics is fewer than fifty people. Below: ${COLLECTORS.length} core collector profiles, holdings analysis, and coin flow paths. Click to expand.">中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。</p></div>`;
 collHTML+=`<h3 style="color:var(--g);margin:0 0 14px" data-cn="藏家深度档案 (点击展开)" data-en="Collector Deep Profiles (click to expand)">藏家深度档案 (点击展开)</h3>`;
 COLLECTORS.forEach(c=>{
@@ -861,14 +899,14 @@ COLLECTORS.forEach(c=>{
   const m=modeMap[c.mode]||{cls:'hold',label:''};
   collHTML+=`<div class="coll-card key">
     <div class="coll-header" onclick="this.querySelector('.ch-toggle').classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.en}, ${c.loc_en}</span>${c.age?` (${c.age})`:''}<span class="cm ${m.cls}">${m.label}</span></div>
+      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span><span class="cm ${m.cls}">${m.label}</span></div>
       <span class="ch-toggle">&#9660;</span>
     </div>
     <div class="coll-body">
       <div class="coll-inner">
         <div class="ci-section"><div class="ci-title" data-cn="背景" data-en="Background">背景</div><div class="ci-text">${c.bg_cn}</div></div>
-        <div class="ci-section"><div class="ci-title" data-cn="藏品" data-en="Collection">藏品</div>${c.coins.map(cc=>`<div class="ci-coin"><span class="cc-name">${cc.cn}</span><span class="cc-grade">${cc.grade||''}</span><span class="cc-val">${cc.acquired&&cc.acquired.includes('已出售')?`<span style="color:var(--r);font-size:.72rem">${cc.acquired}</span>`:((cc.cost?'成本:'+cc.cost:'')+' '+(cc.current_est?'估值:'+cc.current_est:''))}</span></div>`).join('')}</div>
-        <div class="ci-section"><div class="ci-title" data-cn="深度分析" data-en="Deep Analysis">深度分析</div><div class="ci-text" style="color:var(--cr);line-height:1.9">${c.analysis_cn}</div></div>
+        ${c.coins.length?`<div class="ci-section"><div class="ci-title" data-cn="藏品" data-en="Collection">藏品</div>${c.coins.map(cc=>`<div class="ci-coin"><span class="cc-name">${cc.cn}</span><span class="cc-grade">${cc.grade||''}</span><span class="cc-val">${(cc.cost?'成本:'+cc.cost:'')+' '+(cc.current_est?'估值:'+cc.current_est:'')}</span></div>`).join('')}</div>`:''}
+        <div class="ci-section"><div class="ci-title" data-cn="分析" data-en="Analysis">分析</div><div class="ci-text" style="color:var(--cr);line-height:1.9">${c.analysis_cn}</div></div>
       </div>
     </div>
   </div>`;
