@@ -557,15 +557,20 @@ const numisSourceCards = NUMIS_SOURCES.slice(1).map((s,ii) => {
     </div>
   </div>`;
 }).join('');
-// openSourceDetail — click a data source card to see matching auction records
+// openSourceDetail — click a data source card to see matching auction records + purchases
 function openSourceDetail(index){
   const s=NUMIS_SOURCES[index];if(!s)return;
   const isAgg=s.type==='aggregator';
-  // Match auction records by house name
+  // Match from AUCTION_RECORDS (global top records)
   const matchKeys=s.matchKeys||[s.nameEn,s.name];
   const matched=isAgg?AUCTION_RECORDS.slice():AUCTION_RECORDS.filter(r=>matchKeys.some(k=>r.house.includes(k)||k.includes(r.house)));
   matched.sort((a,b)=>(b.rmb||0)-(a.rmb||0)||(b.usd||0)-(a.usd||0));
   const top=matched.slice(0,30);
+  // Match from MY_PURCHASES (personal purchases)
+  const purchaseKeys={0:'ALL',1:[],2:['HS'],3:['SBP'],4:['HA'],5:['JD'],6:[],7:[],8:[],9:[],10:[]};
+  const pKeys=purchaseKeys[index]||[];
+  const myMatched=pKeys==='ALL'?_allPurchases:_allPurchases.filter(p=>pKeys.includes(p._house));
+  myMatched.sort((a,b)=>(b.t||0)-(a.t||0));
   const dp=document.getElementById('detailPanel');
   let h=`<button class="detail-close" onclick="closeDetail()">&times;</button>`;
   h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
@@ -601,6 +606,22 @@ function openSourceDetail(index){
       </div>`;
     });
     if(matched.length>30) h+=`<div style="text-align:center;padding:10px;font-size:.75rem;color:var(--td)">… 及更多 ${matched.length-30} 条纪录</div>`;
+  }
+  // My purchases from this source
+  if(myMatched.length){
+    const myTop=myMatched.slice(0,30);
+    h+=`<div style="font-size:.88rem;font-weight:700;color:var(--ch);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">1024 Collection 购藏纪录 (${myMatched.length}件)</div>`;
+    myTop.forEach(p=>{
+      const price=p.cur==='USD'?'$'+p.t.toLocaleString():'¥'+p.t.toLocaleString();
+      h+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--lz-s2);border-radius:6px;margin-bottom:6px;border:1px solid var(--lz-b);border-left:3px solid var(--ch)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.85rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.cn}</div>
+          <div style="font-size:.72rem;color:var(--td);margin-top:2px">Lot ${p.lot}${p.grade?' · '+p.grade:''}</div>
+        </div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--ch);flex-shrink:0;white-space:nowrap">${price}</div>
+      </div>`;
+    });
+    if(myMatched.length>30) h+=`<div style="text-align:center;padding:10px;font-size:.75rem;color:var(--td)">… 及更多 ${myMatched.length-30} 件拍品</div>`;
   }
   dp.innerHTML=h;
   document.getElementById('detailOverlay').classList.add('open');
