@@ -510,6 +510,16 @@ const NUMIS_SOURCES = [
   { name:'西泠印社', nameEn:'Xiling Yinshe', type:'direct', records:'2.5万+', volume:'¥341万', desc:'杭州百年老号，以艺术品拍卖见长，钱币专场精品迭出' },
   { name:'华夏古泉', nameEn:'Huaxia Guquan', type:'direct', records:'6万+', volume:'¥26万', desc:'国内古钱币网拍平台，古泉交易活跃' },
 ];
+// Compute purchase match counts per source from auctions.js
+const _allPurchases=[];
+if(typeof MY_PURCHASES!=='undefined'){['HA','SBP','HY','HS'].forEach(h=>(MY_PURCHASES[h]||[]).forEach(i=>_allPurchases.push({...i,_house:h})))}
+const _houseMap={0:'ALL',1:'诚轩',2:'泓盛',3:'SBP',4:'HA',5:'嘉德',6:'SPINK',7:'保利',8:'Champion',9:'西泠',10:'华夏'};
+const _houseKeyMap={'诚轩':[],'泓盛':['HS'],'SBP':['SBP'],'HA':['HA'],'嘉德':['JD'],'SPINK':[],'保利':[],'Champion':[],'西泠':[],'华夏':[]};
+NUMIS_SOURCES.forEach((s,i)=>{
+  if(i===0){s._matchCount=_allPurchases.length;return;}
+  const keys=_houseKeyMap[_houseMap[i]]||[];
+  s._matchCount=keys.length?_allPurchases.filter(p=>keys.includes(p._house)).length:0;
+});
 // Build source cards — first one (首席收藏) is a full-width banner
 const sx=NUMIS_SOURCES[0];
 const numisHeroCard=`<div onclick="openSourceDetail(0)" style="background:linear-gradient(135deg,var(--lz-s),var(--lz-s2));border:1px solid var(--gd);border-radius:10px;padding:20px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-bottom:16px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
@@ -527,6 +537,7 @@ const numisHeroCard=`<div onclick="openSourceDetail(0)" style="background:linear
     <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:var(--gd)">${sx.records}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖纪录</div></div>
     <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:var(--g)">${sx.volume}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
     <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:var(--cr)">${sx.houses}+</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖行</div></div>
+    <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:var(--ch)">${sx._matchCount}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">已购拍品</div></div>
   </div>
 </div>`;
 const numisSourceCards = NUMIS_SOURCES.slice(1).map((s,ii) => {
@@ -542,6 +553,7 @@ const numisSourceCards = NUMIS_SOURCES.slice(1).map((s,ii) => {
     <div style="display:flex;gap:12px;margin-top:auto;padding-top:8px;border-top:1px solid var(--lz-b)">
       <div style="flex:1"><div style="font-size:1.05rem;font-weight:700;color:var(--ch)">${s.records}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖纪录</div></div>
       <div style="flex:1"><div style="font-size:1.05rem;font-weight:700;color:var(--g)">${s.volume}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
+      ${s._matchCount?`<div style="flex:1"><div style="font-size:1.05rem;font-weight:700;color:var(--ch)">${s._matchCount}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">已购拍品</div></div>`:''}
     </div>
   </div>`;
 }).join('');
