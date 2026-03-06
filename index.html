@@ -347,7 +347,7 @@ const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
       card.className='sc-card';
       card.style.flex='0 0 260px';
       card.onclick=()=>showDetail('C011');
-      card.innerHTML=`<div class="sc-img" style="gap:4px;background:#000;padding:4px"><img src="img/slab_dragon.jpg" alt="七三反版 龙面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"><img src="img/slab_text.jpg" alt="七三反版 字面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"></div><div class="sc-info">${eraTagHTML(c.id)}<div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
+      card.innerHTML=`<div class="sc-img" style="gap:4px;background:#000;padding:4px"><img src="img/slab_dragon.jpg" alt="七三反版 龙面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"><img src="img/slab_text.jpg" alt="七三反版 字面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"></div><div class="sc-info"><div style="display:flex;align-items:center;gap:4px">${ERA_TAGS[c.id]?'<span style="font-size:.55rem;color:var(--gd);letter-spacing:.06em;font-family:Noto Serif SC,serif">'+ERA_TAGS[c.id]+'</span>':''}${starsHTML(SUPREME_5STAR.has(c.id)?5:4)}</div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}${spBadge(c)}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
     } else {
       let imgSrc='';
       if(c.img?.length) imgSrc=c.img[0];
@@ -356,7 +356,7 @@ const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
       const fallback=imgSrc?'style="display:none"':'';
       card.className='sc-card';
       card.onclick=()=>showDetail(c.id);
-      card.innerHTML=`<div class="sc-img">${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-info">${eraTagHTML(c.id)}<div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}${c.myGrade&&c.myGrade.includes('SP')?' <span style="color:#ffd700;font-weight:700">SP</span>':''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
+      card.innerHTML=`<div class="sc-img">${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-info"><div style="display:flex;align-items:center;gap:4px">${ERA_TAGS[c.id]?'<span style="font-size:.55rem;color:var(--gd);letter-spacing:.06em;font-family:Noto Serif SC,serif">'+ERA_TAGS[c.id]+'</span>':''}${starsHTML(SUPREME_5STAR.has(c.id)?5:4)}</div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}${spBadge(c)}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
     }
     track.appendChild(card);
   });
@@ -838,23 +838,27 @@ function renderDB(list){
     const cost=getCoinCost(c);
     const catLabels={'qing-tael':'壹两','qing-dragon':'龙洋','qing-provincial':'省造','republic-yuan':'袁像','republic-sun':'孙像','republic-warlord':'军阀'};
     const catLabel=catLabels[c.cat]||'其他';
-    const isSP=c.myGrade&&/SP/i.test(c.myGrade);
+    const nS=SUPREME_5STAR.has(c.id)?5:(DAZHEN_IDS.includes(c.id)?4:Math.min(c.rarity,5));
+    const eraT=ERA_TAGS[c.id]||'';
     return`<div onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:center;padding:12px 16px;background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid ${bl};border-radius:6px;margin-bottom:8px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--lz-b)';this.style.borderLeftColor='${bl}'">
       ${coinImgTag(c,70)}
       <div style="flex:1;min-width:0">
-        ${eraTagHTML(c.id)}
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span style="font-size:.92rem;color:var(--cr);font-family:'Noto Serif SC',serif;font-weight:600">${c.cn}</span>
-          <span style="font-size:.6rem;padding:1px 6px;border-radius:3px;background:var(--lz-s2);color:var(--td);border:1px solid var(--lz-b)">${catLabel}</span>
-          ${isSP?'<span style="font-size:.58rem;padding:1px 6px;border-radius:3px;background:rgba(255,215,0,.15);color:var(--ch);border:1px solid rgba(255,215,0,.3);font-weight:600">SP</span>':''}
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+          ${eraT?`<span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${eraT}</span>`:''}
+          ${starsHTML(nS)}
         </div>
+        <div class="name-cn" style="font-size:.92rem">${c.cn}</div>
         <div style="font-size:.72rem;color:var(--td);margin-top:2px">${c.en}</div>
-        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center">
-          ${c.myStatus==='owned'?`<span style="font-size:.68rem;padding:2px 8px;border-radius:3px;background:rgba(197,162,88,.15);color:var(--g);font-weight:600">${c.myGrade}</span>`:''}
+        <div class="grade-row" style="margin-top:6px">
+          ${c.myStatus==='owned'&&c.myGrade?`<span class="gt owned">${c.myGrade}</span>`:''}
+          ${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}
+          ${spBadge(c)}
+          <span style="font-size:.6rem;padding:1px 6px;border-radius:3px;background:var(--lz-s2);color:var(--td);border:1px solid var(--lz-b)">${catLabel}</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;align-items:center">
           <span style="font-size:.68rem;color:var(--g);font-weight:600">¥${c.est_rmb}</span>
           ${cost?`<span style="font-size:.65rem;color:var(--td)">成本: ${cost}</span>`:''}
           ${srcName?`<span style="font-size:.65rem;color:var(--tm)">来源: ${srcName}</span>`:''}
-          ${'<span style="font-size:.62rem;color:var(--td);opacity:.5">'+'★'.repeat(Math.min(c.rarity,5))+'</span>'}
         </div>
       </div>
     </div>`}).join('');
@@ -942,7 +946,7 @@ document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="
 <li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
 <li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
 </ul></div>
-${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1">${eraTagHTML(c.id)}<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
+${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;const eraT=ERA_TAGS[c.id]||'';return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;margin-top:4px">${eraT?`<span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${eraT}</span>`:''}${starsHTML(Math.min(c.rarity,5))}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row">${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
 
 // RANKINGS — 高分典藏
 const ranked=owned.filter(c=>c.myRank).sort((a,b)=>b.rarity-a.rarity);
@@ -955,20 +959,22 @@ ${ranked.map((c,i)=>{
   <div style="display:flex;gap:14px;align-items:flex-start">
     <div style="flex-shrink:0">${coinImgTag(c,100)}</div>
     <div style="flex:1;min-width:180px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
-        <span style="${badge};font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:700">${c.myRank}</span>
-        <span class="gt owned" style="font-size:.78rem">${c.myGrade}</span>
+      <span style="${badge};font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:700">${c.myRank}</span>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;margin-top:4px">
+        ${ERA_TAGS[c.id]?`<span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${ERA_TAGS[c.id]}</span>`:''}
+        ${starsHTML(SUPREME_5STAR.has(c.id)?5:4)}
+      </div>
+      <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
+      <div class="name-en" style="font-size:.78rem;margin-bottom:4px">${c.en}</div>
+      <div class="grade-row">
+        <span class="gt owned">${c.myGrade}</span>
+        ${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}
         ${spBadge(c)}
       </div>
-      ${eraTagHTML(c.id)}
-      <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
-      <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
-      <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,100)||''}...</div>
+      <div style="color:var(--td);font-size:.82rem;line-height:1.7;margin-top:6px">${c.history_cn?.substring(0,100)||''}...</div>
     </div>
     <div style="text-align:right;min-width:120px;flex-shrink:0">
       <div style="color:var(--g);font-weight:700;font-size:1.05rem;margin-bottom:4px">¥${c.est_rmb}</div>
-      <div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>
-      <div style="font-size:.72rem;color:var(--gd);margin-top:2px">${'★'.repeat(Math.min(c.rarity,5))}</div>
       ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--td);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
     </div>
   </div>
@@ -1349,7 +1355,7 @@ collHTML+=`</div>`;
 document.getElementById('collectors').innerHTML=collHTML;
 
 // COIN FLOW MAP — separate section
-document.getElementById('coinFlow').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾叁章" data-en="Chapter XIII">第拾叁章</div><div class="chapter-title" data-cn="珍币流转" data-en="Provenance Flow">珍币流转</div><div style="color:var(--gd);font-size:.9rem;letter-spacing:.15em;margin-top:4px;text-align:center;font-style:italic">Provenance Flow Map</div><div class="chapter-line"></div></div>
+document.getElementById('coinFlow').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾叁章" data-en="Chapter XIII">第拾叁章</div><div class="chapter-title" style="font-size:1.8rem" data-cn="珍币流转" data-en="Provenance Flow">珍币流转</div><div style="color:var(--gd);font-size:.9rem;letter-spacing:.15em;margin-top:4px;text-align:center;font-style:italic">Provenance Flow</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="核心珍品在藏家之间的流转路径。实线为已完成交易，虚线为潜在机会。追踪流转方向，就是追踪市场的资金与信心走向。" data-en="Provenance flow of key rarities between collectors. Solid lines = completed transactions. Dashed = potential. Tracking flow direction = tracking capital and confidence.">核心珍品在藏家之间的流转路径。实线为已完成交易，虚线为潜在机会。追踪流转方向，就是追踪市场的资金与信心走向。</p></div>
 <div class="flow-map">${buildCollectorFlowSVG()}</div>`;
 
