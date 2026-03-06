@@ -177,8 +177,8 @@ footer .gold{color:var(--gd)}
 
 <nav id="mainNav"></nav>
 <div class="container">
-  <div class="section active" id="prologue"></div>
-  <div class="section" id="highlights"></div>
+  <div class="section" id="prologue"></div>
+  <div class="section active" id="highlights"></div>
   <div class="section" id="rankings"></div>
   <div class="section" id="masterpieces"></div>
   <div class="section" id="dragons"></div>
@@ -226,7 +226,7 @@ const NAV=[
   {id:'intel',cn:'市场资讯',en:'Market News'}
 ];
 const nav=document.getElementById('mainNav');
-NAV.forEach((n,i)=>{const b=document.createElement('button');b.className=i===0?'active':'';b.setAttribute('data-cn',n.cn);b.setAttribute('data-en',n.en);b.textContent=n.cn;b.onclick=()=>{document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(n.id).classList.add('active');b.classList.add('active')};nav.appendChild(b)});
+NAV.forEach((n,i)=>{const b=document.createElement('button');b.className=n.id==='highlights'?'active':'';b.setAttribute('data-cn',n.cn);b.setAttribute('data-en',n.en);b.textContent=n.cn;b.onclick=()=>{document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(n.id).classList.add('active');b.classList.add('active')};nav.appendChild(b)});
 
 // Era tags: 朝代.年号.年份
 const ERA_TAGS={
