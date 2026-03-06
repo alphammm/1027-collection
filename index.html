@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1024 Collection | 中国机制币珍藏</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<script src="auctions.js"></script>
+<style>
+:root{--lz:#002B5C;--lz-deep:#001a3a;--lz-light:#003d80;--lz-s:#0a1e3d;--lz-s2:#112a4d;--lz-b:#1a3a66;--lz-bl:#2a4a7a;--g:#C5A258;--gl:#dfc080;--gb:#e8c84a;--gd:#9a7d3a;--cr:#f5f0e8;--t:#e8e4dc;--td:#8a9ab8;--tm:#5a6a88;--w:#fff;--r:#c44040;--gr:#4a9868;--ch:#ffd700;--sv:#b8c0c8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'EB Garamond','Noto Serif SC',Georgia,serif;background:var(--lz-deep);color:var(--t);line-height:1.7;min-height:100vh}
+.hero{text-align:center;padding:90px 20px 60px;background:linear-gradient(180deg,var(--lz) 0%,var(--lz-deep) 100%);border-bottom:2px solid var(--gd);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(197,162,88,.06) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.hero-logo{font-size:.82rem;letter-spacing:.5em;color:var(--g);text-transform:uppercase;margin-bottom:18px;font-weight:500}
+.hero h1{font-size:3.4rem;font-weight:700;color:var(--cr);letter-spacing:.08em;margin-bottom:6px}
+.hero .cn-title{font-size:1.5rem;color:var(--g);font-family:'Noto Serif SC',serif;font-weight:600;letter-spacing:.2em;margin-bottom:24px}
+.hero .tagline{font-size:1rem;color:var(--td);max-width:660px;margin:0 auto;font-style:italic}
+.lang-toggle{position:fixed;top:14px;right:18px;z-index:200;display:flex;gap:3px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:5px;padding:2px}
+.lang-toggle button{background:0;border:0;color:var(--td);padding:3px 10px;border-radius:3px;cursor:pointer;font-family:'EB Garamond',serif;font-size:.82rem;transition:.2s}
+.lang-toggle button.active{background:var(--g);color:var(--lz-deep);font-weight:600}
+
+/* COIN SHOWCASE BAR */
+.showcase-bar{padding:20px 0;background:var(--lz-s);border-bottom:1px solid var(--lz-b);overflow:hidden;position:relative}
+.showcase-bar::before,.showcase-bar::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none}
+.showcase-bar::before{left:0;background:linear-gradient(90deg,var(--lz-s),transparent)}
+.showcase-bar::after{right:0;background:linear-gradient(-90deg,var(--lz-s),transparent)}
+.showcase-track{display:flex;gap:12px;padding:0 24px;overflow-x:auto;scroll-behavior:smooth;-ms-overflow-style:none;scrollbar-width:none}
+.showcase-track::-webkit-scrollbar{display:none}
+.sc-card{flex:0 0 180px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:8px;padding:10px;cursor:pointer;transition:.25s;text-align:center;position:relative}
+.sc-card:hover{border-color:var(--g);transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.sc-card.champion{border-color:rgba(255,215,0,.4);box-shadow:inset 0 0 20px rgba(255,215,0,.03)}
+.sc-card.runner{border-color:rgba(184,192,200,.3)}
+.sc-img{width:100%;aspect-ratio:1;border-radius:6px;background:var(--lz);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px;position:relative}
+.sc-img img{width:100%;height:100%;object-fit:contain}
+.sc-img .coin-icon{font-size:3rem;opacity:.2;color:var(--gd)}
+.sc-rank{position:absolute;top:6px;right:6px;font-size:.55rem;padding:1px 6px;border-radius:8px;font-weight:700;z-index:1}
+.sc-rank.champ{background:rgba(255,215,0,.2);color:var(--ch);border:1px solid rgba(255,215,0,.4)}
+.sc-rank.ru{background:rgba(184,192,200,.15);color:var(--sv);border:1px solid rgba(184,192,200,.3)}
+.sc-name{font-size:.78rem;color:var(--cr);font-family:'Noto Serif SC',serif;font-weight:600;line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-grade{font-size:.65rem;color:var(--g);font-weight:600}
+.sc-val{font-size:.6rem;color:var(--td);margin-top:2px}
+
+nav{display:flex;justify-content:center;gap:5px;padding:12px 16px;background:var(--lz);border-bottom:1px solid var(--lz-b);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+nav button{background:0;border:1px solid var(--lz-b);color:var(--td);padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.84rem;transition:.2s;letter-spacing:.02em}
+nav button:hover,nav button.active{background:var(--g);color:var(--lz-deep);border-color:var(--g);font-weight:600}
+.container{max-width:1200px;margin:0 auto;padding:32px 20px}
+.section{display:none;animation:fadeIn .3s ease}.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:1.5rem;color:var(--g);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.badge{font-size:.62rem;background:var(--g);color:var(--lz-deep);padding:2px 9px;border-radius:10px;font-weight:700}
+.section-subtitle{font-size:.92rem;color:var(--td);font-style:italic;margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid var(--lz-b)}
+.story{background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid var(--g);border-radius:6px;padding:24px 28px;margin-bottom:28px;font-size:1rem;line-height:2;color:var(--t)}
+.story .drop-cap::first-letter{float:left;font-size:3rem;line-height:1;padding-right:8px;color:var(--g);font-weight:700}
+.chapter{text-align:center;padding:18px 0;margin:18px 0}
+.chapter-num{font-size:.68rem;letter-spacing:.4em;color:var(--gd);text-transform:uppercase}
+.chapter-title{font-size:1.25rem;color:var(--g);font-family:'Noto Serif SC',serif;font-weight:600;margin-top:4px}
+.chapter-line{width:60px;height:1px;background:var(--gd);margin:10px auto 0}
+
+/* CARDS */
+.coin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.coin-card{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:18px;transition:.25s;position:relative;cursor:pointer}
+.coin-card:hover{border-color:var(--gd);box-shadow:0 4px 24px rgba(0,0,0,.3);transform:translateY(-2px)}
+.coin-card.champion{border-left:3px solid var(--ch)}.coin-card.runner{border-left:3px solid var(--sv)}
+.coin-card .prov{font-size:.7rem;color:var(--tm);text-transform:uppercase;letter-spacing:.12em}
+.coin-card .name-cn{font-size:1.1rem;font-weight:600;color:var(--cr);margin:3px 0 1px;font-family:'Noto Serif SC',serif}
+.coin-card .name-en{font-size:.78rem;color:var(--td);font-style:italic}
+.coin-card .grade-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.gt{font-size:.68rem;padding:2px 8px;border-radius:3px;font-weight:600;font-variant-numeric:tabular-nums}
+.gt.owned{background:rgba(197,162,88,.2);color:var(--gl);border:1px solid rgba(197,162,88,.4)}
+.gt.normal{background:var(--lz-s2);color:var(--tm);border:1px solid var(--lz-b)}
+.coin-card .meta{font-size:.76rem;color:var(--td);margin-top:6px;font-style:italic}
+.coin-card .value{font-size:.82rem;color:var(--g);margin-top:5px;font-weight:600}
+.rb{position:absolute;top:12px;right:12px;font-size:.6rem;padding:2px 9px;border-radius:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.rb.champ{background:rgba(255,215,0,.15);color:var(--ch);border:1px solid rgba(255,215,0,.35)}
+.rb.ru{background:rgba(184,192,200,.12);color:var(--sv);border:1px solid rgba(184,192,200,.25)}
+
+/* DETAIL PANEL */
+.detail-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,26,58,.85);z-index:300;overflow-y:auto;padding:40px 20px}
+.detail-overlay.open{display:block}
+.detail-panel{max-width:800px;margin:0 auto;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:10px;padding:32px;position:relative}
+.detail-close{position:absolute;top:12px;right:16px;background:0;border:0;color:var(--td);font-size:1.5rem;cursor:pointer}
+.detail-panel h2{color:var(--g);font-family:'Noto Serif SC',serif;font-size:1.3rem;margin-bottom:4px}
+.detail-panel .den{color:var(--td);font-style:italic;font-size:.9rem;margin-bottom:16px}
+.detail-panel .dmeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;font-size:.85rem}
+.detail-panel .dmeta div{padding:8px 12px;background:var(--lz-s2);border-radius:4px}
+.detail-panel .dmeta .dl{color:var(--td);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+.detail-panel .dmeta .dv{color:var(--cr);font-weight:600;margin-top:2px}
+.detail-panel .dh{color:var(--g);font-size:1rem;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--lz-b)}
+.detail-panel .dprov{padding:8px 0;border-bottom:1px solid var(--lz-b);font-size:.85rem;display:flex;align-items:center;gap:8px}
+.detail-panel .dprov .dot{width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0}
+.detail-panel .dprov .dot.you{background:var(--g);box-shadow:0 0 6px rgba(197,162,88,.5)}
+.detail-panel .dauction{font-size:.82rem;padding:6px 0;border-bottom:1px solid var(--lz-b)}
+.detail-panel .dauction .da-house{color:var(--g);font-weight:600}
+.detail-panel .dauction .da-price{color:var(--ch);font-weight:600}
+.detail-panel .at{font-size:.8rem;margin-bottom:8px}
+.detail-panel .at th{position:static}
+
+/* COLLECTOR MAP (SVG) */
+.flow-map{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:20px;margin-bottom:24px;overflow-x:auto}
+.flow-map svg{width:100%;min-width:800px;height:auto}
+.flow-map text{font-family:'EB Garamond','Noto Serif SC',serif}
+
+/* COLLECTOR CARDS */
+.coll-card{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;margin-bottom:12px;overflow:hidden;transition:.2s}
+.coll-card:hover{border-color:var(--gd)}
+.coll-card.key{border-left:3px solid var(--g)}
+.coll-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.coll-header .ch-name{font-weight:600;font-size:1.02rem;color:var(--cr);font-family:'Noto Serif SC',serif}
+.coll-header .ch-en{font-size:.8rem;color:var(--td);font-style:italic}
+.coll-header .ch-toggle{color:var(--g);font-size:1.2rem;transition:.3s}
+.coll-header .ch-toggle.open{transform:rotate(180deg)}
+.cm{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:3px;font-weight:600;letter-spacing:.04em;margin-left:8px}
+.cm.buy{background:rgba(74,152,104,.2);color:var(--gr)}.cm.sell{background:rgba(196,64,64,.2);color:var(--r)}.cm.hold{background:rgba(197,162,88,.15);color:var(--gd)}
+.coll-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.coll-body.open{max-height:2000px}
+.coll-inner{padding:0 20px 20px}
+.coll-inner .ci-section{margin-top:14px}
+.coll-inner .ci-title{color:var(--g);font-size:.85rem;font-weight:600;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--lz-b)}
+.coll-inner .ci-text{font-size:.85rem;color:var(--td);line-height:1.7}
+.coll-inner .ci-coin{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(26,58,102,.5);font-size:.84rem}
+.coll-inner .ci-coin .cc-name{color:var(--cr)}.coll-inner .ci-coin .cc-grade{color:var(--g)}.coll-inner .ci-coin .cc-val{color:var(--td)}
+
+/* AUCTION TABLE */
+.at{width:100%;border-collapse:collapse;font-size:.84rem}
+.at th{text-align:left;padding:9px 12px;background:var(--lz-s2);color:var(--g);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid var(--gd);font-weight:600;position:sticky;top:46px;z-index:10}
+.at td{padding:9px 12px;border-bottom:1px solid var(--lz-b);vertical-align:top}
+.at tr:hover{background:rgba(197,162,88,.04)}
+.at .price{color:var(--ch);font-weight:600;white-space:nowrap}
+
+/* DRAGON & WISHLIST */
+.dragon-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:7px}
+.dragon-item{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;font-size:.88rem;transition:.15s}
+.dragon-item:hover{border-color:var(--lz-bl)}
+.dragon-item .dp{font-size:.66rem;color:var(--tm);letter-spacing:.08em;min-width:40px}
+.wish-card{background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid var(--gd);border-radius:8px;padding:16px 20px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;transition:.2s}
+.wish-card:hover{border-left-color:var(--g)}
+.wish-card .name-cn{font-weight:600;font-family:'Noto Serif SC',serif;font-size:1rem;color:var(--cr)}
+.wish-card .name-en{font-size:.78rem;color:var(--td);font-style:italic}
+.wish-card .est{color:var(--g);font-weight:600;font-size:.92rem;white-space:nowrap}
+.wish-card .rarity{font-size:.72rem;color:var(--gd);margin-top:2px}
+
+/* SEARCH */
+.search-bar{display:flex;gap:8px;margin-bottom:20px}
+.search-bar input{flex:1;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;padding:8px 14px;color:var(--t);font-family:'EB Garamond',serif;font-size:.92rem;outline:none}
+.search-bar input:focus{border-color:var(--g)}
+.search-bar select{background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;padding:8px 10px;color:var(--t);font-family:'EB Garamond',serif;font-size:.85rem;outline:none}
+
+.strategy-block{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:24px;margin-bottom:14px}
+.strategy-block h3{color:var(--g);margin-bottom:12px;font-size:1.1rem}
+.strategy-block ul{list-style:none;padding:0}
+.strategy-block li{padding:6px 0;color:var(--td);font-size:.9rem;border-bottom:1px solid var(--lz-b)}
+.strategy-block li:last-child{border:0}
+.strategy-block li strong{color:var(--cr)}
+
+footer{text-align:center;padding:44px 20px;color:var(--tm);font-size:.75rem;border-top:1px solid var(--lz-b);margin-top:44px;letter-spacing:.04em}
+footer .gold{color:var(--gd)}
+
+@media(max-width:640px){.hero h1{font-size:2rem}.hero .cn-title{font-size:1.1rem}.stats-bar{gap:6px}.stat{min-width:90px;padding:8px 12px}.coin-grid{grid-template-columns:1fr}.dragon-list{grid-template-columns:1fr}.stat-expand-inner{columns:1}.detail-panel{padding:20px}}
+</style>
+</head>
+<body>
+<div class="lang-toggle"><button class="active" onclick="setLang('cn')">中文</button><button onclick="setLang('en')">EN</button></div>
+
+<div class="hero">
+  <div class="hero-logo">Private Numismatic Registry</div>
+  <h1>1024 COLLECTION</h1>
+  <div class="cn-title">壹零贰肆 珍藏</div>
+  <div class="tagline" data-cn="从龙银开国到帝制绝响，从地方极限到中央定型——1024 的每一枚藏品，都是制度重建的历史坐标，一部以银圆书写的中国近代史" data-en="From the genesis of dragon dollars to the empire's final breath, from provincial extremes to central consolidation — every piece in the 1024 Collection marks a coordinate of institutional rebirth, a modern history of China written in silver">从龙银开国到帝制绝响，从地方极限到中央定型——1024 的每一枚藏品，都是制度重建的历史坐标，一部以银圆书写的中国近代史</div>
+</div>
+
+<!-- COIN SHOWCASE -->
+<div class="showcase-bar"><div class="showcase-track" id="showcaseTrack"></div></div>
+
+<nav id="mainNav"></nav>
+<div class="container">
+  <div class="section active" id="prologue"></div>
+  <div class="section" id="highlights"></div>
+  <div class="section" id="rankings"></div>
+  <div class="section" id="masterpieces"></div>
+  <div class="section" id="dragons"></div>
+  <div class="section" id="sunPortraits"></div>
+  <div class="section" id="yuanPortraits"></div>
+  <div class="section" id="warlords"></div>
+  <div class="section" id="fullCollection"></div>
+  <div class="section" id="wishlist"></div>
+  <div class="section" id="strategy"></div>
+  <div class="section" id="collectors"></div>
+  <div class="section" id="database"></div>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-panel" id="detailPanel"></div>
+</div>
+
+<footer><span class="gold">1024 COLLECTION</span> &copy; 2025 &mdash; Museum-Grade Chinese Numismatic Database<br>Sources: Heritage Auctions &middot; Stack's Bowers &middot; ChengXuan &middot; PCGS &middot; ShouXi.com &middot; ArtHitParade</footer>
+
+<script>
+let CL='cn';
+function setLang(l){CL=l;document.querySelectorAll('.lang-toggle button').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang-toggle button[onclick="setLang('${l}')"]`).classList.add('active');document.querySelectorAll('[data-cn]').forEach(e=>{e.textContent=e.getAttribute('data-'+l)})}
+
+// NAV
+const NAV=[
+  {id:'prologue',cn:'序章',en:'Prologue'},{id:'highlights',cn:'至臻之选',en:'Finest'},
+  {id:'rankings',cn:'高分典藏',en:'Top Grades'},{id:'masterpieces',cn:'大珍',en:'Masterpieces'},
+  {id:'dragons',cn:'龙银',en:'Dragons'},
+  {id:'sunPortraits',cn:'孙像',en:'Sun Yat-sen'},{id:'yuanPortraits',cn:'袁像',en:'Yuan Shikai'},{id:'warlords',cn:'军阀',en:'Warlords'},
+  {id:'fullCollection',cn:'所有藏品',en:'Full Collection'},
+  {id:'wishlist',cn:'圣杯',en:'Grails'},
+  {id:'strategy',cn:'收藏策略',en:'Strategy'},{id:'collectors',cn:'藏家',en:'Collectors'},
+  {id:'database',cn:'机制币数据库',en:'Database'}
+];
+const nav=document.getElementById('mainNav');
+NAV.forEach((n,i)=>{const b=document.createElement('button');b.className=i===0?'active':'';b.setAttribute('data-cn',n.cn);b.setAttribute('data-en',n.en);b.textContent=n.cn;b.onclick=()=>{document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(n.id).classList.add('active');b.classList.add('active')};nav.appendChild(b)});
+
+// Shared: generate coin thumbnail HTML
+function coinImgTag(c,size){
+  size=size||120;
+  const st=`width:${size}px;height:${size}px;object-fit:contain;border-radius:6px;background:var(--lz);`;
+  if(c.img?.length) return `<img src="${c.img[0]}" alt="${c.cn}" style="${st}" onerror="this.outerHTML='<div style=\\'width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--lz);color:var(--gd);font-size:${size/3}px;opacity:.3\\'>&#x2742;</div>'">`;
+  if(c.pcgs_cert){const cert=Array.isArray(c.pcgs_cert)?c.pcgs_cert[0]:c.pcgs_cert;return `<img src="https://images.pcgs.com/trueview/${cert}_medium.jpg" alt="${c.cn}" style="${st}" onerror="this.outerHTML='<div style=\\'width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--lz);color:var(--gd);font-size:${size/3}px;opacity:.3\\'>&#x2742;</div>'">`;}
+  return `<div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--lz);color:var(--gd);font-size:${size/3}px;opacity:.3">&#x2742;</div>`;
+}
+
+// COIN SHOWCASE — visual scrolling strip
+const owned=COINS.filter(c=>c.myStatus==='owned');
+const wanted=COINS.filter(c=>c.myStatus==='want');
+const champs=owned.filter(c=>c.myRank&&(c.myRank.includes('冠军')||c.myRank.includes('亚军')||c.myRank.includes('季军')));
+(function(){
+  const track=document.getElementById('showcaseTrack');
+  const showcase=[...owned].sort((a,b)=>{
+    const ra=a.myRank?a.myRank.includes('冠军')?3:a.myRank.includes('亚军')?2:1:0;
+    const rb=b.myRank?b.myRank.includes('冠军')?3:b.myRank.includes('亚军')?2:1:0;
+    return rb-ra||b.rarity-a.rarity;
+  });
+  showcase.forEach(c=>{
+    const isC=c.myRank?.includes('冠军');const isR=c.myRank?.includes('亚军')||c.myRank?.includes('季军');
+    const cls=isC?'champion':isR?'runner':'';
+    const rankHtml=c.myRank?`<span class="sc-rank ${isC?'champ':'ru'}">${c.myRank}</span>`:'';
+    // Coin image: local photos > PCGS TrueView > placeholder
+    let imgSrc='';
+    if(c.img?.length) imgSrc=c.img[0];
+    else if(c.pcgs_cert) imgSrc=`https://images.pcgs.com/trueview/${Array.isArray(c.pcgs_cert)?c.pcgs_cert[0]:c.pcgs_cert}_medium.jpg`;
+    const imgHtml=imgSrc?`<img src="${imgSrc}" alt="${c.cn}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
+    const fallback=imgSrc?'style="display:none"':'';
+    const card=document.createElement('div');
+    card.className=`sc-card ${cls}`;
+    card.onclick=()=>showDetail(c.id);
+    card.innerHTML=`<div class="sc-img">${rankHtml}${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div>`;
+    track.appendChild(card);
+  });
+  // Auto-scroll animation
+  let scrollDir=1;
+  function autoScroll(){
+    if(!track.matches(':hover')){
+      track.scrollLeft+=scrollDir*0.5;
+      if(track.scrollLeft>=track.scrollWidth-track.clientWidth)scrollDir=-1;
+      if(track.scrollLeft<=0)scrollDir=1;
+    }
+    requestAnimationFrame(autoScroll);
+  }
+  requestAnimationFrame(autoScroll);
+})();
+
+// DETAIL PANEL — Full provenance trace, story, intelligence
+function showDetail(coinId){
+  const c=COINS.find(x=>x.id===coinId);if(!c)return;
+  const dp=document.getElementById('detailPanel');
+  // Find related auction records from global DB
+  const relatedAuctions=AUCTION_RECORDS.filter(r=>c.cn.includes(r.cn.split(' ')[0])||r.cn.includes(c.cn.substring(0,4)));
+  // Find collectors who hold this coin
+  const relatedCollectors=COLLECTORS.filter(col=>col.coins.some(cc=>cc.coin_id===c.id));
+  // Tier labels
+  const tierLabels=['至尊珍品','博物馆级','顶级珍品','高级珍品'];
+  const tierLabelsEn=['Supreme Rarity','Museum Grade','Premium','High-End'];
+
+  let h=`<button class="detail-close" onclick="closeDetail()">&times;</button>`;
+  // Status badge
+  const statusBadge=c.myStatus==='owned'?`<span style="display:inline-block;background:rgba(197,162,88,.2);color:var(--g);padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px">1024 COLLECTION</span>`
+    :c.myStatus==='want'?`<span style="display:inline-block;background:rgba(154,125,58,.2);color:var(--gd);padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px">WISHLIST</span>`:'';
+  h+=statusBadge;
+  h+=`<h2>${c.cn}</h2><div class="den">${c.en}</div>`;
+
+  // Coin images (local photos or PCGS TrueView)
+  if(c.img?.length||c.pcgs_cert){
+    h+=`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding:8px 0">`;
+    if(c.img?.length){
+      c.img.forEach(src=>{
+        h+=`<img src="${src}" alt="${c.cn}" style="max-height:200px;border-radius:6px;border:1px solid var(--lz-b);cursor:pointer" onerror="this.style.display='none'" onclick="window.open(this.src)">`;
+      });
+    }
+    if(c.pcgs_cert){
+      const certs=Array.isArray(c.pcgs_cert)?c.pcgs_cert:[c.pcgs_cert];
+      certs.forEach(cert=>{
+        h+=`<img src="https://images.pcgs.com/trueview/${cert}_medium.jpg" alt="PCGS TrueView ${cert}" style="max-height:200px;border-radius:6px;border:1px solid var(--lz-b);cursor:pointer" onerror="this.style.display='none'" onclick="window.open('https://www.pcgs.com/cert/${cert}')">`;
+      });
+    }
+    h+=`</div>`;
+  }
+
+  // Metadata grid
+  h+=`<div class="dmeta">
+    <div><div class="dl">年代 Era</div><div class="dv">${c.era} (${c.year})</div></div>
+    <div><div class="dl">造币厂 Mint</div><div class="dv">${c.mint}</div></div>
+    <div><div class="dl">材质 / 规格</div><div class="dv">${c.metal} ${c.weight} ${c.diam}</div></div>
+    <div><div class="dl">珍稀度 Rarity</div><div class="dv">${'&#9733;'.repeat(c.rarity)}${'&#9734;'.repeat(10-c.rarity)} <span style="color:var(--td);font-size:.72rem">${CL==='cn'?tierLabels[c.tier]||'':tierLabelsEn[c.tier]||''}</span></div></div>
+    <div><div class="dl">PCGS Population</div><div class="dv">${c.pcgs_pop?.total||'N/A'}${c.pcgs_pop?.total?` <span style="color:var(--td);font-size:.72rem">枚获评</span>`:''}</div></div>
+    <div><div class="dl">估值 Est.</div><div class="dv" style="color:var(--g);font-size:1.05rem">¥${c.est_rmb}</div></div>
+    ${c.myStatus==='owned'?`<div style="grid-column:1/-1;background:rgba(197,162,88,.08);border:1px solid rgba(197,162,88,.25)"><div class="dl" style="color:var(--g)">本藏品 My Piece</div><div class="dv" style="color:var(--ch);font-size:1.1rem">${c.myGrade} ${c.myRank?'— '+c.myRank:''}</div></div>`:''}
+  </div>`;
+
+  // PCGS Pop breakdown (if available)
+  const popKeys=Object.keys(c.pcgs_pop||{}).filter(k=>k!=='total'&&c.pcgs_pop[k]>0);
+  if(popKeys.length>1){
+    h+=`<div style="margin-bottom:16px"><div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">PCGS评级分布 Grade Distribution</div><div style="display:flex;flex-wrap:wrap;gap:4px">`;
+    popKeys.forEach(k=>{
+      const isMyGrade=c.myGrade&&c.myGrade.toLowerCase().replace(/[\s\/]/g,'').includes(k.toLowerCase());
+      h+=`<span class="gt ${isMyGrade?'owned':'normal'}" style="font-size:.68rem">${k.toUpperCase()}: ${c.pcgs_pop[k]}</span>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // Story / History
+  h+=`<div class="dh" data-cn="币种故事 Story" data-en="Story">${CL==='cn'?'币种故事':'Story'}</div>`;
+  h+=`<div style="font-size:.92rem;color:var(--t);line-height:2;margin-bottom:8px;padding:12px 16px;background:var(--lz-s2);border-radius:6px;border-left:3px solid var(--gd)">${CL==='cn'?c.history_cn:c.history_en}</div>`;
+
+  // PROVENANCE CHAIN — Timeline style
+  if(c.provenance?.length){
+    h+=`<div class="dh" data-cn="传承链 Provenance Chain" data-en="Provenance Chain">${CL==='cn'?'传承链 Provenance Chain':'Provenance Chain'}</div>`;
+    h+=`<div style="position:relative;padding-left:20px;border-left:2px solid var(--lz-b);margin-left:8px">`;
+    c.provenance.forEach((p,i)=>{
+      const isMe=p.holder.includes('1024');
+      const dotColor=isMe?'var(--g)':p.status?.includes('持有')?'var(--cr)':p.status?.includes('出售')||p.status?.includes('可售')?'var(--r)':'var(--gd)';
+      const dotSize=isMe?12:8;
+      h+=`<div style="position:relative;padding:10px 0 10px 16px;${i<c.provenance.length-1?'':''}">
+        <span style="position:absolute;left:-${dotSize/2+1}px;top:14px;width:${dotSize}px;height:${dotSize}px;border-radius:50%;background:${dotColor};${isMe?'box-shadow:0 0 8px rgba(197,162,88,.6)':''}"></span>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">
+          <span style="${isMe?'color:var(--g);font-weight:700;font-size:1rem':'color:var(--cr);font-weight:600'}">${p.holder}</span>
+          ${p.grade?`<span class="gt owned">${p.grade}</span>`:''}
+          ${p.acquired?`<span style="color:var(--td);font-size:.72rem;background:var(--lz-s2);padding:1px 6px;border-radius:3px">${p.acquired}</span>`:''}
+        </div>
+        <div style="font-size:.78rem;color:var(--td);margin-top:2px">
+          ${p.status?`<span style="margin-right:8px">${p.status}</span>`:''}
+          ${p.price?`<span style="color:var(--g)">成本: ${p.price}</span>`:''}
+          ${p.note?`<span style="margin-left:4px;color:var(--tm)">${p.note}</span>`:''}
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // AUCTION RECORDS — this coin
+  if(c.auctions?.length){
+    h+=`<div class="dh" data-cn="拍卖纪录 Auction Records" data-en="Auction Records">${CL==='cn'?'拍卖纪录':'Auction Records'}</div>`;
+    h+=`<div style="overflow-x:auto"><table class="at" style="font-size:.8rem"><thead><tr><th>日期</th><th>拍卖行</th><th>评级</th><th>Lot</th><th>成交价</th><th>备注</th></tr></thead><tbody>`;
+    c.auctions.forEach(a=>{
+      h+=`<tr><td>${a.date}</td><td style="color:var(--g)">${a.house}</td><td>${a.grade||''}</td><td>${a.lot||''}</td><td class="price">${a.price_usd?'$'+a.price_usd.toLocaleString():''}${a.price_rmb?(a.price_usd?' / ':'')+'¥'+a.price_rmb.toLocaleString():''}</td><td style="color:var(--td);font-size:.75rem">${a.note||''}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  }
+
+  // INTELLIGENCE — related collectors and market signals
+  h+=`<div class="dh" style="color:var(--gb)" data-cn="情报分析 Intelligence" data-en="Intelligence">${CL==='cn'?'情报分析':'Intelligence'}</div>`;
+  h+=`<div style="font-size:.85rem;color:var(--td);line-height:1.8">`;
+  // Which collectors hold same coin
+  if(relatedCollectors.length){
+    h+=`<div style="margin-bottom:10px"><span style="color:var(--g);font-weight:600">相关藏家:</span> `;
+    relatedCollectors.forEach((col,i)=>{
+      const theirCoin=col.coins.find(cc=>cc.coin_id===c.id);
+      h+=`${i>0?' | ':''}${col.cn}（${col.loc_cn}）${theirCoin?.grade?' '+theirCoin.grade:''}${col.mode==='sell'?' <span style="color:var(--r);font-size:.72rem">[有出售意向]</span>':col.mode==='buy'?' <span style="color:var(--gr);font-size:.72rem">[积极买入]</span>':''}`;
+    });
+    h+=`</div>`;
+  }
+  // Market context: show other holders from provenance
+  const otherHolders=c.provenance?.filter(p=>!p.holder.includes('1024')&&p.status?.includes('持有'))||[];
+  if(otherHolders.length){
+    h+=`<div style="margin-bottom:10px"><span style="color:var(--g);font-weight:600">当前已知持有者:</span> `;
+    h+=otherHolders.map(p=>`${p.holder}${p.grade?' ('+p.grade+')':''}`).join('、');
+    h+=`</div>`;
+  }
+  // Sellers / opportunities
+  const sellers=c.provenance?.filter(p=>p.status?.includes('出售')||p.status?.includes('可售')||p.status?.includes('开价'))||[];
+  if(sellers.length){
+    h+=`<div style="margin-bottom:10px;padding:8px 12px;background:rgba(74,152,104,.08);border-radius:4px;border-left:3px solid var(--gr)"><span style="color:var(--gr);font-weight:600">潜在机会:</span> `;
+    sellers.forEach(s=>{h+=`${s.holder} — ${s.status}${s.price?' ('+s.price+')':''}. `});
+    h+=`</div>`;
+  }
+  // Population scarcity note
+  if(c.pcgs_pop?.total&&c.pcgs_pop.total<=10){
+    h+=`<div style="padding:6px 12px;background:rgba(197,162,88,.08);border-radius:4px;border-left:3px solid var(--gd);margin-bottom:8px"><span style="color:var(--gd);font-weight:600">极罕警示:</span> PCGS仅${c.pcgs_pop.total}枚获评，每枚流转都可能改变市场格局。</div>`;
+  }
+  // If owned — show rank context
+  if(c.myStatus==='owned'&&c.myRank){
+    h+=`<div style="padding:6px 12px;background:rgba(255,215,0,.08);border-radius:4px;border-left:3px solid var(--ch);margin-bottom:8px"><span style="color:var(--ch);font-weight:600">评级地位:</span> ${c.myGrade} — ${c.myRank}。在该品种的PCGS评级中占据顶尖位置。</div>`;
+  }
+  h+=`</div>`;
+
+  dp.innerHTML=h;document.getElementById('detailOverlay').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow=''}
+
+// === RENDER SECTIONS ===
+// PROLOGUE
+document.getElementById('prologue').innerHTML=`<div class="story"><p class="drop-cap" data-cn="1889年，一条完整的逻辑链在广州开启——两广总督张之洞从英国伯明翰喜敦造币厂引进全套机器压印设备，在广东钱局开铸中国第一批机制银圆。这不是一次技术引进，而是一个帝国在财政分权的极限处被迫启动货币主权重建的起点。" data-en="In 1889, a complete logical chain began in Canton — Viceroy Zhang Zhidong imported full press machinery from Birmingham's Heaton Mint, striking China's first machine-milled silver dollars. This was not a technology transfer. It was the moment an empire, pushed to the limits of fiscal decentralization, began rebuilding monetary sovereignty.">1889年，一条完整的逻辑链在广州开启——两广总督张之洞从英国伯明翰喜敦造币厂引进全套机器压印设备，在广东钱局开铸中国第一批机制银圆。这不是一次技术引进，而是一个帝国在财政分权的极限处被迫启动货币主权重建的起点。</p>
+<p style="margin-top:14px" data-cn="首批试铸为七钱三分「反版」——英文居正、龙图在背——因不合体例旋改为七钱二分正版。广东首铸后，湖北、江南、北洋、奉天、吉林等十余省各自设局仿铸，龙纹各异，实质是地方财权的银质化表达。「圆两之争」贯穿始终：各省以「圆」计重铸币（七钱二分），而清廷主张「两」制统一（壹两）——户部壹两、北洋壹两、中字壹两，正是中央对地方铸币权的收回尝试。每一枚壹两样币都是制度博弈的实物证据。" data-en="The first trial strikes — the 7.3 Candareens 'reverse' type with English obverse — were corrected to 7.2 standard. After Kwangtung, Hupeh, Kiangnan, Chihli, Fengtien, Kirin and more minted their own, each with distinct dragon designs — in reality, local fiscal power expressed in silver. The 'Dollar vs. Tael' debate persisted: provinces minted by 'Dollar' (7.2 Candareens), while the Court insisted on 'Tael' (One Tael) — the Hu Bu Tael, Pei Yang Tael, Chung-Tze Tael each representing attempts to reclaim minting authority. Every tael pattern coin is physical evidence of institutional struggle.">首批试铸为七钱三分「反版」——英文居正、龙图在背——因不合体例旋改为七钱二分正版。广东首铸后，湖北、江南、北洋、奉天、吉林等十余省各自设局仿铸，龙纹各异，实质是地方财权的银质化表达。「圆两之争」贯穿始终：各省以「圆」计重铸币（七钱二分），而清廷主张「两」制统一（壹两）——户部壹两、北洋壹两、中字壹两，正是中央对地方铸币权的收回尝试。每一枚壹两样币都是制度博弈的实物证据。</p>
+<p style="margin-top:14px" data-cn="宣统二年（1910），度支部颁布《币制则例》，统一币制为「圆」，天津造币总厂聘请意大利雕刻师 Luigi Giorgi 设计「大清银币」系列——长须龙、短须龙、反龙诸版由此诞生。这是清末机制工艺的最高峰，后世无法复现。然而翌年辛亥革命爆发，这批承载着帝国最后一次币制统一意志的银币未及流通即成绝响。民国初年，中央造币厂终于在1914年实现袁世凯像壹圆的全国统一铸行——意大利雕刻师 Giorgi 的签字版与七分脸试铸，标志着中国货币主权从清末地方分权到民国中央定型的历史性转折。1913-1914年，是国家制度终于成功的年份。" data-en="In 1910, the Qing Currency Reform unified the system around 'Yuan.' Tientsin Central Mint hired Luigi Giorgi to design the Ta-Ching series — Long Whisker, Short Whisker, Reverse Dragon emerged. These represent the absolute apex of late Qing minting technology, unreproducible by later generations. Yet the 1911 Revolution struck before circulation, turning these final expressions of imperial monetary will into supreme rarities. In 1914, the Republic achieved what the Qing could not — Yuan Shikai's national dollar, with Giorgi's signed pattern and the '7/10 face' trial strike, marking the historic transition from Qing decentralization to Republican central authority. 1913-1914: the year the national system finally succeeded.">宣统二年（1910），度支部颁布《币制则例》，统一币制为「圆」，天津造币总厂聘请意大利雕刻师 Luigi Giorgi 设计「大清银币」系列——长须龙、短须龙、反龙诸版由此诞生。这是清末机制工艺的最高峰，后世无法复现。然而翌年辛亥革命爆发，这批承载着帝国最后一次币制统一意志的银币未及流通即成绝响。民国初年，中央造币厂终于在1914年实现袁世凯像壹圆的全国统一铸行——意大利雕刻师 Giorgi 的签字版与七分脸试铸，标志着中国货币主权从清末地方分权到民国中央定型的历史性转折。1913-1914年，是国家制度终于成功的年份。</p>
+<p style="margin-top:14px" data-cn="而在所有这些制度博弈的样本之上，有一枚币凌驾于整条逻辑链之上——广东省造寿字双龙壹两。它不属于圆两之争的任何一方，它是超越制度框架的帝国献礼，是清末铸币工艺与政治象征的极致合一。存世仅五枚评级。它是这条收藏逻辑的最终封顶。" data-en="Above all institutional specimens sits one coin that transcends the entire logical chain — the Kwangtung Shou-Zi (Longevity) Double Dragon One Tael. It belongs to neither side of the Dollar-Tael debate. It is an imperial tribute beyond institutional frameworks, the ultimate fusion of late Qing minting artistry and political symbolism. Only five graded. It is the capstone of this collecting thesis.">而在所有这些制度博弈的样本之上，有一枚币凌驾于整条逻辑链之上——广东省造寿字双龙壹两。它不属于圆两之争的任何一方，它是超越制度框架的帝国献礼，是清末铸币工艺与政治象征的极致合一。存世仅五枚评级。它是这条收藏逻辑的最终封顶。</p>
+<p style="margin-top:14px" data-cn="1024 Collection 所构建的，正是这条从清末地方财政极限到民国国家币制成型的完整逻辑链——覆盖制度史与工艺史两端。那些样币是清末机制工艺不可复现的巅峰；那些壹两是中央与地方货币主权博弈的实物档案；那些签字版是国家制度终于成型的历史见证。" data-en="What the 1024 Collection constructs is precisely this complete logical chain — from the limits of late Qing local fiscal power to the formation of Republican national coinage. Covering both institutional history and the history of craft. The pattern coins are unreproducible peaks of Qing minting art; the taels are physical archives of central-local monetary sovereignty contests; the signed dollars are historical witnesses to the moment national institutions finally crystallized.">1024 Collection 所构建的，正是这条从清末地方财政极限到民国国家币制成型的完整逻辑链——覆盖制度史与工艺史两端。那些样币是清末机制工艺不可复现的巅峰；那些壹两是中央与地方货币主权博弈的实物档案；那些签字版是国家制度终于成型的历史见证。</p>
+<p style="margin-top:14px;border-top:1px solid var(--lz-b);padding-top:14px" data-cn="我们正处于旧秩序被AI摧毁、新秩序重新建立的时代——文艺复兴2.0。AI将重塑智能与文明，放大人文之光。参与这一次秩序重构的人，也收藏历史上秩序重建的样本。当前机制币的估值体系更多由收藏圈内部的评级标准分级决定，但它们真正的价值，应当放在文明更替与制度重建的坐标中去衡量。不只是中国，不只是机制币。" data-en="We live in an era where the old order is being dismantled by AI and a new one is being rebuilt — Renaissance 2.0. AI will reshape intelligence and civilization, amplifying the light of humanity. Those who participate in this reconstruction of order also collect specimens from history's previous moments of institutional rebirth. The current valuation framework for Chinese coins is largely determined by internal collecting-circle grading standards, but their true value should be measured against the coordinates of civilizational transition and institutional rebuilding. Not just China. Not just coins.">我们正处于旧秩序被AI摧毁、新秩序重新建立的时代——文艺复兴2.0。AI将重塑智能与文明，放大人文之光。参与这一次秩序重构的人，也收藏历史上秩序重建的样本。当前机制币的估值体系更多由收藏圈内部的评级标准分级决定，但它们真正的价值，应当放在文明更替与制度重建的坐标中去衡量。不只是中国，不只是机制币。</p>
+<p style="margin-top:14px" data-cn="耿爱德（Eduard Kann）、施嘉干、张璜以系统性著录奠定学术根基；鸿禧美术馆（Chang Foundation）以空前规模将机制币收藏推至博物馆殿堂。1024 Collection 接续这一传统，以制度史逻辑重新审视每一枚珍币的定位。以下，是它们的故事。" data-en="Eduard Kann, Shi Jiagan, and Zhang Huang built the scholarly foundation; the Chang Foundation elevated collecting to museum-grade institution. The 1024 Collection continues this tradition, re-examining each rarity through the lens of institutional history. What follows is their story.">耿爱德（Eduard Kann）、施嘉干、张璜以系统性著录奠定学术根基；鸿禧美术馆（Chang Foundation）以空前规模将机制币收藏推至博物馆殿堂。1024 Collection 接续这一传统，以制度史逻辑重新审视每一枚珍币的定位。以下，是它们的故事。</p></div>`;
+
+// HIGHLIGHTS (至臻之选 — 大珍标准：一级币/二级币，非评级高分)
+const DAZHEN_IDS=['C010','C011','C044','C031','C032','C045','C030','C033','C034','C037','C013','C046','C014','C038','C039','C017','C012','C040','C041','C042','C043'];
+const dzTier1=COINS.filter(c=>DAZHEN_IDS.includes(c.id)&&c.myStatus==='owned'&&c.tier<=2&&(c.rarity>=8||c.myRank)).sort((a,b)=>b.rarity-a.rarity);
+const dzTier2=COINS.filter(c=>DAZHEN_IDS.includes(c.id)&&c.myStatus==='owned'&&!dzTier1.includes(c)).sort((a,b)=>b.rarity-a.rarity);
+document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="至臻之选" data-en="The Finest">至臻之选</div><div class="chapter-line"></div></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 入藏大珍${DAZHEN_IDS.length}枚——每一枚都是中国机制银圆收藏界公认的一级币或二级币。大珍的定义不取决于评级分数的高低，而在于币种本身的历史地位、存世稀缺度与制度史价值。普通版币即使获得高分评级，也无法跻身大珍之列。" data-en="The 1024 Collection holds ${DAZHEN_IDS.length} masterpieces — each recognized as a Tier I or Tier II rarity in Chinese numismatics. 'Da Zhen' status is defined not by grade, but by historical significance, survival rarity, and institutional importance.">1024 Collection 入藏大珍${DAZHEN_IDS.length}枚——每一枚都是中国机制银圆收藏界公认的一级币或二级币。大珍的定义不取决于评级分数的高低，而在于币种本身的历史地位、存世稀缺度与制度史价值。普通版币即使获得高分评级，也无法跻身大珍之列。</p></div>
+<h3 style="color:var(--ch);font-size:1rem;margin-bottom:12px;letter-spacing:.06em" data-cn="一级大珍 Tier I Masterpieces" data-en="Tier I Masterpieces">一级大珍 Tier I Masterpieces</h3>
+<div class="coin-grid" style="margin-bottom:28px">${dzTier1.map(c=>{const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:var(--ch);color:var(--lz-deep)">大珍</span>`;return`<div class="coin-card champion" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,100)}</div><div style="flex:1">${rankBadge}<div class="prov">${c.era} · ${'★'.repeat(Math.min(c.rarity,5))}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">Pop ${c.pcgs_pop.total}</span>`:''}</div><div class="meta" style="line-height:1.6;margin-top:8px">${c.history_cn.substring(0,100)}...</div><div class="value">¥${c.est_rmb}</div></div></div>`}).join('')}</div>
+<h3 style="color:var(--g);font-size:1rem;margin-bottom:12px;letter-spacing:.06em" data-cn="二级大珍 Tier II Masterpieces" data-en="Tier II Masterpieces">二级大珍 Tier II Masterpieces</h3>
+<div class="coin-grid">${dzTier2.map(c=>{const rankBadge=c.myRank?`<span class="rb ru">${c.myRank}</span>`:`<span class="rb" style="background:var(--lz-bl);color:var(--g)">大珍</span>`;return`<div class="coin-card" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}</div><div style="flex:1">${rankBadge}<div class="prov">${c.era} · ${'★'.repeat(Math.min(c.rarity,5))}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">Pop ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div></div></div>`}).join('')}</div>`;
+
+// DATABASE
+// Build auction calendar for database section
+let calendarHTML='';
+(function(){
+  const allEvents=[];
+  AUCTION_HOUSES.forEach(h=>{h.schedule.forEach(s=>{allEvents.push({...s,house:h.cn,hid:h.id,color:h.color})})});
+  allEvents.sort((a,b)=>(a.date>b.date?1:-1));
+  calendarHTML+=`<h3 style="color:var(--g);margin:0 0 12px;display:flex;align-items:center;gap:10px" data-cn="拍卖日历" data-en="Auction Calendar">拍卖日历</h3>`;
+  calendarHTML+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;margin-bottom:28px">`;
+  allEvents.forEach(e=>{
+    const stCls=e.status==='done'?'opacity:.5':'';
+    const stBadge=e.status==='next'?'<span style="background:var(--gr);color:#fff;font-size:.6rem;padding:1px 6px;border-radius:3px;font-weight:700;margin-left:6px">NEXT</span>':e.status==='plan'?'<span style="background:var(--lz-bl);color:var(--td);font-size:.6rem;padding:1px 6px;border-radius:3px;margin-left:6px">TBD</span>':'';
+    const subBtn=e.status!=='done'?`<button onclick="subscribeAuction(event,'${e.house} ${e.event}','${e.date}')" style="margin-top:6px;padding:3px 10px;border:1px solid var(--g);border-radius:3px;background:transparent;color:var(--g);cursor:pointer;font-size:.68rem;font-family:'EB Garamond',serif;transition:.2s" onmouseover="this.style.background='var(--g)';this.style.color='var(--lz-deep)'" onmouseout="this.style.background='transparent';this.style.color='var(--g)'" data-cn="订阅提醒" data-en="Subscribe">订阅提醒</button>`:'';
+    calendarHTML+=`<div style="padding:10px 14px;background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid ${e.color};border-radius:6px;${stCls}"><div style="font-size:.82rem;font-weight:600;color:var(--cr)">${e.house}${stBadge}</div><div style="font-size:.9rem;color:var(--g);margin:2px 0">${e.event}</div><div style="font-size:.72rem;color:var(--td)">${e.date}</div>${subBtn}</div>`;
+  });
+  calendarHTML+=`</div>`;
+})();
+const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="机制币数据库" data-en="Numismatic Database">机制币数据库</div><div class="chapter-line"></div></div>
+<div class="section-subtitle" data-cn="机制币数据库 — 含拍卖日历、PCGS评级数据、传承链追溯" data-en="Numismatic database with auction calendar, PCGS data, provenance chains">机制币数据库 — 含拍卖日历、PCGS评级数据、传承链追溯</div>
+${calendarHTML}
+<div class="search-bar"><input type="text" id="dbSearch" placeholder="搜索币种 Search coins..." oninput="filterDB()"><select id="dbFilter" onchange="filterDB()"><option value="all">全部 All</option><option value="qing-tael">清·壹两 Tael</option><option value="qing-dragon">清·龙银 Dragon</option><option value="qing-provincial">清·省造 Provincial</option><option value="republic-yuan">民国·袁像 Yuan</option><option value="republic-sun">民国·孙像 Sun</option><option value="republic-warlord">军阀 Warlord</option></select></div>
+<div class="coin-grid" id="dbGrid"></div>`;
+document.getElementById('database').innerHTML=dbHTML;
+function renderDB(list){
+  document.getElementById('dbGrid').innerHTML=list.map(c=>{
+    const st=c.myStatus==='owned'?'border-left:3px solid var(--g)':c.myStatus==='want'?'border-left:3px solid var(--gd)':'';
+    return`<div class="coin-card" style="${st}" onclick="showDetail('${c.id}')"><div class="prov">${c.era} &middot; ${'&#9733;'.repeat(Math.min(c.rarity,5))}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${c.myStatus==='owned'?`<span class="gt owned">${c.myGrade}</span>`:''}${c.pcgs_pop?.total?`<span class="gt normal">Pop ${c.pcgs_pop.total}</span>`:''}<span class="gt normal">¥${c.est_rmb}</span></div>${c.auctions?.length?`<div class="meta">${c.auctions.length}条拍卖纪录 | ${c.provenance?.length||0}条传承</div>`:''}</div>`}).join('');
+}
+renderDB(COINS);
+function filterDB(){
+  const q=document.getElementById('dbSearch').value.toLowerCase();
+  const f=document.getElementById('dbFilter').value;
+  let list=COINS;
+  if(f!=='all')list=list.filter(c=>c.cat===f);
+  if(q)list=list.filter(c=>c.cn.includes(q)||c.en.toLowerCase().includes(q));
+  renderDB(list);
+}
+
+// WISHLIST
+// Grails ordered by collector's priority logic
+const grailOrder=['C001','C019','C031','C005','C003','C004','C020','C018','C002','C007'];
+const orderedWanted=grailOrder.map(id=>wanted.find(c=>c.id===id)).filter(Boolean);
+// Add any wanted coins not in grailOrder
+wanted.forEach(c=>{if(!grailOrder.includes(c.id))orderedWanted.push(c)});
+const grailLogic={
+  'C001':'最终封顶 · 超越制度框架的帝国献礼，清末铸币工艺与政治象征的极致合一。存世仅五枚评级，凌驾于整条收藏逻辑链之上。',
+  'C019':'金本位 · 1932年金本位币制改革的唯一实物见证。「下三鸟」仅存2枚评级——中国从银本位向金本位转型的制度性尝试，虽因日本侵华而夭折，但它是现代货币制度的先声。',
+  'C031':'北洋壹两 · 北洋机器局试铸，清廷「两」制统一的直接证据。评级仅8枚。北洋壹两与户部壹两、中字壹两构成「壹两三部曲」——中央收回地方铸币权的完整实物档案。',
+  'C005':'户部壹两 · 清政府统一币制的首次尝试，「圆两之争」的核心实物。评级16枚。户部壹两代表中央集权意志在货币领域的最高表达。',
+  'C003':'短须龙 · 宣三系列最珍版别。Giorgi设计的帝国最后一批银币试铸——清末机制工艺的不可复现的巅峰。存世极罕。',
+  'C004':'长须龙 · 宣三系列最著名品种，Giorgi设计巅峰。2022年SBP以$3M成交SP63+。与短须龙共同构成大清帝国最后的货币遗嘱。',
+  'C020':'签字大头 · 1914年，国家制度终于成功。Giorgi签字版是中央统一币制的最高规格试铸品——从清末分权到民国定型的历史性转折的直接见证。',
+  'C018':'本省 · 湖北省造「本省」二字表明仅限省内流通——地方财政分权的极端案例。评级仅2枚。制度史逻辑链中「地方极限」的封顶标本。',
+  'C002':'奉天壹两 · 中国银圆拍卖最高成交纪录（¥4657.5万）。奉天机器局试铸——东北地方铸币权的顶峰表达。',
+  'C007':'上海壹两 · 中国最早的近代机制银币之一（1856）。早于广东首铸三十余年，是中国货币现代化的先声。'
+};
+const grailLogicEn={
+  'C001':'Ultimate Capstone · An imperial tribute beyond institutional frameworks — the supreme fusion of late Qing minting art and political symbolism. Only 5 graded.',
+  'C019':'Gold Standard · The sole physical witness to the 1932 gold standard reform. Only 2 graded — China\'s institutional attempt at modern monetary transition.',
+  'C031':'Pei Yang Tael · Direct evidence of Court "tael" unification. Only 8 graded. With Hu Bu and Chung-Tze taels, forms the complete "Tael Trilogy."',
+  'C005':'Hu Bu Tael · The Qing government\'s first attempt at unified coinage. 16 graded. Represents the highest expression of central authority in the monetary domain.',
+  'C003':'Short Whisker Dragon · Rarest Xuan Tong 3 variety. Giorgi\'s final imperial pattern strikes — the unreproducible peak of Qing minting technology.',
+  'C004':'Long Whisker Dragon · Most famous Xuan Tong 3 type. $3M at SBP 2022. Together with Short Whisker, the empire\'s last monetary testament.',
+  'C020':'Signed Dollar · 1914: the year the national system succeeded. Giorgi\'s signed pattern marks the historic transition from Qing decentralization to Republican unity.',
+  'C018':'Ben Sheng · "This Province Only" — the extreme case of local fiscal decentralization. Only 2 graded. The capstone specimen of "local limits."',
+  'C002':'Fengtian Tael · Highest auction record for Chinese silver (¥46.575M). Peak expression of Northeast local minting authority.',
+  'C007':'Shanghai Tael · Among China\'s earliest modern milled coins (1856). Predating Kwangtung by 30+ years, the harbinger of monetary modernization.'
+};
+document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="圣杯" data-en="The Grails">圣杯</div><div class="chapter-line"></div></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="这些不是「想要的币」——它们是这条收藏逻辑链上尚未补齐的关键节点。从清末地方财政极限到民国中央币制成型，从壹两制度博弈到金本位转型尝试，每一枚都承载着制度重建的历史坐标。补齐这些，逻辑链才算完整。之后，才是陕西、湖南、浙江那些地方珍品的扩展。" data-en="These are not 'wants' — they are critical nodes still missing from the collecting thesis. From late Qing fiscal limits to Republican monetary formation, from the Tael system contest to gold standard transition, each carries a historical coordinate of institutional rebuilding. Only when these are complete does the logical chain hold. Provincial rarities — Shaanxi, Hunan, Chekiang — come after.">这些不是「想要的币」——它们是这条收藏逻辑链上尚未补齐的关键节点。从清末地方财政极限到民国中央币制成型，从壹两制度博弈到金本位转型尝试，每一枚都承载着制度重建的历史坐标。补齐这些，逻辑链才算完整。之后，才是陕西、湖南、浙江那些地方珍品的扩展。</p></div>
+${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS Pop: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
+
+// RANKINGS — 高分典藏
+const ranked=owned.filter(c=>c.myRank).sort((a,b)=>b.rarity-a.rarity);
+document.getElementById('rankings').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第贰章" data-en="Chapter II">第贰章</div><div class="chapter-title" data-cn="高分典藏" data-en="Top-Graded Holdings">高分典藏</div><div class="chapter-line"></div></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="${champs.length}枚冠军、亚军或季军评级——在PCGS全球评级体系中位居该品种最高分或并列最高分。点击查看完整档案。" data-en="${champs.length} coins holding Champion, Runner-up, or 3rd-place grades in the PCGS global registry. Click for full profiles.">${champs.length}枚冠军、亚军或季军评级——在PCGS全球评级体系中位居该品种最高分或并列最高分。点击查看完整档案。</p></div>
+${ranked.map((c,i)=>{
+  const isChamp=c.myRank.includes('冠军');const isRunner=c.myRank.includes('亚军');
+  const badge=isChamp?'background:var(--ch);color:var(--lz-deep)':isRunner?'background:var(--g);color:var(--lz-deep)':'background:var(--lz-bl);color:var(--cr)';
+  return`<div class="coin-card ${isChamp?'champion':isRunner?'runner':''}" style="margin-bottom:10px;padding:16px;cursor:pointer" onclick="showDetail('${c.id}')">
+  <div style="display:flex;gap:14px;align-items:flex-start">
+    <div style="flex-shrink:0">${coinImgTag(c,100)}</div>
+    <div style="flex:1;min-width:180px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="font-size:1.2rem;font-weight:700;color:var(--ch)">#${i+1}</span>
+        <span style="${badge};font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:700">${c.myRank}</span>
+        <span class="gt owned" style="font-size:.78rem">${c.myGrade}</span>
+      </div>
+      <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
+      <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
+      <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,100)||''}...</div>
+    </div>
+    <div style="text-align:right;min-width:120px;flex-shrink:0">
+      <div style="color:var(--g);font-weight:700;font-size:1.05rem;margin-bottom:4px">¥${c.est_rmb}</div>
+      <div style="font-size:.72rem;color:var(--td)">PCGS Pop: ${c.pcgs_pop?.total||'N/A'}</div>
+      <div style="font-size:.72rem;color:var(--gd);margin-top:2px">${'★'.repeat(Math.min(c.rarity,5))}</div>
+      ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--td);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
+    </div>
+  </div>
+</div>`}).join('')}`;
+
+// MASTERPIECES — 大珍 (all COINS with category sub-tabs)
+(function(){
+  let mhtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章" data-en="Chapter III">第叁章</div><div class="chapter-title" data-cn="大珍" data-en="Masterpieces">大珍</div><div class="chapter-line"></div></div>`;
+  mhtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="收录${COINS.length}枚中国机制币核心品种——涵盖壹两、中央龙银、地方龙银、孙像、袁像、军阀人像。按稀缺程度与历史地位排列，点击查看完整档案。" data-en="A curated registry of ${COINS.length} core Chinese milled coin types — taels, central dragons, provincial dragons, Sun Yat-sen, Yuan Shikai, and warlord portraits. Sorted by rarity and historical significance.">收录${COINS.length}枚中国机制币核心品种。按稀缺程度与历史地位排列，点击查看完整档案。</p></div>`;
+  // Category filter tabs
+  mhtml+=`<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">`;
+  const cats=[
+    {v:'all',cn:'全部',en:'All'},
+    {v:'qing-tael',cn:'一两',en:'Taels'},
+    {v:'central',cn:'中央',en:'Central',filter:c=>c.cat==='qing-dragon'},
+    {v:'provincial',cn:'地方',en:'Provincial',filter:c=>c.cat==='qing-provincial'},
+    {v:'sun',cn:'孙像',en:'Sun',filter:c=>c.cat==='republic-sun'},
+    {v:'yuan',cn:'袁像',en:'Yuan',filter:c=>c.cat==='republic-yuan'},
+    {v:'warlord',cn:'军阀',en:'Warlords',filter:c=>c.cat==='republic-warlord'||c.cat==='republic-portrait'}
+  ];
+  cats.forEach((ct,i)=>{
+    const cnt=ct.v==='all'?COINS.length:ct.v==='qing-tael'?COINS.filter(c=>c.cat==='qing-tael').length:COINS.filter(ct.filter||(_=>false)).length;
+    mhtml+=`<button onclick="filterMasterpieces('${ct.v}')" class="mf-btn${i===0?' active':''}" style="background:${i===0?'var(--g)':'var(--lz-s)'};border:1px solid var(--lz-b);color:${i===0?'var(--lz-deep)':'var(--td)'};padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" data-cn="${ct.cn}" data-en="${ct.en}">${ct.cn} (${cnt})</button>`;
+  });
+  mhtml+=`</div>`;
+  mhtml+=`<div id="mpGrid"></div>`;
+  document.getElementById('masterpieces').innerHTML=mhtml;
+  function renderMasterpieces(list){
+    document.getElementById('mpGrid').innerHTML=renderCoinCards(list);
+  }
+  renderMasterpieces(COINS);
+  const filterMap={
+    'all':()=>COINS,
+    'qing-tael':()=>COINS.filter(c=>c.cat==='qing-tael'),
+    'central':()=>COINS.filter(c=>c.cat==='qing-dragon'),
+    'provincial':()=>COINS.filter(c=>c.cat==='qing-provincial'),
+    'sun':()=>COINS.filter(c=>c.cat==='republic-sun'),
+    'yuan':()=>COINS.filter(c=>c.cat==='republic-yuan'),
+    'warlord':()=>COINS.filter(c=>c.cat==='republic-warlord'||c.cat==='republic-portrait')
+  };
+  window.filterMasterpieces=function(cat){
+    document.querySelectorAll('.mf-btn').forEach(b=>{b.style.background='var(--lz-s)';b.style.color='var(--td)'});
+    event.target.style.background='var(--g)';event.target.style.color='var(--lz-deep)';
+    renderMasterpieces((filterMap[cat]||filterMap['all'])());
+  };
+})();
+
+// DRAGONS (龙银) — vertical card format with detailed info, region tabs
+(function(){
+  const dragonData=[
+    {p:"北洋",cn:"北洋机器局二十二年",era:"清·光绪二十二年",year:"1896",mint:"北洋机器局",note:"北洋最早期铸币，光绪二十二年（1896）天津北洋机器局开铸。存世稀少。"},
+    {p:"云南",cn:"云南省造宣统庚戌春季七钱二分",era:"清·宣统二年",year:"1910",mint:"云南造币厂",note:"云南春季版，宣统庚戌年铸造。「春季」二字为该版独有标识，极为珍贵。"},
+    {p:"吉林",cn:"吉林省造戊申七钱二分（花篮版）",era:"清·光绪戊申",year:"1908",mint:"吉林造币厂",note:"花篮版为吉林省造独有设计，面文配有花篮图案装饰。"},
+    {p:"吉林",cn:"吉林省造戊申七钱二分（数字11版）",era:"清·光绪戊申",year:"1908",mint:"吉林造币厂",note:"面值以阿拉伯数字「11」标注，吉林银圆独特的面值标记方式。"},
+    {p:"吉林",cn:"吉林省造戊申七钱二分（满文版）",era:"清·光绪戊申",year:"1908",mint:"吉林造币厂",note:"满文版以满文标注面值与省名，体现东北地区的满汉并行传统。"},
+    {p:"吉林",cn:"吉林省造丁未七钱二分",era:"清·光绪丁未",year:"1907",mint:"吉林造币厂",note:"光绪丁未年铸造。吉林龙银因版别繁多、年份跨度大，被誉为龙银收藏的「百科全书」。"},
+    {p:"江南",cn:"江南省造戊戌珍珠龙七钱二分",era:"清·光绪戊戌",year:"1898",mint:"江南造币厂",note:"珍珠龙版——龙身环绕珍珠纹饰，为江南戊戌年独有版别，极为珍稀。"},
+    {p:"奉天",cn:"奉天机器局二十五年七钱二分",era:"清·光绪二十五年",year:"1899",mint:"奉天机器局",note:"光绪二十五年奉天机器局铸造。奉天龙银系列是东北铸币史的重要组成。"},
+    {p:"奉天",cn:"奉天省造癸卯七钱二分（宝奉版）",era:"清·光绪癸卯",year:"1903",mint:"奉天省造币厂",note:"宝奉版以满文「宝奉」标识。癸卯年奉天龙银分宝奉、奉宝两版，以满文排列顺序区分。"},
+    {p:"奉天",cn:"奉天省造癸卯七钱二分（奉宝版）",era:"清·光绪癸卯",year:"1903",mint:"奉天省造币厂",note:"奉宝版满文排列与宝奉版相反，两版共同构成癸卯年奉天龙银的版别学研究基础。"},
+    {p:"四川",cn:"四川省造宣统三钱六分",era:"清·宣统",year:"c.1910",mint:"四川造币厂",note:"半圆面额三钱六分。四川造币厂铸造的小面额龙银，存世量少于七钱二分主币。"},
+    {p:"吉林",cn:"吉林省造丙午三钱二分（错版）",era:"清·光绪丙午",year:"1906",mint:"吉林造币厂",note:"面值错铸为三钱二分（正确应为三钱六分或七钱二分），为吉林龙银中的著名错版。"},
+    {p:"奉天",cn:"奉天机器局二十四年七钱二分",era:"清·光绪二十四年",year:"1898",mint:"奉天机器局",note:"光绪二十四年铸造，为奉天龙银早期品种。"},
+    {p:"广东",cn:"喜敦版广东省造光绪元宝七钱二分",era:"清·光绪十五年",year:"1889",mint:"广东造币厂（喜敦原模）",note:"中国机制银圆的开端。广东造币厂以英国喜敦原模首铸，开启了近代中国各省仿铸的序幕。"},
+    {p:"江南",cn:"江南省造己亥老龙七钱二分",era:"清·光绪己亥",year:"1899",mint:"江南造币厂",note:"老龙版龙纹较粗犷古朴，与后期新龙风格迥异。己亥年老龙为江南龙银的重要早期版别。"},
+    {p:"江南",cn:"江南省造戊戌七钱二分",era:"清·光绪戊戌",year:"1898",mint:"江南造币厂",note:"江南戊戌年标准版，与珍珠龙版同年但龙纹设计不同。"},
+    {p:"安徽",cn:"安徽省造无纪年七钱二分",era:"清·光绪",year:"c.1897",mint:"安徽造币厂",note:"安徽龙银极为稀少。无纪年版为最早期铸造，存世量极小。安徽造币厂运营时间短暂。"},
+    {p:"安徽",cn:"安徽省造戊戌七钱二分",era:"清·光绪戊戌",year:"1898",mint:"安徽造币厂",note:"戊戌年铸造，安徽龙银中的重要年份品种。"},
+    {p:"安徽",cn:"安徽省造二十四年七钱二分",era:"清·光绪二十四年",year:"1898",mint:"安徽造币厂",note:"以帝号纪年标注的安徽版别。安徽龙银因造币厂早期关闭，各版均为珍品。"},
+    {p:"北洋",cn:"北洋造二十三年七钱二分",era:"清·光绪二十三年",year:"1897",mint:"北洋机器局",note:"光绪二十三年北洋铸造，早期北洋龙银品种。"},
+    {p:"北洋",cn:"北洋造二十四年七钱二分",era:"清·光绪二十四年",year:"1898",mint:"北洋机器局",note:"光绪二十四年铸造，北洋龙银序列中的重要年份。"},
+    {p:"江南",cn:"江南省造己亥新龙七钱二分",era:"清·光绪己亥",year:"1899",mint:"江南造币厂",note:"新龙版龙纹较精细流畅，与老龙版形成鲜明对比。反映了模具设计的演进。"},
+    {p:"江南",cn:"江南省造乙巳七钱二分",era:"清·光绪乙巳",year:"1905",mint:"江南造币厂",note:"乙巳年为江南龙银的晚期品种。"},
+    {p:"北洋",cn:"北洋造二十三年三角眼版",era:"清·光绪二十三年",year:"1897",mint:"北洋机器局",note:"三角眼版——龙目呈三角形，为北洋二十三年的著名版别，版别学研究的重要标本。"},
+    {p:"北洋",cn:"北洋造二十六年七钱二分",era:"清·光绪二十六年",year:"1900",mint:"北洋机器局",note:"庚子年铸造。庚子事变（八国联军）期间北洋的铸币活动，具有特殊历史背景。"},
+    {p:"江南",cn:"江南省造癸卯七钱二分",era:"清·光绪癸卯",year:"1903",mint:"江南造币厂",note:"癸卯年铸造的江南龙银。"},
+    {p:"吉林",cn:"吉林省造己亥七钱二分",era:"清·光绪己亥",year:"1899",mint:"吉林造币厂",note:"己亥年吉林龙银。吉林省造龙银以干支纪年跨度最广著称。"},
+    {p:"吉林",cn:"吉林省造丙午七钱二分",era:"清·光绪丙午",year:"1906",mint:"吉林造币厂",note:"丙午年铸造。"},
+    {p:"吉林",cn:"吉林省造庚子七钱二分",era:"清·光绪庚子",year:"1900",mint:"吉林造币厂",note:"庚子年铸造，庚子事变时期的铸币。"},
+    {p:"吉林",cn:"吉林省造癸卯七钱二分",era:"清·光绪癸卯",year:"1903",mint:"吉林造币厂",note:"癸卯年铸造。"},
+    {p:"吉林",cn:"吉林省造壬寅七钱二分",era:"清·光绪壬寅",year:"1902",mint:"吉林造币厂",note:"壬寅年铸造。"},
+    {p:"江南",cn:"江南省造庚子七钱二分",era:"清·光绪庚子",year:"1900",mint:"江南造币厂",note:"庚子年铸造。"},
+    {p:"江南",cn:"江南省造壬寅七钱二分",era:"清·光绪壬寅",year:"1902",mint:"江南造币厂",note:"壬寅年铸造。"},
+    {p:"北洋",cn:"北洋造二十三年圆眼龙版",era:"清·光绪二十三年",year:"1897",mint:"北洋机器局",note:"圆眼龙版——龙目呈圆形，与三角眼版对应。北洋二十三年版别研究的核心品种之一。"},
+    {p:"造总",cn:"造币总厂光绪元宝七钱二分",era:"清·光绪",year:"c.1908",mint:"天津造币总厂",note:"中央造币总厂铸造的光绪元宝，代表清末币制统一的尝试。"},
+    {p:"吉林",cn:"吉林省造辛丑七钱二分",era:"清·光绪辛丑",year:"1901",mint:"吉林造币厂",note:"辛丑年铸造。"},
+    {p:"吉林",cn:"吉林省造甲辰七钱二分",era:"清·光绪甲辰",year:"1904",mint:"吉林造币厂",note:"甲辰年铸造。"},
+    {p:"吉林",cn:"吉林省造乙巳七钱二分",era:"清·光绪乙巳",year:"1905",mint:"吉林造币厂",note:"乙巳年铸造。"},
+    {p:"吉林",cn:"吉林省造无纪年花篮七钱二分",era:"清·光绪",year:"c.1898",mint:"吉林造币厂",note:"无纪年花篮版，吉林龙银中的早期品种。花篮图案为吉林省造独有装饰元素。"},
+    {p:"云南",cn:"云南省造光绪老龙七钱二分",era:"清·光绪",year:"c.1908",mint:"云南造币厂",note:"老龙版为云南龙银的标志性品种。龙纹粗犷有力，地方特色鲜明。"},
+    {p:"中央",cn:"大清银币宣统三年壹圆",era:"清·宣统三年",year:"1911",mint:"天津造币总厂",note:"宣统三年大清银币正龙版——清末币制统一的最终成果。意大利雕刻师Giorgi设计。含长须龙、短须龙、反龙等珍稀版别。"},
+    {p:"北洋",cn:"北洋造二十五年七钱二分",era:"清·光绪二十五年",year:"1899",mint:"北洋机器局",note:"光绪二十五年铸造。"},
+    {p:"北洋",cn:"北洋造三十三年七钱二分",era:"清·光绪三十三年",year:"1907",mint:"北洋造币局",note:"光绪三十三年铸造，北洋龙银晚期品种。"},
+    {p:"江南",cn:"江南省造辛丑七钱二分",era:"清·光绪辛丑",year:"1901",mint:"江南造币厂",note:"辛丑年铸造。"},
+    {p:"北洋",cn:"北洋造二十九年七钱二分",era:"清·光绪二十九年",year:"1903",mint:"北洋造币局",note:"光绪二十九年铸造。"},
+    {p:"广东",cn:"广东省造光绪元宝七钱二分",era:"清·光绪",year:"c.1890",mint:"广东造币厂",note:"广东标准流通版龙银。广东为中国最早开铸机制银圆的省份。"},
+    {p:"广东",cn:"广东省造宣统元宝七钱二分",era:"清·宣统",year:"c.1909",mint:"广东造币厂",note:"宣统年号广东龙银，为该省最后期的龙银铸造。"},
+    {p:"北洋",cn:"北洋造三十四年七钱二分",era:"清·光绪三十四年",year:"1908",mint:"北洋造币局",note:"北洋龙银最晚期品种之一。三十四年为光绪帝驾崩之年。"},
+    {p:"湖北",cn:"湖北省造光绪元宝七钱二分",era:"清·光绪",year:"c.1895",mint:"湖北造币厂",note:"湖北为继广东之后第二个开铸机制银圆的省份。张之洞调任湖广总督后将广东经验带至湖北。"},
+    {p:"湖北",cn:"湖北省造宣统元宝七钱二分",era:"清·宣统",year:"c.1909",mint:"湖北造币厂",note:"宣统年号湖北龙银，清末湖北最后的龙银铸造。"},
+    {p:"江南",cn:"江南省造甲辰七钱二分",era:"清·光绪甲辰",year:"1904",mint:"江南造币厂",note:"甲辰年铸造。"},
+    {p:"吉林",cn:"吉林省造辛丑三钱六分",era:"清·光绪辛丑",year:"1901",mint:"吉林造币厂",note:"半圆面额三钱六分。吉林小面额龙银。"},
+    {p:"四川",cn:"四川省造光绪元宝三钱六分",era:"清·光绪",year:"c.1901",mint:"四川造币厂",note:"四川半圆面额龙银，存世稀少。"},
+    {p:"四川",cn:"四川省造宣统元宝七钱二分",era:"清·宣统",year:"c.1909",mint:"四川造币厂",note:"宣统年号四川龙银。"},
+    {p:"四川",cn:"四川省造光绪元宝七钱二分",era:"清·光绪",year:"c.1901",mint:"四川造币厂",note:"四川标准流通版龙银。四川地处内陆，铸币起步较沿海省份晚。"},
+    {p:"奉天",cn:"奉天省造甲辰七钱二分",era:"清·光绪甲辰",year:"1904",mint:"奉天省造币厂",note:"甲辰年铸造的奉天龙银。"}
+  ];
+  const regionOrder=[];
+  dragonData.forEach(d=>{if(!regionOrder.includes(d.p))regionOrder.push(d.p)});
+
+  let dhtml=`<div class="chapter"><div class="chapter-num" data-cn="第肆章" data-en="Chapter IV">第肆章</div><div class="chapter-title" data-cn="龙银谱系" data-en="Dragon Dollar Compendium">龙银谱系</div><div class="chapter-line"></div></div>`;
+  dhtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="自光绪十五年广东开铸至宣统三年大清覆灭，各省造币厂留下${dragonData.length}种以上龙银品种。每一枚龙银都是地方财权的银质化表达——龙纹各异，版别繁多，构成中国近代货币史最丰富的实物体系。" data-en="From 1889 to 1911, provincial mints produced ${dragonData.length}+ dragon dollar varieties. Each dragon dollar embodies local fiscal power cast in silver — diverse dragon designs and numerous variants form the richest material corpus in modern Chinese monetary history.">自光绪十五年广东开铸至宣统三年大清覆灭，各省造币厂留下${dragonData.length}种以上龙银品种。每一枚龙银都是地方财权的银质化表达——龙纹各异，版别繁多，构成中国近代货币史最丰富的实物体系。</p></div>`;
+
+  dhtml+=`<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">`;
+  dhtml+=`<button onclick="filterDragons('all')" class="dr-btn active" style="background:var(--g);border:1px solid var(--lz-b);color:var(--lz-deep);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem">全部 (${dragonData.length})</button>`;
+  regionOrder.forEach(r=>{
+    const cnt=dragonData.filter(d=>d.p===r).length;
+    dhtml+=`<button onclick="filterDragons('${r}')" class="dr-btn" style="background:var(--lz-s);border:1px solid var(--lz-b);color:var(--td);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem">${r} (${cnt})</button>`;
+  });
+  dhtml+=`</div>`;
+  dhtml+=`<div id="dragonGrid"></div>`;
+  document.getElementById('dragons').innerHTML=dhtml;
+
+  function renderDragonCards(list){
+    document.getElementById('dragonGrid').innerHTML=list.map((d,i)=>{
+      return `<div class="coin-card" style="margin-bottom:10px;padding:16px;display:flex;gap:14px;align-items:flex-start">
+        <div style="flex-shrink:0;width:80px;height:80px;border-radius:8px;background:var(--lz);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gd);opacity:.3">龙</div>
+        <div style="flex:1;min-width:180px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
+            <span style="background:var(--lz-bl);color:var(--g);font-size:.65rem;padding:1px 8px;border-radius:3px;font-weight:600">${d.p}</span>
+            <span style="color:var(--td);font-size:.72rem">${d.era} · ${d.year}</span>
+          </div>
+          <div class="name-cn" style="font-size:1.05rem;margin-bottom:2px">${d.cn}</div>
+          <div style="font-size:.72rem;color:var(--td);margin-bottom:6px">${d.mint}</div>
+          <div style="color:var(--td);font-size:.82rem;line-height:1.7">${d.note}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  renderDragonCards(dragonData);
+
+  window.filterDragons=function(region){
+    document.querySelectorAll('.dr-btn').forEach(b=>{b.style.background='var(--lz-s)';b.style.color='var(--td)'});
+    event.target.style.background='var(--g)';event.target.style.color='var(--lz-deep)';
+    renderDragonCards(region==='all'?dragonData:dragonData.filter(d=>d.p===region));
+  };
+})();
+
+// Shared card renderer for coin sections
+function renderCoinCards(coins){
+  const tierLabel={0:'至珍',1:'极珍',2:'大珍',3:'珍品'};
+  return coins.map(c=>{
+    const isOwned=c.myStatus==='owned';const isWant=c.myStatus==='want';
+    const borderSt=isOwned?'border-left:3px solid var(--g)':isWant?'border-left:3px solid var(--gd)':'';
+    const statusBadge=isOwned?`<span style="background:var(--g);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">已入藏 ${c.myGrade||''}</span>`:isWant?`<span style="background:var(--gd);color:#fff;font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">圣杯目标</span>`:'';
+    const rankBadge=c.myRank?`<span style="background:var(--ch);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700;margin-left:4px">${c.myRank}</span>`:'';
+    return `<div class="coin-card" style="${borderSt};margin-bottom:10px;padding:16px" onclick="showDetail('${c.id}')">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="flex-shrink:0">${coinImgTag(c,100)}</div>
+        <div style="flex:1;min-width:180px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
+            <span style="color:var(--gd);font-size:.72rem;font-weight:600">${tierLabel[c.tier]||'珍品'} · T${c.tier}</span>
+            <span style="color:var(--td);font-size:.72rem">${c.era} ${c.year}</span>
+            ${statusBadge}${rankBadge}
+          </div>
+          <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
+          <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
+          <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,120)||''}${c.history_cn?.length>120?'...':''}</div>
+        </div>
+        <div style="text-align:right;min-width:120px;flex-shrink:0">
+          <div style="color:var(--g);font-weight:700;font-size:1rem;margin-bottom:4px">¥${c.est_rmb}</div>
+          <div style="font-size:.72rem;color:var(--td)">PCGS Pop: ${c.pcgs_pop?.total||'N/A'}</div>
+          <div style="font-size:.72rem;color:var(--td)">${'★'.repeat(Math.min(c.rarity,5))}${'☆'.repeat(Math.max(0,5-c.rarity))}</div>
+          ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--gd);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// SUN YAT-SEN PORTRAITS (孙像)
+(function(){
+  const sunCoins=COINS.filter(c=>c.cat==='republic-sun');
+  let html=`<div class="chapter"><div class="chapter-num" data-cn="第伍章" data-en="Chapter V">第伍章</div><div class="chapter-title" data-cn="孙像银圆" data-en="Sun Yat-sen Portrait Dollars">孙像银圆</div><div class="chapter-line"></div></div>`;
+  html+=`<div class="story" style="margin-bottom:20px"><p data-cn="从民国元年开国纪念壹角到二十四年帆船中圆，孙中山像银圆贯穿民国币制改革全程。本馆收录${sunCoins.length}枚孙像核心品种——含签字版、铜质样币、帆船系列等。" data-en="From the 1912 Memento 10 Cents to the Year 24 Junk Half Dollar, Sun Yat-sen portrait coins span the entire Republic monetary reform. ${sunCoins.length} core types catalogued here.">从民国元年开国纪念壹角到二十四年帆船中圆，孙中山像银圆贯穿民国币制改革全程。本馆收录${sunCoins.length}枚孙像核心品种——含签字版、铜质样币、帆船系列等。</p></div>`;
+  html+=`<div id="sunGrid"></div>`;
+  document.getElementById('sunPortraits').innerHTML=html;
+  document.getElementById('sunGrid').innerHTML=renderCoinCards(sunCoins);
+})();
+
+// YUAN SHIKAI PORTRAITS (袁像)
+(function(){
+  const yuanCoins=COINS.filter(c=>c.cat==='republic-yuan');
+  let html=`<div class="chapter"><div class="chapter-num" data-cn="第陆章" data-en="Chapter VI">第陆章</div><div class="chapter-title" data-cn="袁像银圆" data-en="Yuan Shikai Portrait Dollars">袁像银圆</div><div class="chapter-line"></div></div>`;
+  html+=`<div class="story" style="margin-bottom:20px"><p data-cn="袁世凯像银圆是民国货币体系的核心——从民国三年标准壹圆到飞龙洪宪纪念、共和签字版，每一版都映射着从共和到帝制的政治风云。本馆收录${yuanCoins.length}枚袁像核心品种。" data-en="Yuan Shikai portrait dollars form the backbone of Republic coinage — from the standard Year 3 dollar to the Flying Dragon and Gonghe signed patterns. ${yuanCoins.length} core types catalogued here.">袁世凯像银圆是民国货币体系的核心——从民国三年标准壹圆到飞龙洪宪纪念、共和签字版，每一版都映射着从共和到帝制的政治风云。本馆收录${yuanCoins.length}枚袁像核心品种。</p></div>`;
+  html+=`<div id="yuanGrid"></div>`;
+  document.getElementById('yuanPortraits').innerHTML=html;
+  document.getElementById('yuanGrid').innerHTML=renderCoinCards(yuanCoins);
+})();
+
+// WARLORDS (军阀)
+(function(){
+  const warlordCoins=COINS.filter(c=>c.cat==='republic-warlord'||c.cat==='republic-portrait');
+  let html=`<div class="chapter"><div class="chapter-num" data-cn="第柒章" data-en="Chapter VII">第柒章</div><div class="chapter-title" data-cn="军阀银圆" data-en="Warlord Era Dollars">军阀银圆</div><div class="chapter-line"></div></div>`;
+  html+=`<div class="story" style="margin-bottom:20px"><p data-cn="民国军阀割据时代的货币见证——张作霖、黎元洪、段祺瑞、曹锟……每一枚都是乱世枭雄的权力象征。本馆收录${warlordCoins.length}枚军阀时期银圆珍品。" data-en="Coinage witnesses of China's Warlord Era — Zhang Zuolin, Li Yuanhong, Duan Qirui, Cao Kun… each coin a symbol of power in an age of turmoil. ${warlordCoins.length} warlord-era rarities catalogued.">民国军阀割据时代的货币见证——张作霖、黎元洪、段祺瑞、曹锟……每一枚都是乱世枭雄的权力象征。本馆收录${warlordCoins.length}枚军阀时期银圆珍品。</p></div>`;
+  html+=`<div id="warlordGrid"></div>`;
+  document.getElementById('warlords').innerHTML=html;
+  document.getElementById('warlordGrid').innerHTML=renderCoinCards(warlordCoins);
+})();
+
+// COLLECTORS — with expandable cards and provenance flow SVG map
+function buildCollectorFlowSVG(){
+  // Build a provenance flow map showing coin movements between collectors
+  const W=900,H=520;
+  const nodes=[
+    {id:'CC',x:80,y:60,cn:'周大为(CC)',r:22},{id:'CJM',x:80,y:180,cn:'陈吉茂',r:18},
+    {id:'LGH',x:280,y:100,cn:'李广宏',r:22},{id:'ZY',x:280,y:240,cn:'赵勇',r:22},
+    {id:'TAO',x:480,y:60,cn:'陶姐',r:22},{id:'WZQ',x:480,y:180,cn:'王中强',r:20},
+    {id:'XZJ',x:480,y:300,cn:'肖志军',r:18},{id:'LYM',x:680,y:60,cn:'李跃明',r:18},
+    {id:'ME',x:680,y:180,cn:'1024',r:26},{id:'LXZ',x:680,y:300,cn:'林宪璋',r:18},
+    {id:'ZAS',x:280,y:380,cn:'张安生',r:18},{id:'HDS',x:480,y:420,cn:'何代水',r:16},
+  ];
+  const edges=[
+    {from:'CC',to:'ZY',cn:'本省MS64 ¥800万',color:'#C5A258'},
+    {from:'CJM',to:'LGH',cn:'地球MS62 ¥1200万',color:'#C5A258'},
+    {from:'CJM',to:'LGH',cn:'孙24年 ¥1000万',color:'#9a7d3a',dy:14},
+    {from:'WZQ',to:'ME',cn:'户部/北洋/中字 (潜在)',color:'#4a9868',dash:true},
+    {from:'LYM',to:'ME',cn:'老江南 (参考)',color:'#2a4a7a',dash:true},
+    {from:'ZAS',to:'ME',cn:'七三反版 (远期)',color:'#2a4a7a',dash:true},
+  ];
+  let svg=`<svg viewBox="0 0 ${W} ${H+60}" xmlns="http://www.w3.org/2000/svg">`;
+  svg+=`<defs><marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--gd)"/></marker></defs>`;
+  // edges
+  edges.forEach(e=>{
+    const f=nodes.find(n=>n.id===e.from),t=nodes.find(n=>n.id===e.to);
+    const dy=e.dy||0;
+    svg+=`<line x1="${f.x}" y1="${f.y+dy}" x2="${t.x}" y2="${t.y+dy}" stroke="${e.color}" stroke-width="1.5" ${e.dash?'stroke-dasharray="6,4"':''} marker-end="url(#ah)" opacity=".7"/>`;
+    const mx=(f.x+t.x)/2,my=(f.y+t.y)/2+dy;
+    svg+=`<text x="${mx}" y="${my-6}" fill="${e.color}" font-size="9" text-anchor="middle" opacity=".9">${e.cn}</text>`;
+  });
+  // nodes
+  nodes.forEach(n=>{
+    const isMe=n.id==='ME';
+    svg+=`<circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${isMe?'var(--g)':'var(--lz-s2)'}" stroke="${isMe?'var(--ch)':'var(--lz-bl)'}" stroke-width="${isMe?2:1}"/>`;
+    svg+=`<text x="${n.x}" y="${n.y+4}" fill="${isMe?'var(--lz-deep)':'var(--cr)'}" font-size="${isMe?12:10}" text-anchor="middle" font-weight="${isMe?700:500}">${n.cn}</text>`;
+  });
+  svg+=`<text x="${W/2}" y="${H+40}" fill="var(--gd)" font-size="10" text-anchor="middle" font-style="italic">实线=已完成交易 Completed | 虚线=潜在机会 Potential</text>`;
+  svg+=`</svg>`;
+  return svg;
+}
+
+let collHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾壹章" data-en="Chapter XI">第拾壹章</div><div class="chapter-title" data-cn="藏家" data-en="Collectors">藏家</div><div class="chapter-line"></div></div>`;
+collHTML+=`<div class="story" style="margin-bottom:20px"><p data-cn="中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。" data-en="The world of top Chinese numismatics is fewer than fifty people. Below: ${COLLECTORS.length} core collector profiles, holdings analysis, and coin flow paths. Click to expand.">中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。</p></div>`;
+collHTML+=`<h3 style="color:var(--g);margin:0 0 14px" data-cn="藏家深度档案 (点击展开)" data-en="Collector Deep Profiles (click to expand)">藏家深度档案 (点击展开)</h3>`;
+COLLECTORS.forEach(c=>{
+  const modeMap={buy:{cls:'buy',label:'买入'},sell:{cls:'sell',label:'出售'},hold:{cls:'hold',label:'持有'},liquidated:{cls:'sell',label:'出清'}};
+  const m=modeMap[c.mode]||{cls:'hold',label:''};
+  collHTML+=`<div class="coll-card key">
+    <div class="coll-header" onclick="this.querySelector('.ch-toggle').classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.en}, ${c.loc_en}</span>${c.age?` (${c.age})`:''}<span class="cm ${m.cls}">${m.label}</span></div>
+      <span class="ch-toggle">&#9660;</span>
+    </div>
+    <div class="coll-body">
+      <div class="coll-inner">
+        <div class="ci-section"><div class="ci-title" data-cn="背景" data-en="Background">背景</div><div class="ci-text">${c.bg_cn}</div></div>
+        <div class="ci-section"><div class="ci-title" data-cn="藏品" data-en="Collection">藏品</div>${c.coins.map(cc=>`<div class="ci-coin"><span class="cc-name">${cc.cn}</span><span class="cc-grade">${cc.grade||''}</span><span class="cc-val">${cc.acquired&&cc.acquired.includes('已出售')?`<span style="color:var(--r);font-size:.72rem">${cc.acquired}</span>`:((cc.cost?'成本:'+cc.cost:'')+' '+(cc.current_est?'估值:'+cc.current_est:''))}</span></div>`).join('')}</div>
+        <div class="ci-section"><div class="ci-title" data-cn="深度分析" data-en="Deep Analysis">深度分析</div><div class="ci-text" style="color:var(--cr);line-height:1.9">${c.analysis_cn}</div></div>
+      </div>
+    </div>
+  </div>`;
+});
+collHTML+=`<h3 style="color:var(--g);margin:32px 0 14px" data-cn="珍币流转图 Provenance Flow Map" data-en="Coin Flow Map">珍币流转图 Provenance Flow Map</h3>`;
+collHTML+=`<div class="flow-map">${buildCollectorFlowSVG()}</div>`;
+document.getElementById('collectors').innerHTML=collHTML;
+
+// (Auction tab removed — content merged into 所有藏品 and 机制币数据库)
+
+document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="收藏策略" data-en="Collection Strategy">收藏策略</div><div class="chapter-line"></div></div>
+<div class="strategy-block"><h3>十二圣杯优先级</h3><ul>
+<li><strong>第一梯队（4000万+）：</strong>广东寿字双龙壹两</li>
+<li><strong>第二梯队（1000万+）：</strong>宣三短须龙、户部壹两、金本位下三鸟壹圆</li>
+<li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
+<li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
+</ul></div>
+<div class="strategy-block"><h3>市场情报</h3><ul>
+<li>2025年Heritage HK 12月：张作霖Y16以$4.3M成交（创该品种国际纪录）、喜敦江南SP66以$1.5M成交、七三反版SP67以$1.14M成交</li>
+<li>2022年诚轩：奉天癸卯壹两以¥4657.5万成交（中国银圆拍卖历史最高价）</li>
+<li>2022年SBP：宣三长须龙SP63+以$3M成交（美国拍卖中国银圆最高价）</li>
+<li>价格趋势：顶级机制币年均增值15-20%，龙银板块尤为强劲</li>
+</ul></div>
+<div class="strategy-block"><h3 style="color:var(--gd)">潜在藏品</h3>
+<p style="color:var(--td);font-size:.85rem;margin-bottom:14px;font-style:italic">以下为核心藏家持仓中具有流转可能的标的，按出售意愿和紧迫程度排序。</p>
+<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🔴 王中强（温州）— 明确出售意向</h4>
+<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">因女儿购房/移民美国，有明确出售动机。总报价超5000万。</p>
+<ul>
+<li><strong>户部壹两 MS63</strong> — 开价 ¥1,000万</li>
+<li><strong>北洋壹两 MS62</strong> — 成本$100万，开价 ¥1,380万</li>
+<li><strong>中字壹两 MS65</strong> — 成本$100万，开价 ¥600万</li>
+<li><strong>签字大头 MS63</strong> — 成本 ¥312万</li>
+<li><strong>上海壹两</strong> — 泓盛2022以 ¥1,260万购入，开价 ¥1,500万</li>
+</ul>
+<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🟠 张安生（澳门）— 年事已高，继承窗口</h4>
+<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">70岁，声称不卖银币，但继承问题将迫使藏品最终流入市场。关键监控对象。</p>
+<ul>
+<li><strong>七三反版</strong> — 三套（极罕）</li>
+<li><strong>魏碑体 MS64</strong></li>
+<li><strong>大清</strong> — 两枚</li>
+<li><strong>张作霖</strong></li>
+<li><strong>湖南 / 陕西七钱二分</strong> — 一级珍品</li>
+</ul>
+<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🟠 陈吉茂（台湾/上海）— 转向瓷器，高价出售</h4>
+<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">近年转向瓷器收藏，银圆会出售但要价极高。已出：地球MS62(¥1,200万→李广宏)、孙像24年(¥1,000万→李广宏)。</p>
+<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🟡 肖志军（深圳）— 长期持有，超高要价</h4>
+<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">拥有评级公司，短期无出售意向，但标的极其重要。</p>
+<ul>
+<li><strong>户部壹两 MS64+</strong> — 成本 ¥291万（裸币），现估值 ¥2,000万</li>
+<li><strong>北洋壹两</strong> — 裸币，成本 ¥690万，估值 ¥1,000万+</li>
+<li><strong>中字壹两 MS65+</strong> — 要价 ¥5,000万</li>
+</ul>
+<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">🟡 李跃明（香港/山东）</h4>
+<p style="color:var(--td);font-size:.82rem;margin-bottom:8px">石油企业家，在1000-2000万区间活跃。</p>
+<ul>
+<li><strong>上海壹两</strong></li>
+<li><strong>老江南 MS66</strong> — 成本 ¥1,700万，高峰 ¥2,500万</li>
+<li><strong>大头签字 MS64</strong></li>
+<li><strong>大尾龙</strong> — HA 2025购入</li>
+</ul>
+<h4 style="color:var(--cr);margin:14px 0 8px;font-size:.95rem">⚪ 目前出售意愿不高</h4>
+<ul>
+<li><strong>李广宏（宝鸡）</strong> — 地产商，最活跃买家。持有户部壹两、地球MS62、张作霖Y15(成本¥2,600万)、浙江七钱二分(¥2,000万)、喜敦老江南三钱六分</li>
+<li><strong>重庆陶姐</strong> — 地产商/红美术馆，传承给儿子。持有奉天壹两(¥4,000万+)、户部壹两、张作霖Y15 AU53/Y16、金本位、地球MS61、全套喜敦老江南。缺寿字双龙</li>
+<li><strong>深圳赵勇</strong> — 极度低调，只买不卖。地球MS63+(最高分之一)、本省MS64(¥800万自CC)、户部壹两、张作霖Y15</li>
+<li><strong>林宪璋（台湾）</strong> — 出价凶狠，八枚一级币。寿字双龙、湖南/陕西七钱二分、黔宝、吉林厂平壹两。任何寿字上拍必参与</li>
+<li><strong>何代水（台湾/上海）</strong> — 半导体高管，持有短须龙。科技新贵入圈代表</li>
+</ul>
+</div>`;
+
+// ═══════ FULL COLLECTION (所有藏品) — Two classification modes ═══════
+(function(){
+  const houseMap={"HA":"Heritage Auctions","SBP":"Stack's Bowers","HY":"华艺国际","HS":"上海泓盛","JD":"中国嘉德","AC":"阿城哥拍卖","PVT":"私人渠道"};
+  const houseColors={"HA":"#6B2D8B","SBP":"#8B0000","HY":"#C41E3A","HS":"#8B1A4A","JD":"#1A3A6B","AC":"#4A4A4A","PVT":"#2a6a4a"};
+  const houseOrder=["HA","SBP","HY","HS"];
+
+  // Flatten all purchases into one array with house tag
+  const allItems=[];
+  houseOrder.forEach(hid=>{(MY_PURCHASES[hid]||[]).forEach(it=>{if(it.t>0)allItems.push({...it,house:hid})})});
+
+  // Count totals
+  let totalLots=allItems.length,totalUSD=0,totalRMB=0,gradedCount=0;
+  allItems.forEach(i=>{
+    if(i.cur==='USD')totalUSD+=i.t; else totalRMB+=i.t;
+    if(i.grade&&(i.grade.includes('PCGS')||i.grade.includes('NGC')||i.grade.includes('GBCA')))gradedCount++;
+  });
+
+  // Category classifier based on coin name
+  function classifyItem(cn){
+    if(/壹两|一两|五两|厂条|金锭|金条|金币|银锭|方宝/.test(cn)) return 'tael';
+    if(/造币总厂|大清银币|宣统三年|户部|丙午/.test(cn)) return 'central';
+    if(/北洋|江南|吉林|奉天|广东|湖北|安徽|四川|云南|浙江|福建|新疆|江苏|贵州|陕西|河南|山东|造光绪|宣统元宝/.test(cn)) return 'provincial';
+    if(/孙中山|孙像|三鸟|帆船|中山/.test(cn)) return 'sun';
+    if(/袁世凯|袁像|大头|飞龙|共和纪念|甘肃加字/.test(cn)) return 'yuan';
+    if(/黎元洪|张作霖|张学良|曹锟|徐世昌|唐继尧|段祺瑞|军政府|军阀|龙凤壹圆|龙凤壹角/.test(cn)) return 'warlord';
+    return 'other';
+  }
+  allItems.forEach(it=>{it._cat=classifyItem(it.cn)});
+  const catDefs=[
+    {id:'tael',cn:'壹两 / 金银锭',en:'Taels & Ingots'},
+    {id:'central',cn:'中央龙银',en:'Central Mint Dragons'},
+    {id:'provincial',cn:'地方龙银',en:'Provincial Dragons'},
+    {id:'sun',cn:'孙像',en:'Sun Yat-sen'},
+    {id:'yuan',cn:'袁像',en:'Yuan Shikai'},
+    {id:'warlord',cn:'军阀',en:'Warlords'},
+    {id:'other',cn:'其他',en:'Others'}
+  ];
+
+  let fc=`<div class="chapter"><div class="chapter-num" data-cn="第捌章" data-en="Chapter VIII">第捌章</div><div class="chapter-title" data-cn="所有藏品" data-en="Full Collection">所有藏品</div><div class="chapter-line"></div></div>`;
+  fc+=`<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 完整购藏清单——${totalLots}件拍品，来自4家拍卖行。含${gradedCount}件评级币。" data-en="Complete acquisition inventory — ${totalLots} lots from 4 auction houses, ${gradedCount} graded pieces.">完整购藏清单——${totalLots}件拍品，${gradedCount}件评级币。</p></div>`;
+
+  // ── Summary cards ──
+  fc+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px">`;
+  fc+=`<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+    <div style="font-size:2rem;font-weight:700;color:var(--g)">${totalLots}</div>
+    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="总拍品" data-en="Total Lots">总拍品</div></div>`;
+  fc+=`<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+    <div style="font-size:2rem;font-weight:700;color:var(--ch)">${gradedCount}</div>
+    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="评级币" data-en="Graded">评级币</div></div>`;
+  fc+=`<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+    <div style="font-size:1.2rem;font-weight:700;color:var(--g)">$${totalUSD.toLocaleString()}</div>
+    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em">USD</div></div>`;
+  fc+=`<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
+    <div style="font-size:1.2rem;font-weight:700;color:var(--g)">¥${totalRMB.toLocaleString()}</div>
+    <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em">RMB</div></div>`;
+  fc+=`</div>`;
+
+  // ── Auction Highlights (from AUCTION_RECORDS global) ──
+  fc+=`<details style="margin-bottom:24px"><summary style="cursor:pointer;color:var(--g);font-weight:700;font-size:1rem;padding:10px 0;border-bottom:1px solid var(--lz-b)" data-cn="拍卖亮点 · 全球成交纪录 (${AUCTION_RECORDS.length}条)" data-en="Auction Highlights · Global Records (${AUCTION_RECORDS.length})">拍卖亮点 · 全球成交纪录 (${AUCTION_RECORDS.length}条)</summary>`;
+  fc+=`<div style="overflow-x:auto;margin-top:12px"><table class="at"><thead><tr><th>Date</th><th data-cn="拍卖行" data-en="House">拍卖行</th><th data-cn="币种" data-en="Coin">币种</th><th data-cn="评级" data-en="Grade">评级</th><th>Lot</th><th>USD</th><th>RMB</th></tr></thead><tbody>${AUCTION_RECORDS.sort((a,b)=>(b.usd||0)-(a.usd||0)||(b.rmb||0)-(a.rmb||0)).map(r=>`<tr><td>${r.date}</td><td>${r.house}</td><td style="color:var(--cr)">${r.cn}</td><td>${r.grade}</td><td>${r.lot||''}</td><td class="price">${r.usd?'$'+r.usd.toLocaleString():''}</td><td class="price">${r.rmb?'¥'+r.rmb.toLocaleString():''}</td></tr>`).join('')}</tbody></table></div></details>`;
+
+  // ── Classification mode toggle ──
+  fc+=`<div style="display:flex;gap:6px;margin-bottom:16px;align-items:center">
+    <span style="color:var(--td);font-size:.78rem;margin-right:4px" data-cn="分类方式:" data-en="Group by:">分类方式:</span>
+    <button class="fc-mode active" onclick="switchFCMode('source')" data-cn="按来源" data-en="By Source" style="padding:5px 14px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:var(--lz-deep);cursor:pointer;font-size:.78rem;font-weight:600">按来源</button>
+    <button class="fc-mode" onclick="switchFCMode('category')" data-cn="按品种" data-en="By Category" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem">按品种</button>
+  </div>`;
+
+  // ═══ VIEW 1: By Source ═══
+  fc+=`<div id="fcBySource">`;
+  // Source filter tabs
+  fc+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">`;
+  fc+=`<button class="fctab" onclick="filterFC('all')" style="padding:5px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--g);color:#fff;cursor:pointer;font-size:.76rem">全部 (${totalLots})</button>`;
+  houseOrder.forEach(hid=>{
+    const cnt=allItems.filter(i=>i.house===hid).length;
+    if(!cnt) return;
+    fc+=`<button class="fctab" onclick="filterFC('${hid}')" style="padding:5px 12px;border-radius:4px;border:1px solid ${houseColors[hid]};background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.76rem">${houseMap[hid]} (${cnt})</button>`;
+  });
+  fc+=`<button class="fctab" onclick="filterFC('graded')" style="padding:5px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.76rem" data-cn="仅评级币 (${gradedCount})" data-en="Graded Only (${gradedCount})">仅评级币 (${gradedCount})</button>`;
+  fc+=`</div>`;
+
+  // Per-house tables
+  houseOrder.forEach(hid=>{
+    const items=allItems.filter(i=>i.house===hid);
+    if(!items.length) return;
+    const ht=HOUSE_TOTALS[hid]||{};
+    fc+=`<div class="fc-house" data-house="${hid}" style="margin-bottom:24px">`;
+    fc+=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding:10px 14px;background:var(--lz-s);border-left:3px solid ${houseColors[hid]};border-radius:4px">`;
+    fc+=`<div style="font-weight:700;color:var(--cr);font-size:.95rem">${houseMap[hid]} <span style="font-size:.76rem;color:var(--td);font-weight:400">${items.length} lots</span></div>`;
+    fc+=`<div style="font-size:.82rem">`;
+    if(ht.total_usd>0) fc+=`<span style="color:var(--g);font-weight:700">$${ht.total_usd.toLocaleString()}</span> `;
+    if(ht.total_rmb>0) fc+=`<span style="color:var(--g);font-weight:700">¥${ht.total_rmb.toLocaleString()}</span>`;
+    fc+=`</div></div>`;
+    fc+=renderFCTable(items);
+    fc+=`</div>`;
+  });
+  fc+=`</div>`; // end fcBySource
+
+  // ═══ VIEW 2: By Category ═══
+  fc+=`<div id="fcByCategory" style="display:none">`;
+  // Category filter tabs
+  fc+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">`;
+  fc+=`<button class="fccattab" onclick="filterFCCat('all')" style="padding:5px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--g);color:#fff;cursor:pointer;font-size:.76rem">全部 (${totalLots})</button>`;
+  catDefs.forEach(cd=>{
+    const cnt=allItems.filter(i=>i._cat===cd.id).length;
+    if(!cnt) return;
+    fc+=`<button class="fccattab" onclick="filterFCCat('${cd.id}')" style="padding:5px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.76rem">${cd.cn} (${cnt})</button>`;
+  });
+  fc+=`</div>`;
+
+  catDefs.forEach(cd=>{
+    const items=allItems.filter(i=>i._cat===cd.id);
+    if(!items.length) return;
+    const catUSD=items.filter(i=>i.cur==='USD').reduce((s,i)=>s+i.t,0);
+    const catRMB=items.filter(i=>i.cur!=='USD').reduce((s,i)=>s+i.t,0);
+    fc+=`<div class="fc-cat" data-cat="${cd.id}" style="margin-bottom:24px">`;
+    fc+=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding:10px 14px;background:var(--lz-s);border-left:3px solid var(--g);border-radius:4px">`;
+    fc+=`<div style="font-weight:700;color:var(--cr);font-size:.95rem" data-cn="${cd.cn}" data-en="${cd.en}">${cd.cn} <span style="font-size:.76rem;color:var(--td);font-weight:400">${items.length} lots</span></div>`;
+    fc+=`<div style="font-size:.82rem">`;
+    if(catUSD>0) fc+=`<span style="color:var(--g);font-weight:700">$${catUSD.toLocaleString()}</span> `;
+    if(catRMB>0) fc+=`<span style="color:var(--g);font-weight:700">¥${catRMB.toLocaleString()}</span>`;
+    fc+=`</div></div>`;
+    fc+=renderFCTable(items);
+    fc+=`</div>`;
+  });
+  fc+=`</div>`; // end fcByCategory
+
+  document.getElementById('fullCollection').innerHTML=fc;
+
+  // Helper: render a table of items
+  function renderFCTable(items){
+    let t=`<div style="overflow-x:auto"><table class="at" style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr style="background:var(--lz-s2);text-align:left">
+      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)">#</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)">Lot</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="来源" data-en="Source">来源</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="拍品" data-en="Item">拍品</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="评级" data-en="Grade">评级</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="含佣总价" data-en="Total">含佣总价</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:1px solid var(--lz-b)" data-cn="预估市价" data-en="Est.">预估市价</th>
+    </tr></thead><tbody>`;
+    items.forEach((it,i)=>{
+      const sym=it.cur==='USD'?'$':'¥';
+      const isGraded=it.grade&&(it.grade.includes('PCGS')||it.grade.includes('NGC')||it.grade.includes('GBCA'));
+      const gc=isGraded?'color:var(--ch);font-weight:600':'color:var(--td)';
+      t+=`<tr class="fc-row" data-house="${it.house}" data-cat="${it._cat}" data-graded="${isGraded?1:0}" style="border-bottom:1px solid rgba(26,58,102,.2)">
+        <td style="padding:5px 8px;color:var(--td)">${i+1}</td>
+        <td style="padding:5px 8px;color:var(--gd);font-weight:600;font-size:.72rem">${it.lot}</td>
+        <td style="padding:5px 8px;font-size:.68rem;color:${houseColors[it.house]};font-weight:600">${it.house}</td>
+        <td style="padding:5px 8px;color:var(--cr);max-width:300px;font-family:'Noto Serif SC',serif">${it.cn}</td>
+        <td style="padding:5px 8px;${gc};font-size:.74rem;white-space:nowrap">${it.grade||'—'}</td>
+        <td style="padding:5px 8px;color:var(--g);font-weight:600;white-space:nowrap">${sym}${it.t.toLocaleString()}</td>
+        <td style="padding:5px 8px;color:var(--gr);font-size:.76rem;white-space:nowrap">${it.est_mkt||'—'}</td>
+      </tr>`;
+    });
+    t+=`</tbody></table></div>`;
+    return t;
+  }
+})();
+
+// Switch between source/category modes
+function switchFCMode(mode){
+  document.querySelectorAll('.fc-mode').forEach(b=>{b.style.background='var(--lz-s)';b.style.color='var(--td)';b.style.borderColor='var(--lz-b)';b.classList.remove('active')});
+  event.target.style.background='var(--g)';event.target.style.color='var(--lz-deep)';event.target.style.borderColor='var(--g)';event.target.classList.add('active');
+  document.getElementById('fcBySource').style.display=mode==='source'?'block':'none';
+  document.getElementById('fcByCategory').style.display=mode==='category'?'block':'none';
+}
+
+// Filter by source
+function filterFC(mode){
+  document.querySelectorAll('.fctab').forEach(b=>{b.style.background='var(--lz-s)';b.style.color='var(--td)'});
+  event.target.style.background='var(--g)';event.target.style.color='#fff';
+  document.querySelectorAll('.fc-house').forEach(el=>{
+    if(mode==='all'){el.style.display='block';el.querySelectorAll('.fc-row').forEach(r=>r.style.display='')}
+    else if(mode==='graded'){
+      el.style.display='block';
+      let vis=0;
+      el.querySelectorAll('.fc-row').forEach(r=>{
+        if(r.dataset.graded==='1'){r.style.display='';vis++}else{r.style.display='none'}
+      });
+      if(!vis) el.style.display='none';
+    }
+    else{
+      if(el.dataset.house===mode){el.style.display='block';el.querySelectorAll('.fc-row').forEach(r=>r.style.display='')}
+      else el.style.display='none';
+    }
+  });
+}
+
+// Subscribe to auction calendar reminder
+function subscribeAuction(evt,name,date){
+  evt.stopPropagation();
+  const btn=evt.target;
+  // Generate .ics calendar event
+  const now=new Date();
+  const uid=now.getTime()+'@1024collection';
+  const dtStart=date.replace(/[^0-9]/g,'').substring(0,8)||now.toISOString().replace(/[-:]/g,'').substring(0,8);
+  const ics=[
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//1024 Collection//Auction Calendar//EN',
+    'BEGIN:VEVENT',
+    'UID:'+uid,
+    'DTSTART;VALUE=DATE:'+dtStart,
+    'SUMMARY:'+name,
+    'DESCRIPTION:1024 Collection 拍卖提醒 — '+name+' ('+date+')',
+    'BEGIN:VALARM','TRIGGER:-P7D','ACTION:DISPLAY','DESCRIPTION:拍卖提醒: '+name+' 7天后开始','END:VALARM',
+    'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:拍卖提醒: '+name+' 明天开始','END:VALARM',
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g,'_')+'.ics';
+  a.click();URL.revokeObjectURL(url);
+  btn.textContent=CL==='cn'?'已下载 .ics':'Downloaded .ics';
+  btn.style.background='var(--gr)';btn.style.color='#fff';btn.style.borderColor='var(--gr)';
+  btn.onmouseover=null;btn.onmouseout=null;
+}
+
+// Filter by category
+function filterFCCat(cat){
+  document.querySelectorAll('.fccattab').forEach(b=>{b.style.background='var(--lz-s)';b.style.color='var(--td)'});
+  event.target.style.background='var(--g)';event.target.style.color='#fff';
+  document.querySelectorAll('.fc-cat').forEach(el=>{
+    if(cat==='all'){el.style.display='block';el.querySelectorAll('.fc-row').forEach(r=>r.style.display='')}
+    else{
+      if(el.dataset.cat===cat){el.style.display='block';el.querySelectorAll('.fc-row').forEach(r=>r.style.display='')}
+      else el.style.display='none';
+    }
+  });
+}
+</script>
+</body>
+</html>
