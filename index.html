@@ -510,22 +510,38 @@ const NUMIS_SOURCES = [
   { name:'西泠印社', nameEn:'Xiling Yinshe', type:'direct', records:'2.5万+', volume:'¥341万', desc:'杭州百年老号，以艺术品拍卖见长，钱币专场精品迭出' },
   { name:'华夏古泉', nameEn:'Huaxia Guquan', type:'direct', records:'6万+', volume:'¥26万', desc:'国内古钱币网拍平台，古泉交易活跃' },
 ];
-const numisSourceCards = NUMIS_SOURCES.map((s,i) => {
-  const isAgg = s.type==='aggregator';
-  const dotColor = isAgg ? 'var(--gd)' : 'var(--g)';
-  const badge = isAgg ? '<span style="display:inline-block;background:var(--gd);color:#fff;font-size:.55rem;padding:1px 6px;border-radius:3px;margin-left:6px;font-weight:700;vertical-align:middle">聚合</span>' : '';
+// Build source cards — first one (首席收藏) is a full-width banner
+const sx=NUMIS_SOURCES[0];
+const numisHeroCard=`<div onclick="openSourceDetail(0)" style="background:linear-gradient(135deg,var(--lz-s),var(--lz-s2));border:1px solid var(--gd);border-radius:10px;padding:20px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-bottom:16px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+  <div style="flex:1;min-width:200px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--gd)"></span>
+      <span style="font-size:1.1rem;font-weight:700;color:var(--cr)">${sx.name}</span>
+      <span style="background:var(--gd);color:#fff;font-size:.55rem;padding:2px 8px;border-radius:3px;font-weight:700">聚合平台</span>
+      <span style="margin-left:auto;font-size:.65rem;color:var(--td);opacity:.6">点击查看 ›</span>
+    </div>
+    <div style="font-size:.75rem;color:var(--td);font-family:'EB Garamond',serif;margin-bottom:4px">${sx.nameEn}</div>
+    <div style="font-size:.82rem;color:var(--g);line-height:1.5">${sx.desc}</div>
+  </div>
+  <div style="display:flex;gap:24px;flex-shrink:0">
+    <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:var(--gd)">${sx.records}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖纪录</div></div>
+    <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:var(--g)">${sx.volume}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
+    <div style="text-align:center"><div style="font-size:1.3rem;font-weight:700;color:var(--cr)">${sx.houses}+</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖行</div></div>
+  </div>
+</div>`;
+const numisSourceCards = NUMIS_SOURCES.slice(1).map((s,ii) => {
+  const i=ii+1;
   return `<div onclick="openSourceDetail(${i})" style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.15)';this.style.borderColor='var(--g)'" onmouseout="this.style.transform='';this.style.boxShadow='';this.style.borderColor='var(--lz-b)'">
     <div style="display:flex;align-items:center;gap:8px">
-      <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0"></span>
-      <span style="font-size:.95rem;font-weight:600;color:var(--cr)">${s.name}</span>${badge}
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0"></span>
+      <span style="font-size:.95rem;font-weight:600;color:var(--cr)">${s.name}</span>
       <span style="margin-left:auto;font-size:.65rem;color:var(--td);opacity:.6">点击查看 ›</span>
     </div>
     <div style="font-size:.72rem;color:var(--td);font-family:'EB Garamond',serif;letter-spacing:.04em">${s.nameEn}</div>
     <div style="font-size:.78rem;color:var(--g);line-height:1.5">${s.desc}</div>
     <div style="display:flex;gap:12px;margin-top:auto;padding-top:8px;border-top:1px solid var(--lz-b)">
-      <div style="flex:1"><div style="font-size:1.05rem;font-weight:700;color:${isAgg?'var(--gd)':'var(--ch)'}">${s.records}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖纪录</div></div>
+      <div style="flex:1"><div style="font-size:1.05rem;font-weight:700;color:var(--ch)">${s.records}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖纪录</div></div>
       <div style="flex:1"><div style="font-size:1.05rem;font-weight:700;color:var(--g)">${s.volume}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
-      ${s.houses?`<div style="flex:1"><div style="font-size:1.05rem;font-weight:700;color:var(--cr)">${s.houses}</div><div style="font-size:.6rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">拍卖行</div></div>`:''}
     </div>
   </div>`;
 }).join('');
@@ -605,6 +621,7 @@ document.getElementById('numisDB').innerHTML=`
     <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
 </div>
 <h3 style="color:var(--g);font-size:.95rem;margin:0 0 14px;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:3px;height:16px;background:var(--g);border-radius:2px"></span> 数据源一览 <span style="font-size:.72rem;color:var(--td);font-weight:400">Data Sources</span></h3>
+${numisHeroCard}
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:28px">
   ${numisSourceCards}
 </div>
