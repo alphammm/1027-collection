@@ -935,8 +935,22 @@ function buildCollectorFlowSVG(){
 
 let collHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="藏家档案" data-en="Collector Profiles">藏家档案</div><div class="chapter-line"></div></div>`;
 collHTML+=`<div class="story" style="margin-bottom:20px"><p data-cn="中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。" data-en="The world of top Chinese numismatics is fewer than fifty people. Below: ${COLLECTORS.length} core collector profiles, holdings analysis, and coin flow paths. Click to expand.">中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。</p></div>`;
-collHTML+=`<h3 style="color:var(--g);margin:0 0 14px" data-cn="藏家深度档案 (点击展开)" data-en="Collector Deep Profiles (click to expand)">藏家深度档案 (点击展开)</h3>`;
-COLLECTORS.forEach(c=>{
+// Group collectors by region
+function collRegion(loc){
+  if(/台湾|澳门|香港/.test(loc)) return 'twhk';
+  if(/印尼|洛杉矶|海外|美国|加拿大|日本/.test(loc)) return 'overseas';
+  return 'mainland';
+}
+const collRegions=[
+  {id:'mainland',cn:'大陆藏家',en:'Mainland Collectors'},
+  {id:'twhk',cn:'台港澳藏家',en:'Taiwan / HK / Macau'},
+  {id:'overseas',cn:'海外藏家',en:'Overseas'}
+];
+collRegions.forEach(reg=>{
+  const group=COLLECTORS.filter(c=>collRegion(c.loc_cn)===reg.id);
+  if(!group.length) return;
+  collHTML+=`<h3 style="color:var(--g);margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--lz-b);display:flex;align-items:center;gap:10px" data-cn="${reg.cn} (${group.length})" data-en="${reg.en} (${group.length})">${reg.cn} <span style="font-size:.78rem;color:var(--td);font-weight:400">(${group.length})</span></h3>`;
+  group.forEach(c=>{
   const modeMap={buy:{cls:'buy',label:'买入'},sell:{cls:'sell',label:'出售'},hold:{cls:'hold',label:'持有'},liquidated:{cls:'sell',label:'出清'}};
   const m=modeMap[c.mode]||{cls:'hold',label:''};
   collHTML+=`<div class="coll-card key">
@@ -953,6 +967,7 @@ COLLECTORS.forEach(c=>{
       </div>
     </div>
   </div>`;
+  });
 });
 document.getElementById('collectors').innerHTML=collHTML;
 
