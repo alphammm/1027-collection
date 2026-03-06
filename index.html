@@ -237,8 +237,8 @@ function coinImgTag(c,size){
 const owned=COINS.filter(c=>c.myStatus==='owned');
 const wanted=COINS.filter(c=>c.myStatus==='want');
 const champs=owned.filter(c=>c.myRank&&(c.myRank.includes('冠军')||c.myRank.includes('亚军')||c.myRank.includes('季军')));
-const DAZHEN_IDS=['C010','C061','C011','C044','C031','C032','C030','C048','C062','C063','C064','C033','C034','C035','C016','C060','C050','C051','C036','C065','C052','C015','C053','C066','C067','C068','C037','C013','C014','C038','C049','C069','C070','C071','C072','C073','C074','C039','C054','C055','C017','C012','C075','C076','C077','C040','C043','C058','C059','C078','C079','C080'];
-const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043','C058','C059']);
+const DAZHEN_IDS=['C010','C011','C044','C014','C017','C043','C061','C031','C032','C030','C048','C062','C063','C064','C033','C034','C035','C016','C060','C050','C051','C036','C065','C052','C015','C053','C066','C067','C068','C037','C013','C038','C049','C069','C070','C071','C072','C073','C074','C039','C054','C055','C012','C075','C076','C077','C040','C058','C059','C078','C079','C080'];
+const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
 (function(){
   const track=document.getElementById('showcaseTrack');
   const showcase=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned').sort((a,b)=>b.rarity-a.rarity);
