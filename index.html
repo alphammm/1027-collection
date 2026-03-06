@@ -451,11 +451,16 @@ document.getElementById('prologue').innerHTML=`<div class="story">
 <p style="margin-top:18px;font-weight:600;color:var(--cr)">而历史留下的物证，是理解未来最可靠的坐标。</p>
 </div>`;
 
-// HIGHLIGHTS (至臻之藏 — 按名单顺序展示，I=5★ 其余4★)
+// HIGHLIGHTS (至臻之藏 — 一级至臻5★ + 其余4★)
 const dzAll=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned');
+const dz5=dzAll.filter(c=>SUPREME_5STAR.has(c.id));
+const dz4=dzAll.filter(c=>!SUPREME_5STAR.has(c.id));
+function dzCard(c){const is5=SUPREME_5STAR.has(c.id);const stars=is5?'★★★★★':'★★★★';const starColor=is5?'var(--ch)':'var(--g)';const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}</div><div style="flex:1">${rankBadge}<div class="prov">${c.era} · <span style="color:${starColor}">${stars}</span></div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">Pop ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div></div></div>`}
 document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="至臻之藏" data-en="The Finest">至臻之藏</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 至臻之藏收录${dzAll.length}枚珍品——每一枚都经过严格甄选，代表中国机制银圆收藏的最高水准。甄选标准不取决于评级分数，而在于币种本身的历史地位、存世稀缺度与收藏价值。" data-en="The 1024 Collection's Supreme Treasury holds ${dzAll.length} treasures — each carefully selected to represent the highest standard of Chinese milled silver collecting. Selection is based on historical significance, survival rarity, and collector value, not grade alone.">1024 Collection 至臻之藏收录${dzAll.length}枚珍品——每一枚都经过严格甄选，代表中国机制银圆收藏的最高水准。甄选标准不取决于评级分数，而在于币种本身的历史地位、存世稀缺度与收藏价值。</p></div>
-<div class="coin-grid">${dzAll.map(c=>{const is5=SUPREME_5STAR.has(c.id);const stars=is5?'★★★★★':'★★★★';const starColor=is5?'var(--ch)':'var(--g)';const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}</div><div style="flex:1">${rankBadge}<div class="prov">${c.era} · <span style="color:${starColor}">${stars}</span></div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">Pop ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div></div></div>`}).join('')}</div>`;
+<h3 style="color:var(--ch);font-size:1rem;margin-bottom:12px;letter-spacing:.06em" data-cn="一级至臻 Supreme Tier I" data-en="Supreme Tier I">一级至臻 Supreme Tier I</h3>
+<div class="coin-grid" style="margin-bottom:28px">${dz5.map(dzCard).join('')}</div>
+<div class="coin-grid">${dz4.map(dzCard).join('')}</div>`;
 
 // DATABASE
 // Build auction calendar for database section
