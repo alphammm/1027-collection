@@ -312,6 +312,9 @@ function photoThumbsHTML(coinId,size){
   return h+'</div>';
 }
 
+// SP badge helper — bright yellow SP tag for specimen coins
+function spBadge(c){return c.myGrade&&c.myGrade.includes('SP')?'<span style="display:inline-block;background:rgba(255,215,0,.2);color:#ffd700;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px;letter-spacing:.05em;vertical-align:middle">SP</span>':'';}
+
 // Editable market price helpers
 function toggleEstEdit(cid){const el=document.getElementById('estEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none'}
 function saveEst(cid){const v=document.getElementById('estInput_'+cid).value.trim();if(v){localStorage.setItem('est_'+cid,v);document.getElementById('estVal_'+cid).textContent='¥'+v;document.getElementById('estEdit_'+cid).style.display='none'}}
@@ -353,7 +356,7 @@ const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
       const fallback=imgSrc?'style="display:none"':'';
       card.className='sc-card';
       card.onclick=()=>showDetail(c.id);
-      card.innerHTML=`<div class="sc-img">${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-info">${eraTagHTML(c.id)}<div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
+      card.innerHTML=`<div class="sc-img">${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-info">${eraTagHTML(c.id)}<div class="sc-name">${c.cn}${spBadge(c)}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
     }
     track.appendChild(card);
   });
@@ -387,16 +390,17 @@ function showDetail(coinId){
   const statusBadge=c.myStatus==='owned'?`<span style="display:inline-block;background:rgba(197,162,88,.2);color:var(--g);padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px">1024 COLLECTION</span>`
     :c.myStatus==='want'?`<span style="display:inline-block;background:rgba(154,125,58,.2);color:var(--gd);padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px">WISHLIST</span>`:'';
   h+=statusBadge;
-  // Stars for 至臻之藏 coins (5★ for supreme, 4★ for others in DAZHEN)
+  // Era tag + Stars on same line
   const _isDZ=DAZHEN_IDS.includes(c.id);
   const _is5=typeof SUPREME_5STAR!=='undefined'&&SUPREME_5STAR.has(c.id);
-  if(_isDZ){
-    const _stars=_is5?'★★★★★':'★★★★';
-    const _sColor=_is5?'var(--ch)':'var(--g)';
-    h+=`<div style="color:${_sColor};font-size:.85rem;letter-spacing:2px;margin-bottom:4px">${_stars}</div>`;
+  const _eraT=ERA_TAGS[c.id]||'';
+  if(_eraT||_isDZ){
+    h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">`;
+    if(_eraT) h+=`<span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${_eraT}</span>`;
+    if(_isDZ){const _stars=_is5?'★★★★★':'★★★★';const _sColor=_is5?'var(--ch)':'var(--g)';h+=`<span style="color:${_sColor};font-size:.75rem;letter-spacing:2px">${_stars}</span>`;}
+    h+=`</div>`;
   }
-  h+=eraTagHTML(c.id);
-  h+=`<h2>${c.cn}</h2><div class="den">${c.en}</div>`;
+  h+=`<h2>${c.cn}${spBadge(c)}</h2><div class="den">${c.en}</div>`;
 
   // Coin images (local photos or PCGS TrueView) + uploaded photos
   const _photos=getPhotos(c.id);
@@ -569,7 +573,7 @@ document.getElementById('prologue').innerHTML=`<div class="story">
 const dzAll=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned');
 const dz5=dzAll.filter(c=>SUPREME_5STAR.has(c.id));
 const dz4=dzAll.filter(c=>!SUPREME_5STAR.has(c.id));
-function dzCard(c){const is5=SUPREME_5STAR.has(c.id);const stars=is5?'★★★★★':'★★★★';const starColor=is5?'var(--ch)':'var(--g)';const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}${photoThumbsHTML(c.id,43)}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">${rankBadge}<span style="color:${starColor};font-size:.7rem;letter-spacing:1px">${stars}</span></div>${eraTagHTML(c.id)}<div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div></div></div>`}
+function dzCard(c){const is5=SUPREME_5STAR.has(c.id);const stars=is5?'★★★★★':'★★★★';const starColor=is5?'var(--ch)':'var(--g)';const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;const eraT=ERA_TAGS[c.id]||'';return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}${photoThumbsHTML(c.id,43)}</div><div style="flex:1">${rankBadge}<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${eraT}</span><span style="color:${starColor};font-size:.65rem;letter-spacing:1px">${stars}</span></div><div class="name-cn">${c.cn}${spBadge(c)}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div></div></div>`}
 document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="至臻之藏" data-en="The Finest">至臻之藏</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 至臻之藏收录${dzAll.length}枚珍品——每一枚都经过严格甄选，代表中国机制银圆收藏的最高水准。甄选标准不取决于评级分数，而在于币种本身的历史地位、存世稀缺度与收藏价值。" data-en="The 1024 Collection's Supreme Treasury holds ${dzAll.length} treasures — each carefully selected to represent the highest standard of Chinese milled silver collecting. Selection is based on historical significance, survival rarity, and collector value, not grade alone.">1024 Collection 至臻之藏收录${dzAll.length}枚珍品——每一枚都经过严格甄选，代表中国机制银圆收藏的最高水准。甄选标准不取决于评级分数，而在于币种本身的历史地位、存世稀缺度与收藏价值。</p></div>
 <h3 style="color:var(--ch);font-size:1rem;margin-bottom:12px;letter-spacing:.06em" data-cn="一级至臻 Supreme Masterpieces I" data-en="Supreme Masterpieces I">一级至臻 Supreme Masterpieces I</h3>
@@ -937,7 +941,7 @@ document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="
 <li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
 <li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
 </ul></div>
-${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1">${eraTagHTML(c.id)}<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
+${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1">${eraTagHTML(c.id)}<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}${spBadge(c)}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
 
 // RANKINGS — 高分典藏
 const ranked=owned.filter(c=>c.myRank).sort((a,b)=>b.rarity-a.rarity);
@@ -955,7 +959,7 @@ ${ranked.map((c,i)=>{
         <span class="gt owned" style="font-size:.78rem">${c.myGrade}</span>
       </div>
       ${eraTagHTML(c.id)}
-      <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
+      <div class="name-cn" style="font-size:1.05rem">${c.cn}${spBadge(c)}</div>
       <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
       <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,100)||''}...</div>
     </div>
