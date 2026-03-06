@@ -510,11 +510,6 @@ const NUMIS_SOURCES = [
   { name:'西泠印社', nameEn:'Xiling Yinshe', type:'direct', records:'2.5万+', volume:'¥341万', desc:'杭州百年老号，以艺术品拍卖见长，钱币专场精品迭出' },
   { name:'华夏古泉', nameEn:'Huaxia Guquan', type:'direct', records:'6万+', volume:'¥26万', desc:'国内古钱币网拍平台，古泉交易活跃' },
 ];
-const numisLocalStats = {
-  varieties: COINS.length,
-  auctionRecords: COINS.filter(c=>c.auctions?.length).reduce((s,c)=>s+c.auctions.length,0),
-  provenanceRecords: COINS.filter(c=>c.provenance?.length).reduce((s,c)=>s+c.provenance.length,0),
-};
 const numisSourceCards = NUMIS_SOURCES.map((s,i) => {
   const isAgg = s.type==='aggregator';
   const dotColor = isAgg ? 'var(--gd)' : 'var(--g)';
@@ -543,9 +538,6 @@ function openSourceDetail(index){
   const matched=isAgg?AUCTION_RECORDS.slice():AUCTION_RECORDS.filter(r=>matchKeys.some(k=>r.house.includes(k)||k.includes(r.house)));
   matched.sort((a,b)=>(b.rmb||0)-(a.rmb||0)||(b.usd||0)-(a.usd||0));
   const top=matched.slice(0,30);
-  // Also find matching coins in our COINS db
-  const coinMatches=isAgg?COINS.slice(0,12):COINS.filter(c=>c.auctions?.some(a=>matchKeys.some(k=>a.house?.includes(k)||k.includes(a.house||'')))).slice(0,12);
-
   const dp=document.getElementById('detailPanel');
   let h=`<button class="detail-close" onclick="closeDetail()">&times;</button>`;
   h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
@@ -566,9 +558,6 @@ function openSourceDetail(index){
     ${s.houses?`<div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
       <div style="font-size:1.2rem;font-weight:700;color:var(--cr)">${s.houses}家</div>
       <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">覆盖拍卖行</div></div>`:''}
-    <div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center">
-      <div style="font-size:1.2rem;font-weight:700;color:var(--cr)">${top.length}</div>
-      <div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">本库匹配</div></div>
   </div>`;
   // Auction records list
   if(top.length){
@@ -584,24 +573,6 @@ function openSourceDetail(index){
       </div>`;
     });
     if(matched.length>30) h+=`<div style="text-align:center;padding:10px;font-size:.75rem;color:var(--td)">… 及更多 ${matched.length-30} 条纪录</div>`;
-  } else {
-    h+=`<div style="padding:20px;text-align:center;color:var(--td);font-size:.85rem;background:var(--lz-s2);border-radius:6px">本库暂无来自${s.name}的成交记录<br><span style="font-size:.72rem;opacity:.6">该数据源包含 ${s.records} 条外部数据</span></div>`;
-  }
-  // Related coins from our DB
-  if(coinMatches.length){
-    h+=`<div style="font-size:.88rem;font-weight:700;color:var(--g);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">本库相关藏品 (${coinMatches.length})</div>`;
-    h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">`;
-    coinMatches.forEach(c=>{
-      h+=`<div onclick="closeDetail();setTimeout(()=>showDetail('${c.id}'),300)" style="padding:10px 12px;background:var(--lz-s2);border-radius:6px;border:1px solid var(--lz-b);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--lz-b)'">
-        <div style="font-size:.82rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.cn}</div>
-        <div style="display:flex;gap:6px;margin-top:4px;font-size:.7rem">
-          <span style="color:var(--td)">${c.era}</span>
-          <span style="color:var(--g)">¥${c.est_rmb}</span>
-          ${c.myStatus==='owned'?'<span style="color:var(--ch)">已藏</span>':''}
-        </div>
-      </div>`;
-    });
-    h+=`</div>`;
   }
   dp.innerHTML=h;
   document.getElementById('detailOverlay').classList.add('open');
@@ -632,16 +603,12 @@ document.getElementById('numisDB').innerHTML=`
   <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
     <div style="font-size:1.6rem;font-weight:700;color:var(--ch)">¥300亿+</div>
     <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">成交总额</div></div>
-  <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
-    <div style="font-size:1.6rem;font-weight:700;color:var(--cr)">${numisLocalStats.varieties}</div>
-    <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">本库品种</div></div>
 </div>
 <h3 style="color:var(--g);font-size:.95rem;margin:0 0 14px;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:3px;height:16px;background:var(--g);border-radius:2px"></span> 数据源一览 <span style="font-size:.72rem;color:var(--td);font-weight:400">Data Sources</span></h3>
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:28px">
   ${numisSourceCards}
 </div>
-<div style="padding:16px 20px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
-  <div style="font-size:.82rem;color:var(--td)">本库已收录 <span style="color:var(--g);font-weight:600">${numisLocalStats.varieties}</span> 个品种 · <span style="color:var(--ch);font-weight:600">${numisLocalStats.auctionRecords}</span> 条拍卖纪录 · <span style="color:var(--cr);font-weight:600">${numisLocalStats.provenanceRecords}</span> 条传承记录</div>
+<div style="padding:16px 20px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;text-align:center">
   <div style="font-size:.7rem;color:var(--td);opacity:.6">数据持续更新中 · Continuously Updated</div>
 </div>`;
 function renderDB(list){
