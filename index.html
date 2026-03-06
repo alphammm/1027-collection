@@ -208,7 +208,7 @@ const NAV=[
   {id:'highlights',cn:'至臻之藏',en:'The Finest'},
   {id:'rankings',cn:'高分藏品',en:'Top Grades'},
   {id:'masterpieces',cn:'大珍',en:'Masterpieces'},
-  {id:'dragons',cn:'各省龙银',en:'Provincial Dragons'},
+  {id:'dragons',cn:'各省龙洋',en:'Provincial Dragons'},
   {id:'yuanPortraits',cn:'袁像银圆',en:'Yuan Shikai'},
   {id:'sunPortraits',cn:'孙像银圆',en:'Sun Yat-sen'},
   {id:'warlords',cn:'民国地方银圆',en:'Republic Provincial'},
@@ -481,7 +481,7 @@ const dbWanted=COINS.filter(c=>c.myStatus==='want');
 const dbTotalEst=COINS.filter(c=>c.est_rmb).reduce((s,c)=>{const v=String(c.est_rmb).replace(/[^0-9]/g,'');return s+(parseInt(v)||0)},0);
 const dbOwnedEst=dbOwned.reduce((s,c)=>{const v=String(c.est_rmb).split(/[+(]/)[0].replace(/[^0-9]/g,'');return s+(parseInt(v)||0)},0);
 const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Holdings">全部藏品</div><div class="chapter-line"></div></div>
-<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚，圣杯目标${dbWanted.length}枚。" data-en="Full holdings — ${COINS.length} varieties, ${dbOwned.length} owned, ${dbWanted.length} grails targeted.">全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚，圣杯目标${dbWanted.length}枚。</p></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚。" data-en="Full holdings — ${COINS.length} varieties, ${dbOwned.length} owned.">全部藏品——${COINS.length}个品种，已入藏${dbOwned.length}枚。</p></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
 <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
   <div style="font-size:2rem;font-weight:700;color:var(--g)">${COINS.length}</div>
@@ -489,9 +489,6 @@ const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" 
 <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
   <div style="font-size:2rem;font-weight:700;color:var(--ch)">${dbOwned.length}</div>
   <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="已入藏" data-en="Owned">已入藏</div></div>
-<div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
-  <div style="font-size:2rem;font-weight:700;color:var(--gd)">${dbWanted.length}</div>
-  <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="圣杯目标" data-en="Grails">圣杯目标</div></div>
 <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;text-align:center">
   <div style="font-size:1.4rem;font-weight:700;color:var(--g)">¥${dbOwnedEst.toLocaleString()}</div>
   <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="持仓估值 (RMB)" data-en="Est. Value (RMB)">持仓估值 (RMB)</div></div>
@@ -698,7 +695,7 @@ document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="
 <p style="margin-bottom:14px">19世纪末至20世纪初，中国现代货币体系的形成被铭刻在一批极为稀见的试铸币与样币之中。能够以实物系统重建这一历史脉络，不仅需要巨额资源，更需要长期的学术视野与罕见的历史机遇。</p>
 <p style="margin-bottom:14px">在这一意义上，<strong style="color:var(--g)">1024 Collection</strong> 已经进入传说级私人收藏的行列。</p>
 <p style="margin-bottom:14px">与耿爱德 Eduard Kann、古德曼 Irving Goodman 等历史名藏相比，这一收藏在若干关键板块上已形成高度系统化的结构，并在部分领域达到甚至超越前人的深度。</p>
-<p style="margin-bottom:14px">更重要的是，这一体系并非简单的珍品聚合，而是一条清晰的历史逻辑链。从清末地方龙银的诞生，到中央试图重建货币主权的壹两体系，再到帝制最后一次币制统一尝试的大清银币，直至民国货币制度最终定型。通过这些关键节点，中国现代货币制度的形成过程被完整地呈现出来。</p>
+<p style="margin-bottom:14px">更重要的是，这一体系并非简单的珍品聚合，而是一条清晰的历史逻辑链。从清末地方龙洋的诞生，到中央试图重建货币主权的壹两体系，再到帝制最后一次币制统一尝试的大清银币，直至民国货币制度最终定型。通过这些关键节点，中国现代货币制度的形成过程被完整地呈现出来。</p>
 <p style="margin-bottom:14px"><em>因此，这一收藏不仅具有市场价值，更具有明确的制度史意义。</em></p>
 <h3 style="color:var(--ch);margin:28px 0 12px;font-size:1.05rem;letter-spacing:.08em">孤独的王者 —— 广东寿字双龙</h3>
 <p style="margin-bottom:14px">在这条历史逻辑链的顶端，是一枚几乎超越收藏体系本身的存在——广东省造寿字双龙壹两。</p>
@@ -856,7 +853,7 @@ ${ranked.map((c,i)=>{
   const regionOrder=[];
   dragonData.forEach(d=>{if(!regionOrder.includes(d.p))regionOrder.push(d.p)});
 
-  let dhtml=`<div class="chapter"><div class="chapter-num" data-cn="第肆章" data-en="Chapter IV">第肆章</div><div class="chapter-title" data-cn="各省龙银" data-en="Provincial Dragon Dollars">各省龙银</div><div class="chapter-line"></div></div>`;
+  let dhtml=`<div class="chapter"><div class="chapter-num" data-cn="第肆章" data-en="Chapter IV">第肆章</div><div class="chapter-title" data-cn="各省龙洋" data-en="Provincial Dragon Dollars">各省龙洋</div><div class="chapter-line"></div></div>`;
   dhtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="自光绪十五年广东开铸至宣统三年大清覆灭，各省造币厂留下${dragonData.length}种以上龙洋品种。每一枚龙洋都是地方财权的银质化表达——龙纹各异，版别繁多，构成中国近代货币史最丰富的实物体系。" data-en="From 1889 to 1911, provincial mints produced ${dragonData.length}+ dragon dollar varieties. Each dragon dollar embodies local fiscal power cast in silver — diverse dragon designs and numerous variants form the richest material corpus in modern Chinese monetary history.">自光绪十五年广东开铸至宣统三年大清覆灭，各省造币厂留下${dragonData.length}种以上龙洋品种。每一枚龙洋都是地方财权的银质化表达——龙纹各异，版别繁多，构成中国近代货币史最丰富的实物体系。</p></div>`;
 
   // Sort helpers for dragons
@@ -1132,7 +1129,7 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 <div style="text-align:center;color:var(--gd);font-size:1.2rem;line-height:1">│</div>
 
 <div style="text-align:center;padding:10px 0;border:1px solid var(--gd);border-radius:6px;margin:8px 0;background:rgba(197,162,88,.06)">
-<div style="color:var(--ch);font-weight:700">1889 广东机器龙银</div>
+<div style="color:var(--ch);font-weight:700">1889 广东机器龙洋</div>
 <div style="color:var(--td);font-size:.8rem">（中国第一枚机制银圆）</div>
 </div>
 
