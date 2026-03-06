@@ -107,6 +107,7 @@ nav button:hover,nav button.active{background:var(--g);color:var(--lz-deep);bord
 .coll-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .coll-header .ch-name{font-weight:600;font-size:1.02rem;color:var(--cr);font-family:'Noto Serif SC',serif}
 .coll-header .ch-en{font-size:.8rem;color:var(--td);font-style:italic}
+.cal-chev.open{transform:rotate(90deg)}
 .coll-header .ch-toggle{color:var(--g);font-size:.7rem;transition:.3s;opacity:.6}
 .coll-header .ch-toggle.open{transform:rotate(90deg)}
 .coll-preview{padding:0 20px 12px;display:flex;gap:6px;flex-wrap:wrap}
@@ -222,10 +223,98 @@ const NAV=[
   {id:'collectors',cn:'藏家档案',en:'Collector Profiles'},
   {id:'coinFlow',cn:'珍币流转',en:'Provenance Flow'},
   {id:'numisDB',cn:'机制币数据库',en:'Numismatic Database'},
-  {id:'intel',cn:'市场情报',en:'Market Intelligence'}
+  {id:'intel',cn:'市场资讯',en:'Market News'}
 ];
 const nav=document.getElementById('mainNav');
 NAV.forEach((n,i)=>{const b=document.createElement('button');b.className=i===0?'active':'';b.setAttribute('data-cn',n.cn);b.setAttribute('data-en',n.en);b.textContent=n.cn;b.onclick=()=>{document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(n.id).classList.add('active');b.classList.add('active')};nav.appendChild(b)});
+
+// Era tags: 朝代.年号.年份
+const ERA_TAGS={
+'C001':'清.光绪.1897','C002':'清.光绪.1903','C003':'清.宣统.1911','C004':'清.宣统.1911',
+'C005':'清.光绪.1903','C006':'民国.十六年.1927','C007':'清.咸丰.1856',
+'C010':'清.光绪.1897','C011':'清.光绪.1889','C012':'民国.十八年.1929',
+'C013':'民国.五年.1916','C014':'民国.五年.1916','C015':'民国.元年.1912',
+'C016':'民国.十七年.1928','C017':'民国.十八年.1929','C018':'清.光绪.1894',
+'C019':'民国.二十一年.1932','C020':'民国.三年.1914',
+'C030':'清.宣统.1911','C031':'清.光绪.1907','C032':'清.光绪.1906',
+'C033':'清.光绪.1904','C034':'清.光绪.1904','C035':'民国.十六年.1927',
+'C036':'民国.元年.1912','C037':'民国.三年.1914','C038':'民国.三年.1914',
+'C039':'民国.元年.1912','C040':'民国.二十一年.1932','C041':'民国.二十一年.1932',
+'C042':'民国.二十二年.1933','C043':'民国.二十四年.1935',
+'C044':'清.光绪.1889','C045':'清.光绪.1906','C046':'民国.五年.1916',
+'C047':'清.光绪.1889','C048':'清.宣统.1910','C049':'民国.三年.1914',
+'C050':'民国.十六年.1927','C051':'民国.十年.1921',
+'C052':'民国.十二年.1923','C053':'民国.十二年.1923',
+'C054':'民国.元年.1912','C055':'民国.十七年.1928',
+'C056':'民国.十八年.1929','C057':'民国.十八年.1929',
+'C058':'民国.二十五年.1936','C059':'民国.二十五年.1936',
+'C060':'民国.十七年.1928','C061':'清.光绪.1897',
+'C062':'清.光绪.1897','C063':'清.光绪.1897','C064':'清.光绪.1898',
+'C065':'民国.十三年.1924','C066':'民国.五年.1916',
+'C067':'民国.十二年.1923','C068':'民国.十二年.1923',
+'C069':'民国.三年.1914','C070':'民国.八年.1919',
+'C071':'民国.九年.1920','C072':'民国.十年.1921',
+'C073':'民国.元年.1912','C074':'民国.元年.1912',
+'C075':'民国.十八年.1929','C076':'民国.十八年.1929','C077':'民国.十八年.1929',
+'C078':'清.光绪.1896','C079':'清.光绪.1907','C080':'清.光绪.1898',
+'C081':'清.光绪.1899','C082':'清.宣统.1909','C083':'清.宣统.1909',
+'C084':'清.光绪.1908','C085':'清.光绪.1908',
+'C086':'清.光绪.1901','C087':'清.光绪.1908',
+'C089':'清.光绪.1898','C090':'清.宣统.1910',
+'C091':'民国.十五年.1926','C092':'民国.十五年.1926','C093':'民国.十五年.1926',
+'C094':'民国.元年.1912','C095':'民国.五年.1916','C096':'民国.五年.1916',
+'C097':'清.光绪.1903','C098':'民国.十三年.1924',
+'C099':'民国.十六年.1927','C100':'民国.十二年.1923'
+};
+function eraTagHTML(id){const t=ERA_TAGS[id];return t?'<div style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:\'Noto Serif SC\',serif;margin-bottom:2px">'+t+'</div>':'';}
+
+// PCGS higher grade info helper
+function pcgsHigherHTML(c){
+  if(!c.pcgs_pop||!c.myGrade)return '';
+  const gradeVal={vf20:20,vf25:25,vf30:30,vf35:35,xf40:40,xf45:45,au50:50,au53:53,au55:55,au58:58,ms60:60,ms61:61,ms62:62,ms62p:62.5,ms63:63,ms63p:63.5,ms64:64,ms64p:64.5,ms65:65,ms65p:65.5,ms66:66,ms66p:66.5,ms67:67,sp58:58,sp60:60,sp61:61,sp62:62,sp63:63,sp64:64,sp65:65,sp66:66,sp67:67};
+  const m=c.myGrade.match(/(MS|AU|XF|VF|SP)\s*(\d+)\+?/i);
+  if(!m)return '';
+  const myKey=m[1].toLowerCase()+m[2];
+  const myVal=gradeVal[myKey]||(parseInt(m[2])||0);
+  const higher=[];let hCount=0;
+  Object.entries(c.pcgs_pop).forEach(([k,v])=>{
+    if(k==='total'||!v)return;
+    const val=gradeVal[k];
+    if(val&&val>myVal){higher.push({g:k.toUpperCase(),n:v,v:val});hCount+=v;}
+  });
+  higher.sort((a,b)=>a.v-b.v);
+  if(hCount===0)return ' <span style="color:var(--ch);font-weight:600">🏆 最高分 Top Pop</span>';
+  return ` <span style="color:var(--td);font-size:.78rem">| 更高分 ${hCount}枚 (${higher.map(h=>h.g+':'+h.n).join(', ')})</span>`;
+}
+
+// Photo storage helpers (localStorage)
+function getPhotos(coinId){try{return JSON.parse(localStorage.getItem('photo_'+coinId))||{}}catch(e){return {}}}
+function savePhoto(coinId,side,dataUrl){const p=getPhotos(coinId);p[side]=dataUrl;localStorage.setItem('photo_'+coinId,JSON.stringify(p))}
+function removePhoto(coinId,side){const p=getPhotos(coinId);delete p[side];localStorage.setItem('photo_'+coinId,JSON.stringify(p))}
+function resizeAndStore(file,coinId,side,cb){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();img.onload=function(){
+      const maxW=800,maxH=800;let w=img.width,h=img.height;
+      if(w>maxW||h>maxH){const r=Math.min(maxW/w,maxH/h);w*=r;h*=r;}
+      const cvs=document.createElement('canvas');cvs.width=w;cvs.height=h;
+      cvs.getContext('2d').drawImage(img,0,0,w,h);
+      savePhoto(coinId,side,cvs.toDataURL('image/jpeg',0.8));
+      if(cb)cb();
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file);
+}
+function photoThumbsHTML(coinId,size){
+  const p=getPhotos(coinId);if(!p.front&&!p.back)return '';
+  let h='<div style="display:flex;gap:4px;margin-top:4px">';
+  if(p.front)h+=`<img src="${p.front}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:4px;border:1px solid var(--gd);opacity:.85">`;
+  if(p.back)h+=`<img src="${p.back}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:4px;border:1px solid var(--gd);opacity:.85">`;
+  return h+'</div>';
+}
+
+// Editable market price helpers
+function toggleEstEdit(cid){const el=document.getElementById('estEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none'}
+function saveEst(cid){const v=document.getElementById('estInput_'+cid).value.trim();if(v){localStorage.setItem('est_'+cid,v);document.getElementById('estVal_'+cid).textContent='¥'+v;document.getElementById('estEdit_'+cid).style.display='none'}}
 
 // Shared: generate coin thumbnail HTML
 function coinImgTag(c,size){
@@ -255,7 +344,7 @@ const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
       card.className='sc-card';
       card.style.flex='0 0 260px';
       card.onclick=()=>showDetail('C011');
-      card.innerHTML=`<div class="sc-img" style="gap:4px;background:#000;padding:4px"><img src="img/slab_dragon.jpg" alt="七三反版 龙面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"><img src="img/slab_text.jpg" alt="七三反版 字面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"></div><div class="sc-info"><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
+      card.innerHTML=`<div class="sc-img" style="gap:4px;background:#000;padding:4px"><img src="img/slab_dragon.jpg" alt="七三反版 龙面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"><img src="img/slab_text.jpg" alt="七三反版 字面" style="max-height:100%;width:auto;object-fit:contain;border-radius:4px"></div><div class="sc-info">${eraTagHTML(c.id)}<div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
     } else {
       let imgSrc='';
       if(c.img?.length) imgSrc=c.img[0];
@@ -264,7 +353,7 @@ const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
       const fallback=imgSrc?'style="display:none"':'';
       card.className='sc-card';
       card.onclick=()=>showDetail(c.id);
-      card.innerHTML=`<div class="sc-img">${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-info"><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
+      card.innerHTML=`<div class="sc-img">${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-info">${eraTagHTML(c.id)}<div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div></div>`;
     }
     track.appendChild(card);
   });
@@ -298,24 +387,39 @@ function showDetail(coinId){
   const statusBadge=c.myStatus==='owned'?`<span style="display:inline-block;background:rgba(197,162,88,.2);color:var(--g);padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px">1024 COLLECTION</span>`
     :c.myStatus==='want'?`<span style="display:inline-block;background:rgba(154,125,58,.2);color:var(--gd);padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px">WISHLIST</span>`:'';
   h+=statusBadge;
+  h+=eraTagHTML(c.id);
   h+=`<h2>${c.cn}</h2><div class="den">${c.en}</div>`;
 
-  // Coin images (local photos or PCGS TrueView)
-  if(c.img?.length||c.pcgs_cert){
-    h+=`<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding:8px 0">`;
-    if(c.img?.length){
-      c.img.forEach(src=>{
-        h+=`<img src="${src}" alt="${c.cn}" style="max-height:200px;border-radius:6px;border:1px solid var(--lz-b);cursor:pointer" onerror="this.style.display='none'" onclick="window.open(this.src)">`;
-      });
-    }
-    if(c.pcgs_cert){
-      const certs=Array.isArray(c.pcgs_cert)?c.pcgs_cert:[c.pcgs_cert];
-      certs.forEach(cert=>{
-        h+=`<img src="https://images.pcgs.com/trueview/${cert}_medium.jpg" alt="PCGS TrueView ${cert}" style="max-height:200px;border-radius:6px;border:1px solid var(--lz-b);cursor:pointer" onerror="this.style.display='none'" onclick="window.open('https://www.pcgs.com/cert/${cert}')">`;
-      });
-    }
-    h+=`</div>`;
+  // Coin images (local photos or PCGS TrueView) + uploaded photos
+  const _photos=getPhotos(c.id);
+  h+=`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding:8px 0">`;
+  // Left: official images
+  h+=`<div><div style="font-size:.65rem;color:var(--td);margin-bottom:4px;letter-spacing:.04em">官方图 Official</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+  if(c.img?.length){
+    c.img.forEach(src=>{
+      h+=`<img src="${src}" alt="${c.cn}" style="max-height:200px;border-radius:6px;border:1px solid var(--lz-b);cursor:pointer" onerror="this.style.display='none'" onclick="window.open(this.src)">`;
+    });
   }
+  if(c.pcgs_cert){
+    const certs=Array.isArray(c.pcgs_cert)?c.pcgs_cert:[c.pcgs_cert];
+    certs.forEach(cert=>{
+      h+=`<img src="https://images.pcgs.com/trueview/${cert}_medium.jpg" alt="PCGS TrueView ${cert}" style="max-height:200px;border-radius:6px;border:1px solid var(--lz-b);cursor:pointer" onerror="this.style.display='none'" onclick="window.open('https://www.pcgs.com/cert/${cert}')">`;
+    });
+  }
+  if(!c.img?.length&&!c.pcgs_cert) h+=`<div style="width:200px;height:200px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--lz);color:var(--gd);font-size:60px;opacity:.3">&#x2742;</div>`;
+  h+=`</div></div>`;
+  // Right: uploaded photos
+  h+=`<div><div style="font-size:.65rem;color:var(--td);margin-bottom:4px;letter-spacing:.04em">实拍图 My Photos</div><div style="display:flex;gap:8px;flex-wrap:wrap" id="detailPhotos">`;
+  ['front','back'].forEach(side=>{
+    const label=side==='front'?'正面':'反面';
+    if(_photos[side]){
+      h+=`<div style="position:relative"><img src="${_photos[side]}" style="max-height:200px;border-radius:6px;border:1px solid var(--gd);cursor:pointer" onclick="window.open(this.src)"><div style="position:absolute;top:4px;right:4px;display:flex;gap:4px"><span style="background:rgba(0,0,0,.7);color:var(--gd);font-size:.6rem;padding:2px 6px;border-radius:3px">${label}</span><span onclick="event.stopPropagation();removePhoto('${c.id}','${side}');showDetail('${c.id}')" style="background:rgba(180,40,40,.8);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:3px;cursor:pointer">✕</span></div></div>`;
+    } else {
+      h+=`<label style="width:120px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--lz-b);border-radius:6px;cursor:pointer;color:var(--td);font-size:.75rem;gap:6px;transition:.2s" onmouseover="this.style.borderColor='var(--gd)'" onmouseout="this.style.borderColor='var(--lz-b)'"><span style="font-size:1.5rem;opacity:.4">📷</span><span>${label}</span><span style="font-size:.6rem;opacity:.5">点击上传</span><input type="file" accept="image/*" style="display:none" onchange="resizeAndStore(this.files[0],'${c.id}','${side}',function(){showDetail('${c.id}')})"></label>`;
+    }
+  });
+  h+=`</div></div>`;
+  h+=`</div>`;
 
   // Metadata grid
   h+=`<div class="dmeta">
@@ -323,8 +427,8 @@ function showDetail(coinId){
     <div><div class="dl">造币厂 Mint</div><div class="dv">${c.mint}</div></div>
     <div><div class="dl">材质 / 规格</div><div class="dv">${c.metal} ${c.weight} ${c.diam}</div></div>
     <div><div class="dl">珍稀度 Rarity</div><div class="dv">${'&#9733;'.repeat(c.rarity)}${'&#9734;'.repeat(10-c.rarity)} <span style="color:var(--td);font-size:.72rem">${CL==='cn'?tierLabels[c.tier]||'':tierLabelsEn[c.tier]||''}</span></div></div>
-    <div><div class="dl">PCGS Population</div><div class="dv">${c.pcgs_pop?.total||'N/A'}${c.pcgs_pop?.total?` <span style="color:var(--td);font-size:.72rem">枚获评</span>`:''}</div></div>
-    <div><div class="dl">估值 Est.</div><div class="dv" style="color:var(--g);font-size:1.05rem">¥${c.est_rmb}</div></div>
+    <div><div class="dl">PCGS获评数量</div><div class="dv">${c.pcgs_pop?.total||'N/A'}${c.pcgs_pop?.total?` <span style="color:var(--td);font-size:.72rem">枚获评</span>`:''}${pcgsHigherHTML(c)}</div></div>
+    <div><div class="dl">估值 Est. <span onclick="event.stopPropagation();toggleEstEdit('${c.id}')" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" style="color:var(--g);font-size:1.05rem" id="estVal_${c.id}">¥${localStorage.getItem('est_'+c.id)||c.est_rmb}</div><div id="estEdit_${c.id}" style="display:none;margin-top:4px"><input id="estInput_${c.id}" value="${localStorage.getItem('est_'+c.id)||c.est_rmb}" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.85rem;width:140px"> <button onclick="saveEst('${c.id}')" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer">保存</button></div></div>
     ${c.myStatus==='owned'?`<div style="grid-column:1/-1;background:rgba(197,162,88,.08);border:1px solid rgba(197,162,88,.25)"><div class="dl" style="color:var(--g)">本藏品 My Piece</div><div class="dv" style="color:var(--ch);font-size:1.1rem">${c.myGrade} ${c.myRank?'— '+c.myRank:''}</div></div>`:''}
   </div>`;
 
@@ -340,7 +444,7 @@ function showDetail(coinId){
   }
 
   // Story / History
-  h+=`<div class="dh" data-cn="币种故事 Story" data-en="Story">${CL==='cn'?'币种故事':'Story'}</div>`;
+  h+=`<div class="dh" data-cn="币种故事 Story" data-en="Story">${CL==='cn'?'币种故事 Story':'Story'}</div>`;
   h+=`<div style="font-size:.92rem;color:var(--t);line-height:2;margin-bottom:8px;padding:12px 16px;background:var(--lz-s2);border-radius:6px;border-left:3px solid var(--gd)">${CL==='cn'?c.history_cn:c.history_en}</div>`;
 
   // PROVENANCE CHAIN — Timeline style
@@ -370,7 +474,7 @@ function showDetail(coinId){
 
   // AUCTION RECORDS — this coin
   if(c.auctions?.length){
-    h+=`<div class="dh" data-cn="拍卖纪录 Auction Records" data-en="Auction Records">${CL==='cn'?'拍卖纪录':'Auction Records'}</div>`;
+    h+=`<div class="dh" data-cn="拍卖纪录 Auction Records" data-en="Auction Records">${CL==='cn'?'拍卖纪录 Auction Records':'Auction Records'}</div>`;
     h+=`<div style="overflow-x:auto"><table class="at" style="font-size:.8rem"><thead><tr><th>日期</th><th>拍卖行</th><th>评级</th><th>Lot</th><th>成交价</th><th>备注</th></tr></thead><tbody>`;
     c.auctions.forEach(a=>{
       h+=`<tr><td>${a.date}</td><td style="color:var(--g)">${a.house}</td><td>${a.grade||''}</td><td>${a.lot||''}</td><td class="price">${a.price_usd?'$'+a.price_usd.toLocaleString():''}${a.price_rmb?(a.price_usd?' / ':'')+'¥'+a.price_rmb.toLocaleString():''}</td><td style="color:var(--td);font-size:.75rem">${a.note||''}</td></tr>`;
@@ -379,7 +483,7 @@ function showDetail(coinId){
   }
 
   // INTELLIGENCE — related collectors and market signals
-  h+=`<div class="dh" style="color:var(--gb)" data-cn="情报分析 Intelligence" data-en="Intelligence">${CL==='cn'?'情报分析':'Intelligence'}</div>`;
+  h+=`<div class="dh" data-cn="情报分析 Intelligence" data-en="Intelligence">${CL==='cn'?'情报分析 Intelligence':'Intelligence'}</div>`;
   h+=`<div style="font-size:.85rem;color:var(--td);line-height:1.8">`;
   // Which collectors hold same coin
   if(relatedCollectors.length){
@@ -457,7 +561,7 @@ document.getElementById('prologue').innerHTML=`<div class="story">
 const dzAll=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned');
 const dz5=dzAll.filter(c=>SUPREME_5STAR.has(c.id));
 const dz4=dzAll.filter(c=>!SUPREME_5STAR.has(c.id));
-function dzCard(c){const is5=SUPREME_5STAR.has(c.id);const stars=is5?'★★★★★':'★★★★';const starColor=is5?'var(--ch)':'var(--g)';const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}</div><div style="flex:1">${rankBadge}<div class="prov">${c.era} · <span style="color:${starColor}">${stars}</span></div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">Pop ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div></div></div>`}
+function dzCard(c){const is5=SUPREME_5STAR.has(c.id);const stars=is5?'★★★★★':'★★★★';const starColor=is5?'var(--ch)':'var(--g)';const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}${photoThumbsHTML(c.id,43)}</div><div style="flex:1">${rankBadge}${eraTagHTML(c.id)}<div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row"><span class="gt owned">${c.myGrade}</span>${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div></div></div>`}
 document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="至臻之藏" data-en="The Finest">至臻之藏</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 至臻之藏收录${dzAll.length}枚珍品——每一枚都经过严格甄选，代表中国机制银圆收藏的最高水准。甄选标准不取决于评级分数，而在于币种本身的历史地位、存世稀缺度与收藏价值。" data-en="The 1024 Collection's Supreme Treasury holds ${dzAll.length} treasures — each carefully selected to represent the highest standard of Chinese milled silver collecting. Selection is based on historical significance, survival rarity, and collector value, not grade alone.">1024 Collection 至臻之藏收录${dzAll.length}枚珍品——每一枚都经过严格甄选，代表中国机制银圆收藏的最高水准。甄选标准不取决于评级分数，而在于币种本身的历史地位、存世稀缺度与收藏价值。</p></div>
 <h3 style="color:var(--ch);font-size:1rem;margin-bottom:12px;letter-spacing:.06em" data-cn="一级至臻 Supreme Masterpieces I" data-en="Supreme Masterpieces I">一级至臻 Supreme Masterpieces I</h3>
@@ -466,19 +570,42 @@ document.getElementById('highlights').innerHTML=`<div class="chapter"><div class
 <div class="coin-grid">${dz4.map(dzCard).join('')}</div>`;
 
 // DATABASE
-// Build auction calendar for database section
+// Build auction calendar — exclude past events, sort by date
 let calendarHTML='';
 (function(){
   const allEvents=[];
   AUCTION_HOUSES.forEach(h=>{h.schedule.forEach(s=>{allEvents.push({...s,house:h.cn,hid:h.id,color:h.color})})});
-  allEvents.sort((a,b)=>(a.date>b.date?1:-1));
+  // Filter out done/past events
+  const upcoming=allEvents.filter(e=>e.status!=='done');
+  upcoming.sort((a,b)=>(a.date>b.date?1:-1));
   calendarHTML+=`<h3 style="color:var(--g);margin:0 0 12px;display:flex;align-items:center;gap:10px" data-cn="拍卖日历" data-en="Auction Calendar">拍卖日历</h3>`;
   calendarHTML+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;margin-bottom:28px">`;
-  allEvents.forEach(e=>{
-    const stCls=e.status==='done'?'opacity:.5':'';
+  var _calIdx=0;
+  upcoming.forEach(e=>{
+    const cid='cal_'+(_calIdx++);
     const stBadge=e.status==='next'?'<span style="background:var(--gr);color:#fff;font-size:.6rem;padding:1px 6px;border-radius:3px;font-weight:700;margin-left:6px">NEXT</span>':e.status==='plan'?'<span style="background:var(--lz-bl);color:var(--td);font-size:.6rem;padding:1px 6px;border-radius:3px;margin-left:6px">TBD</span>':'';
-    const subBtn=e.status!=='done'?`<button onclick="subscribeAuction(event,'${e.house} ${e.event}','${e.date}')" style="margin-top:6px;padding:3px 10px;border:1px solid var(--g);border-radius:3px;background:transparent;color:var(--g);cursor:pointer;font-size:.68rem;font-family:'EB Garamond',serif;transition:.2s" onmouseover="this.style.background='var(--g)';this.style.color='var(--lz-deep)'" onmouseout="this.style.background='transparent';this.style.color='var(--g)'" data-cn="订阅提醒" data-en="Subscribe">订阅提醒</button>`:'';
-    calendarHTML+=`<div style="padding:10px 14px;background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid ${e.color};border-radius:6px;${stCls}"><div style="font-size:.82rem;font-weight:600;color:var(--cr)">${e.house}${stBadge}</div><div style="font-size:.9rem;color:var(--g);margin:2px 0">${e.event}</div><div style="font-size:.72rem;color:var(--td)">${e.date}</div>${subBtn}</div>`;
+    const subBtn=`<button onclick="subscribeAuction(event,'${e.house} ${e.event}','${e.date}')" style="position:absolute;top:8px;right:8px;padding:3px 8px;border:1px solid var(--g);border-radius:3px;background:rgba(197,162,88,.1);color:var(--g);cursor:pointer;font-size:.65rem;font-family:'Noto Serif SC',serif;transition:.2s;display:flex;align-items:center;gap:3px" onmouseover="this.style.background='var(--g)';this.style.color='var(--lz-deep)'" onmouseout="this.style.background='rgba(197,162,88,.1)';this.style.color='var(--g)'" data-cn="&#x1F514; 提醒" data-en="&#x1F514; Alert">&#x1F514; 提醒</button>`;
+    calendarHTML+=`<div style="position:relative;background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid ${e.color};border-radius:6px;overflow:hidden">
+      <div onclick="var bd=document.getElementById('${cid}');bd.style.display=bd.style.display==='none'?'block':'none';this.querySelector('.cal-chev').classList.toggle('open')" style="padding:10px 14px;padding-right:70px;cursor:pointer">
+        <div style="font-size:.82rem;font-weight:600;color:var(--cr)">${e.house}${stBadge} <span class="cal-chev" style="color:var(--g);font-size:.6rem;transition:.3s;display:inline-block">&#x276F;</span></div>
+        <div style="font-size:.9rem;color:var(--g);margin:2px 0">${e.event}</div>
+        <div style="font-size:.72rem;color:var(--td)">${e.date}</div>
+      </div>${subBtn}
+      <div id="${cid}" style="display:none;padding:0 14px 12px;border-top:1px solid var(--lz-b)">
+        <div style="margin-top:10px">
+          <div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">备注</div>
+          <textarea id="${cid}_notes" oninput="calSaveNotes('${cid}')" placeholder="输入备注..." style="width:100%;min-height:50px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;padding:8px;color:var(--t);font-family:'Noto Serif SC',serif;font-size:.78rem;resize:vertical;outline:none"></textarea>
+        </div>
+        <div style="margin-top:10px">
+          <div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">关注藏品</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <input id="${cid}_input" placeholder="输入藏品名称..." style="flex:1;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;padding:5px 10px;color:var(--t);font-size:.78rem;outline:none" onkeydown="if(event.key==='Enter')calAddItem('${cid}')">
+            <button onclick="calAddItem('${cid}')" style="padding:4px 12px;border:1px solid var(--ch);border-radius:4px;background:rgba(255,215,0,.1);color:var(--ch);cursor:pointer;font-size:.72rem;font-weight:600;white-space:nowrap">&#x2605; Mark</button>
+          </div>
+          <div id="${cid}_items"></div>
+        </div>
+      </div>
+    </div>`;
   });
   calendarHTML+=`</div>`;
 })();
@@ -702,6 +829,7 @@ function renderDB(list){
     return`<div onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:center;padding:12px 16px;background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid ${bl};border-radius:6px;margin-bottom:8px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--g)'" onmouseout="this.style.borderColor='var(--lz-b)';this.style.borderLeftColor='${bl}'">
       ${coinImgTag(c,70)}
       <div style="flex:1;min-width:0">
+        ${eraTagHTML(c.id)}
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span style="font-size:.92rem;color:var(--cr);font-family:'Noto Serif SC',serif;font-weight:600">${c.cn}</span>
           <span style="font-size:.6rem;padding:1px 6px;border-radius:3px;background:var(--lz-s2);color:var(--td);border:1px solid var(--lz-b)">${catLabel}</span>
@@ -801,7 +929,7 @@ document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="
 <li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
 <li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
 </ul></div>
-${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS Pop: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
+${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1">${eraTagHTML(c.id)}<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div class="name-cn">${c.cn}</div></div><div class="name-en">${c.en}</div><div class="rarity">PCGS: ${c.pcgs_pop?.total||'N/A'} | ${'★'.repeat(Math.min(c.rarity,5))}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
 
 // RANKINGS — 高分典藏
 const ranked=owned.filter(c=>c.myRank).sort((a,b)=>b.rarity-a.rarity);
@@ -818,13 +946,14 @@ ${ranked.map((c,i)=>{
         <span style="${badge};font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:700">${c.myRank}</span>
         <span class="gt owned" style="font-size:.78rem">${c.myGrade}</span>
       </div>
+      ${eraTagHTML(c.id)}
       <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
       <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
       <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,100)||''}...</div>
     </div>
     <div style="text-align:right;min-width:120px;flex-shrink:0">
       <div style="color:var(--g);font-weight:700;font-size:1.05rem;margin-bottom:4px">¥${c.est_rmb}</div>
-      <div style="font-size:.72rem;color:var(--td)">PCGS Pop: ${c.pcgs_pop?.total||'N/A'}</div>
+      <div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>
       <div style="font-size:.72rem;color:var(--gd);margin-top:2px">${'★'.repeat(Math.min(c.rarity,5))}</div>
       ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--td);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
     </div>
@@ -1022,6 +1151,7 @@ function renderCoinCards(coins){
             <span style="color:var(--td);font-size:.72rem">${c.era} ${c.year}</span>
             ${statusBadge}${rankBadge}
           </div>
+          ${eraTagHTML(c.id)}
           <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
           <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,120)||''}${c.history_cn?.length>120?'...':''}</div>
@@ -1029,7 +1159,7 @@ function renderCoinCards(coins){
         </div>
         <div style="text-align:right;min-width:120px;flex-shrink:0">
           <div style="color:var(--g);font-weight:700;font-size:1rem;margin-bottom:4px">¥${c.est_rmb}</div>
-          <div style="font-size:.72rem;color:var(--td)">PCGS Pop: ${c.pcgs_pop?.total||'N/A'}</div>
+          <div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>
           <div style="font-size:.72rem;color:var(--td)">${'★'.repeat(Math.min(c.rarity,5))}${'☆'.repeat(Math.max(0,5-c.rarity))}</div>
           ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--gd);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
         </div>
@@ -1271,15 +1401,15 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 
 </div>`;
 
-// MARKET INTELLIGENCE — 市场情报
-document.getElementById('intel').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾肆章" data-en="Chapter XIV">第拾肆章</div><div class="chapter-title" data-cn="市场情报" data-en="Market Intelligence">市场情报</div><div class="chapter-line"></div></div>
-<div class="strategy-block"><h3>市场情报</h3><ul>
+// MARKET NEWS — 市场资讯
+document.getElementById('intel').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾肆章" data-en="Chapter XIV">第拾肆章</div><div class="chapter-title" data-cn="市场资讯" data-en="Market News">市场资讯</div><div class="chapter-line"></div></div>
+${calendarHTML}
+<div class="strategy-block"><h3 data-cn="市场动态" data-en="Market Updates">市场动态</h3><ul>
 <li>2025年Heritage HK 12月：张作霖Y16以$4.3M成交（创该品种国际纪录）、喜敦江南SP66以$1.5M成交、七三反版SP67以$1.14M成交</li>
 <li>2022年诚轩：奉天癸卯壹两以¥4657.5万成交（中国银圆拍卖历史最高价）</li>
 <li>2022年SBP：宣三长须龙SP63+以$3M成交（美国拍卖中国银圆最高价）</li>
 <li>价格趋势：顶级机制币年均增值15-20%，龙洋板块尤为强劲</li>
-</ul></div>
-${calendarHTML}`;
+</ul></div>`;
 
 // APPEND 潜在藏品 to collectors section
 document.getElementById('collectors').innerHTML+=`
@@ -1629,6 +1759,55 @@ function subscribeAuction(evt,name,date){
   btn.style.background='var(--gr)';btn.style.color='#fff';btn.style.borderColor='var(--gr)';
   btn.onmouseover=null;btn.onmouseout=null;
 }
+
+// Calendar notes & marked items (localStorage)
+function calSaveNotes(cid){
+  var ta=document.getElementById(cid+'_notes');
+  if(ta) localStorage.setItem('cal_notes_'+cid,ta.value);
+}
+function calAddItem(cid){
+  var inp=document.getElementById(cid+'_input');
+  if(!inp||!inp.value.trim()) return;
+  var items=JSON.parse(localStorage.getItem('cal_items_'+cid)||'[]');
+  items.push({name:inp.value.trim(),marked:true,ts:Date.now()});
+  localStorage.setItem('cal_items_'+cid,JSON.stringify(items));
+  inp.value='';
+  calRenderItems(cid);
+}
+function calRemoveItem(cid,idx){
+  var items=JSON.parse(localStorage.getItem('cal_items_'+cid)||'[]');
+  items.splice(idx,1);
+  localStorage.setItem('cal_items_'+cid,JSON.stringify(items));
+  calRenderItems(cid);
+}
+function calToggleMark(cid,idx){
+  var items=JSON.parse(localStorage.getItem('cal_items_'+cid)||'[]');
+  if(items[idx]) items[idx].marked=!items[idx].marked;
+  localStorage.setItem('cal_items_'+cid,JSON.stringify(items));
+  calRenderItems(cid);
+}
+function calRenderItems(cid){
+  var el=document.getElementById(cid+'_items');
+  if(!el) return;
+  var items=JSON.parse(localStorage.getItem('cal_items_'+cid)||'[]');
+  el.innerHTML=items.map(function(it,i){
+    var starColor=it.marked?'var(--ch)':'var(--tm)';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--lz-s2);border-radius:4px;margin-bottom:4px;border:1px solid var(--lz-b)">'
+      +'<span onclick="calToggleMark(\''+cid+'\','+i+')" style="cursor:pointer;color:'+starColor+';font-size:.85rem">&#x2605;</span>'
+      +'<span style="flex:1;font-size:.78rem;color:var(--cr)">'+it.name+'</span>'
+      +'<span onclick="calRemoveItem(\''+cid+'\','+i+')" style="cursor:pointer;color:var(--tm);font-size:.7rem;opacity:.6">&#x2715;</span>'
+      +'</div>';
+  }).join('');
+}
+// Restore saved notes and items on page load
+(function(){
+  for(var i=0;i<20;i++){
+    var cid='cal_'+i;
+    var ta=document.getElementById(cid+'_notes');
+    if(ta){var saved=localStorage.getItem('cal_notes_'+cid);if(saved)ta.value=saved;}
+    calRenderItems(cid);
+  }
+})();
 
 // Filter by category
 function filterFCCat(cat){
