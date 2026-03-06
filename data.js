@@ -154,7 +154,7 @@ const COINS = [
       { holder:"陕西李广宏", grade:"", acquired:"", price:"成本2600万", status:"持有", note:"" },
       { holder:"深圳赵勇", grade:"", acquired:"", price:"", status:"持有", note:"" },
       { holder:"重庆陶姐", grade:"AU53", acquired:"", price:"", status:"持有", note:"" },
-      { holder:"马太（印尼）", grade:"", acquired:"HA25", price:"", status:"持有Y16版", note:"" },
+      { holder:"印尼买家", grade:"", acquired:"HA25", price:"", status:"持有Y16版", note:"" },
     ],
     myStatus:"track", myGrade:null, myRank:null,
     est_rmb:"17,000,000+",
@@ -744,7 +744,7 @@ const COLLECTORS = [
   },
   {
     id:"COL06", cn:"李跃明", en:"Li Yueming",
-    loc_cn:"香港/山东", mode:"buy",
+    loc_cn:"山东", mode:"buy",
     bg_cn:"石油企业家。舒适区在1000-2000万/件。",
     profile_cn:"「稳健型实业买家」。石油行业的现金流稳定性让他能持续投入收藏。1000-2000万/件的舒适区说明他有明确的资金纪律——不追天价拍品，但在中高端区间持续扫货。老江南MS66以1700万购入是精准出手。涉猎面广（银币+银锭+毫子）说明有体系化收藏意识。香港/山东双基地让他同时接入香港拍场和大陆私洽两个渠道。潜在的「慢牛型」收藏者——不求一步到位，但十年后回看，持仓会非常可观。",
     coins:[
@@ -758,10 +758,10 @@ const COLLECTORS = [
     analysis_cn:"香港/山东石油企业家，在1000-2000万区间稳健活跃。老江南MS66以1700万购入、高峰估值2500万。持有上海壹两、大尾龙、大头签字MS64等中高端重器。总持仓约8000万。作为石油行业资金，受经济周期影响较小，是市场中最稳定的买方力量之一。",
   },
   {
-    id:"COL07", cn:"马太", en:"Ma Tai",
+    id:"COL07", cn:"姓名不详", en:"Anonymous (Indonesia)",
     loc_cn:"印尼", mode:"buy",
     bg_cn:"印尼华商，房地产背景。",
-    profile_cn:"「东南亚新势力」。印尼房地产商人，在HA 2025上拿下张作霖十六年——千万级别拍品，实力不容小觑。东南亚华商群体正成为中国银圆市场的新增量资金池，马太可能是这个群体的代表之一。值得关注：是否会持续在拍场出现，以及其背后是否代表更大的买方群体。",
+    profile_cn:"「东南亚新势力」。印尼房地产商人，在HA 2025上拿下张作霖十六年——千万级别拍品，实力不容小觑。东南亚华商群体正成为中国银圆市场的新增量资金池，该买家可能是这个群体的代表之一。值得关注：是否会持续在拍场出现，以及其背后是否代表更大的买方群体。",
     coins:[
       { cn:"张作霖十六年", grade:"", cost:"HA 2025", current_est:"30,000,000+" },
       { cn:"七分脸", grade:"", cost:"", current_est:"5,000,000+" },
