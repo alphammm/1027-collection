@@ -477,8 +477,7 @@ let calendarHTML='';
   calendarHTML+=`</div>`;
 })();
 const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="藏品列表" data-en="Catalogue">藏品列表</div><div class="chapter-line"></div></div>
-<div class="section-subtitle" data-cn="机制币数据库 — 含拍卖日历、PCGS评级数据、传承链追溯" data-en="Numismatic database with auction calendar, PCGS data, provenance chains">机制币数据库 — 含拍卖日历、PCGS评级数据、传承链追溯</div>
-${calendarHTML}
+<div class="section-subtitle" data-cn="机制币数据库 — PCGS评级数据、拍卖纪录、传承链追溯" data-en="Numismatic database with PCGS data, auction records, provenance chains">机制币数据库 — PCGS评级数据、拍卖纪录、传承链追溯</div>
 <div class="search-bar"><input type="text" id="dbSearch" placeholder="搜索币种 Search coins..." oninput="filterDB()"><select id="dbFilter" onchange="filterDB()"><option value="all">全部 All</option><option value="qing-tael">清·壹两 Tael</option><option value="qing-dragon">清·龙洋 Dragon</option><option value="qing-provincial">清·省造 Provincial</option><option value="republic-yuan">民国·袁像 Yuan</option><option value="republic-sun">民国·孙像 Sun</option><option value="republic-warlord">军阀 Warlord</option></select></div>
 <div class="coin-grid" id="dbGrid"></div>`;
 document.getElementById('database').innerHTML=dbHTML;
@@ -1014,7 +1013,8 @@ document.getElementById('intel').innerHTML=`<div class="chapter"><div class="cha
 <li>2022年诚轩：奉天癸卯壹两以¥4657.5万成交（中国银圆拍卖历史最高价）</li>
 <li>2022年SBP：宣三长须龙SP63+以$3M成交（美国拍卖中国银圆最高价）</li>
 <li>价格趋势：顶级机制币年均增值15-20%，龙洋板块尤为强劲</li>
-</ul></div>`;
+</ul></div>
+${calendarHTML}`;
 
 // APPEND 潜在藏品 to collectors section
 document.getElementById('collectors').innerHTML+=`
