@@ -964,7 +964,7 @@ document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="
 <li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
 <li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
 </ul></div>
-${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;const eraT=ERA_TAGS[c.id]||'';return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;margin-top:4px">${eraT?`<span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${eraT}</span>`:''}${starsHTML(Math.min(c.rarity,5))}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row">${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div><div class="est">¥${c.est_rmb}</div></div>`}).join('')}`;
+${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;const eraT=ERA_TAGS[c.id]||'';return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="${isTop?'border-left:3px solid var(--ch);background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><span style="color:var(--ch);font-size:.72rem;font-weight:700">#${i+1}</span><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;margin-top:4px">${eraT?`<span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${eraT}</span>`:''}${starsHTML(Math.min(c.rarity,5))}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row">${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}</div><div class="value">¥${c.est_rmb}</div><div style="color:var(--g);font-size:.85rem;margin-top:8px;line-height:1.7;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div></div>`}).join('')}`;
 
 // RANKINGS — 高分典藏
 const ranked=owned.filter(c=>c.myRank).sort((a,b)=>b.rarity-a.rarity);
@@ -989,10 +989,8 @@ ${ranked.map((c,i)=>{
         ${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}
         ${higherBadge(c)}
       </div>
+      <div class="value">¥${c.est_rmb}</div>
       <div style="color:var(--td);font-size:.82rem;line-height:1.7;margin-top:6px">${c.history_cn?.substring(0,100)||''}...</div>
-    </div>
-    <div style="text-align:right;min-width:120px;flex-shrink:0">
-      <div style="color:var(--g);font-weight:700;font-size:1.05rem;margin-bottom:4px">¥${c.est_rmb}</div>
       ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--td);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
     </div>
   </div>
@@ -1139,11 +1137,8 @@ ${ranked.map((c,i)=>{
           </div>
           <div class="name-cn" style="font-size:1.05rem;margin-bottom:2px">${d.cn}</div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:6px">${d.mint}</div>
+          <div class="value">${d.est||''}</div>
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${d.note}</div>
-        </div>
-        <div style="text-align:right;min-width:90px;flex-shrink:0">
-          <div style="color:var(--g);font-weight:700;font-size:.95rem">${d.est||''}</div>
-          <div style="font-size:.68rem;color:var(--td);margin-top:2px">${d.owned?'我的藏品估价':'PCGS ~MS60'}</div>
         </div>
       </div>`;
     }).join('');
@@ -1192,14 +1187,11 @@ function renderCoinCards(coins){
           ${eraTagHTML(c.id)}
           <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
           <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
+          ${isOwned?`<div class="grade-row">${gradeBadge(c)}${c.pcgs_pop?.total?'<span class="gt normal">PCGS '+c.pcgs_pop.total+'</span>':''}${higherBadge(c)}</div>`:`<div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>`}
+          <div class="value">¥${c.est_rmb}</div>
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,120)||''}${c.history_cn?.length>120?'...':''}</div>
-          ${copiesHtml}
-        </div>
-        <div style="text-align:right;min-width:120px;flex-shrink:0">
-          <div style="color:var(--g);font-weight:700;font-size:1rem;margin-bottom:4px">¥${c.est_rmb}</div>
-          <div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>
-          <div style="font-size:.72rem;color:var(--td)">${'★'.repeat(Math.min(c.rarity,5))}${'☆'.repeat(Math.max(0,5-c.rarity))}</div>
           ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--gd);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
+          ${copiesHtml}
         </div>
       </div>
     </div>`;
