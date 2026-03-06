@@ -238,30 +238,29 @@ const champs=owned.filter(c=>c.myRank&&(c.myRank.includes('冠军')||c.myRank.in
 const DAZHEN_IDS=['C010','C011','C044','C031','C032','C045','C030','C033','C034','C037','C013','C046','C014','C038','C039','C017','C012','C040','C041','C042','C043'];
 (function(){
   const track=document.getElementById('showcaseTrack');
-  // Lead with 七三反版 slab photos (dragon + text sides)
-  [{src:'img/slab_dragon.jpg',label:'七三反版 · 龙面',sub:'PCGS SP66+ 黑金盒'},{src:'img/slab_text.jpg',label:'七三反版 · 字面',sub:'广东省造光绪元宝'}].forEach(s=>{
-    const card=document.createElement('div');
-    card.className='sc-card champion';
-    card.style.flex='0 0 140px';
-    card.onclick=()=>showDetail('C011');
-    card.innerHTML=`<div class="sc-img" style="aspect-ratio:2/3;background:#000"><img src="${s.src}" alt="${s.label}" style="width:100%;height:100%;object-fit:contain"></div><div class="sc-name" style="font-size:.72rem;margin-top:4px">${s.label}</div><div class="sc-grade">${s.sub}</div>`;
-    track.appendChild(card);
-  });
   const showcase=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus==='owned').sort((a,b)=>b.rarity-a.rarity);
   showcase.forEach(c=>{
     const isC=c.myRank?.includes('冠军');const isR=c.myRank?.includes('亚军')||c.myRank?.includes('季军');
     const cls=isC?'champion':isR?'runner':'';
     const rankHtml=c.myRank?`<span class="sc-rank ${isC?'champ':'ru'}">${c.myRank}</span>`:'';
-    // Coin image: local photos > PCGS TrueView > placeholder
-    let imgSrc='';
-    if(c.img?.length) imgSrc=c.img[0];
-    else if(c.pcgs_cert) imgSrc=`https://images.pcgs.com/trueview/${Array.isArray(c.pcgs_cert)?c.pcgs_cert[0]:c.pcgs_cert}_medium.jpg`;
-    const imgHtml=imgSrc?`<img src="${imgSrc}" alt="${c.cn}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
-    const fallback=imgSrc?'style="display:none"':'';
     const card=document.createElement('div');
-    card.className=`sc-card ${cls}`;
-    card.onclick=()=>showDetail(c.id);
-    card.innerHTML=`<div class="sc-img">${rankHtml}${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div>`;
+    // Special: C011 七三反版 shows both slab photos side by side
+    if(c.id==='C011'){
+      card.className='sc-card champion';
+      card.style.flex='0 0 260px';
+      card.onclick=()=>showDetail('C011');
+      card.innerHTML=`<div class="sc-img" style="aspect-ratio:auto;height:180px;display:flex;gap:4px;background:#000;padding:4px">${rankHtml}<img src="img/slab_dragon.jpg" alt="七三反版 龙面" style="height:100%;width:auto;object-fit:contain;border-radius:4px"><img src="img/slab_text.jpg" alt="七三反版 字面" style="height:100%;width:auto;object-fit:contain;border-radius:4px"></div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div>`;
+    } else {
+      // Standard card
+      let imgSrc='';
+      if(c.img?.length) imgSrc=c.img[0];
+      else if(c.pcgs_cert) imgSrc=`https://images.pcgs.com/trueview/${Array.isArray(c.pcgs_cert)?c.pcgs_cert[0]:c.pcgs_cert}_medium.jpg`;
+      const imgHtml=imgSrc?`<img src="${imgSrc}" alt="${c.cn}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'';
+      const fallback=imgSrc?'style="display:none"':'';
+      card.className=`sc-card ${cls}`;
+      card.onclick=()=>showDetail(c.id);
+      card.innerHTML=`<div class="sc-img">${rankHtml}${imgHtml}<div class="coin-icon" ${fallback}>&#x2742;</div></div><div class="sc-name">${c.cn}</div><div class="sc-grade">${c.myGrade||''}</div><div class="sc-val">¥${c.est_rmb}</div>`;
+    }
     track.appendChild(card);
   });
   // Auto-scroll animation
