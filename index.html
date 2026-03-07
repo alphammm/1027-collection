@@ -211,14 +211,14 @@ const NAV=[
   {id:'prologue',cn:'序言',en:'Prologue'},
   {id:'highlights',cn:'至臻之藏',en:'The Finest'},
   {id:'rankings',cn:'巅峰评级',en:'Top Grades'},
-  {id:'masterpieces',cn:'大珍',en:'Masterpieces'},
+  {id:'masterpieces',cn:'顶级名誉品',en:'Masterpieces'},
   {id:'dragons',cn:'各省龙洋',en:'Provincial Dragons'},
   {id:'yuanPortraits',cn:'袁像银圆',en:'Yuan Shikai'},
   {id:'sunPortraits',cn:'孙像银圆',en:'Sun Yat-sen'},
   {id:'warlords',cn:'军阀银圆',en:'Republic Provincial'},
   {id:'fullCollection',cn:'拍卖溯源',en:'Auction Provenance'},
   {id:'database',cn:'全部藏品',en:'Full Holdings'},
-  {id:'wishlist',cn:'圣杯',en:'The Grails'},
+  {id:'wishlist',cn:'收藏圣杯',en:'The Grails'},
   {id:'strategy',cn:'收藏体系',en:'Collection System'},
   {id:'collectors',cn:'藏家档案',en:'Collector Profiles'},
   {id:'coinFlow',cn:'珍币流转',en:'Provenance Flow'},
@@ -760,7 +760,7 @@ const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" 
 document.getElementById('database').innerHTML=dbHTML;
 // numisDB — 机制币数据库 (11 data sources from 古泉祥晋)
 const NUMIS_SOURCES = [
-  { name:'首席收藏', nameEn:'ShouXi.com', type:'aggregator', records:'120万+', houses:'10+', volume:'¥300亿+', desc:'中国最大钱币拍卖聚合平台，汇集全球10+拍卖行数据' },
+  { name:'首席收藏', nameEn:'ShouXi.com', type:'aggregator', records:'120万+', houses:'10+', volume:'¥300亿+', desc:'中国最大钱币拍卖聚合平台，汇集全球10大拍卖行数据' },
   { name:'北京诚轩', nameEn:'ChengXuan', type:'direct', records:'5万+', volume:'¥1.96亿', desc:'北京顶级拍卖行，中国机制币拍卖成交纪录保持者' },
   { name:'泓盛拍卖', nameEn:'Holly International', type:'direct', records:'3.5万+', volume:'¥8,844万', desc:'上海专业钱币拍卖行，机制币与古钱并重' },
   { name:'SBP (Stack\'s Bowers)', nameEn:'Stack\'s Bowers', type:'direct', records:'12万+', volume:'¥6,148万', desc:'全球历史最悠久的钱币拍卖行之一，香港专场实力强劲' },
@@ -827,6 +827,84 @@ COINS.forEach(c=>{
     _coinAuctions.push({cn:c.cn,house:a.house||'',date:a.date||'',grade:a.grade||'',rmb:a.rmb||0,usd:a.usd||0,lot:a.lot||''});
   });
 });
+// ── Auction item action logic (global) ──
+function isInCollection(cn){
+  return COINS.some(function(c){return c.cn&&(cn.includes(c.cn.substring(0,8))||c.cn.includes(cn.substring(0,8)))});
+}
+function getAucAction(house,lot){
+  var key='auc_action_'+house+'_'+lot;
+  var stored=localStorage.getItem(key);
+  if(stored) return stored.split(',');
+  return null;
+}
+function getAucActionDefault(r){
+  var acts=getAucAction(r._house||r.house,r.lot);
+  if(acts) return acts;
+  if(isInCollection(r.cn)) return ['collect'];
+  return ['sell'];
+}
+function aucActionBadge(r){
+  var acts=getAucActionDefault(r);
+  var bs='background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700;font-size:.68rem;padding:1px 6px;border-radius:3px;display:inline-block';
+  var rs='background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3);font-weight:700;font-size:.68rem;padding:1px 6px;border-radius:3px;display:inline-block';
+  var html='';
+  if(acts.includes('collect')) html+='<span style="'+bs+'">藏</span> ';
+  if(acts.includes('buy')) html+='<span style="'+bs+'">买</span> ';
+  if(acts.includes('sell')) html+='<span style="'+rs+'">卖</span> ';
+  if(acts.includes('sold')) html+='<span style="'+rs+'">已卖</span> ';
+  return html;
+}
+function toggleAucAction(house,lot,action){
+  var key='auc_action_'+house+'_'+lot;
+  var r=_allPurchases.find(function(p){return (p._house||p.house)===house&&p.lot===lot});
+  var acts=r?getAucActionDefault(r):[];
+  var newActs;
+  if(acts.includes(action)) newActs=acts.filter(function(a){return a!==action});
+  else newActs=acts.concat([action]);
+  if(newActs.length===0) localStorage.removeItem(key);
+  else localStorage.setItem(key,newActs.join(','));
+}
+function showAucItemDetail(house,lot){
+  var r=_allPurchases.find(function(p){return (p._house||p.house)===house&&p.lot===lot});
+  if(!r) return;
+  var hid=r._house||r.house;
+  var price=r.t?(r.cur==='USD'?'$'+r.t.toLocaleString():'¥'+r.t.toLocaleString()):'—';
+  var lk='auc_action_'+hid+'_'+lot;
+  var acts=getAucActionDefault(r);
+  var pfx='auc_detail_'+hid+'_'+lot+'_';
+  var costVal=localStorage.getItem(pfx+'cost')||String(r.t||'');
+  var mktVal=localStorage.getItem(pfx+'mkt')||String(r.est_mkt||'');
+  var estVal=localStorage.getItem(pfx+'est')||'';
+  var soldVal=localStorage.getItem(pfx+'sold')||'';
+  var dp=document.getElementById('detailPanel');
+  var h='<button class="detail-close" onclick="closeDetail()">&times;</button>';
+  h+='<div style="margin-bottom:16px"><div style="font-size:1.15rem;font-weight:700;color:var(--cr);margin-bottom:6px;font-family:\'Noto Serif SC\',serif">'+(r.cn||'')+'</div>';
+  h+='<div style="font-size:.78rem;color:var(--td)">'+hid+(r.grade?' · '+r.grade:'')+(r.lot?' · Lot '+r.lot:'')+'</div></div>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">'+aucActionBadge(r)+'</div>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px">';
+  var actionDefs=[{id:'collect',label:'收藏'},{id:'buy',label:'买入'},{id:'sell',label:'卖出'},{id:'sold',label:'已卖'}];
+  actionDefs.forEach(function(ad){
+    var active=acts.includes(ad.id);
+    var isRed=ad.id==='sell'||ad.id==='sold';
+    var btnS=active?(isRed?'background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.5)':'background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.5)'):'background:var(--lz-s);color:var(--td);border:1px solid var(--lz-b)';
+    h+='<button onclick="toggleAucAction(\''+hid+'\',\''+lot+'\',\''+ad.id+'\');showAucItemDetail(\''+hid+'\',\''+lot+'\')" style="'+btnS+';padding:5px 14px;border-radius:4px;cursor:pointer;font-size:.78rem;font-weight:600">'+ad.label+'</button>';
+  });
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">';
+  h+='<div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">买入价 / 买入成本</label><input id="auc_cost" value="'+costVal.replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;color:var(--cr);font-size:.85rem" onchange="localStorage.setItem(\''+pfx+'cost\',this.value)"></div>';
+  h+='<div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">市场价格</label><input id="auc_mkt" value="'+mktVal.replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;color:var(--cr);font-size:.85rem" onchange="localStorage.setItem(\''+pfx+'mkt\',this.value)"></div>';
+  h+='<div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">预计市场价格</label><input id="auc_est" value="'+estVal.replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;color:var(--cr);font-size:.85rem" onchange="localStorage.setItem(\''+pfx+'est\',this.value)"></div>';
+  h+='<div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">卖出价格</label><input id="auc_sold" value="'+soldVal.replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:4px;color:var(--cr);font-size:.85rem" onchange="localStorage.setItem(\''+pfx+'sold\',this.value)"></div>';
+  h+='</div>';
+  h+='<div style="background:var(--lz-s2);border-radius:6px;padding:14px;border:1px solid var(--lz-b)">';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:.78rem;color:var(--td)">落锤价</span><span style="font-size:.88rem;font-weight:700;color:var(--g)">'+(r.h?(r.cur==='USD'?'$'+r.h.toLocaleString():'¥'+r.h.toLocaleString()):'—')+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:.78rem;color:var(--td)">含佣成交价</span><span style="font-size:.88rem;font-weight:700;color:var(--ch)">'+price+'</span></div>';
+  if(r.est_mkt) h+='<div style="display:flex;justify-content:space-between"><span style="font-size:.78rem;color:var(--td)">估值参考</span><span style="font-size:.88rem;font-weight:700;color:var(--g)">'+r.est_mkt+'</span></div>';
+  h+='</div>';
+  dp.innerHTML=h;
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
 // openSourceDetail — click a data source card to see matching auction records + purchases
 function openSourceDetail(index){
   const s=NUMIS_SOURCES[index];if(!s)return;
@@ -865,15 +943,19 @@ function openSourceDetail(index){
   if(s.houses) h+='<div style="background:var(--lz-s2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:700;color:var(--cr)">'+s.houses+'家</div><div style="font-size:.65rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">覆盖拍卖行</div></div>';
   h+='</div>';
   // Render a list of record items with 20-item fold
-  function renderRecordList(records,blockId,borderLeft){
+  function renderRecordList(records,blockId,borderLeft,isPurchase){
     var out='';
     records.forEach(function(r,i){
       var price=r.rmb?'¥'+r.rmb.toLocaleString():r.usd?'$'+r.usd.toLocaleString():(r.t?(r.cur==='USD'?'$'+r.t.toLocaleString():'¥'+r.t.toLocaleString()):'—');
       var hidden=i>=20?' style="display:none" class="sd-fold sd-fold-'+blockId+'"':'';
       var bl=borderLeft||'';
-      out+='<div'+hidden+'><div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--lz-s2);border-radius:6px;margin-bottom:6px;border:1px solid var(--lz-b);'+bl+'transition:border-color .2s;cursor:default" onmouseover="this.style.borderColor=\'var(--g)\'" onmouseout="this.style.borderColor=\'var(--lz-b)\'">';
-      out+='<div style="flex:1;min-width:0"><div style="font-size:.85rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.cn||'')+'</div>';
-      out+='<div style="font-size:.72rem;color:var(--td);margin-top:2px">'+(r.house||'')+(r.date?' · '+r.date:'')+(r.grade?' · '+r.grade:'')+(r.lot?' · Lot '+r.lot:'')+'</div></div>';
+      var hid=r._house||r.house||'';
+      var clickAttr=isPurchase&&r.lot?' onclick="showAucItemDetail(\''+hid+'\',\''+r.lot+'\')" style="cursor:pointer"':'';
+      out+='<div'+hidden+'><div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--lz-s2);border-radius:6px;margin-bottom:6px;border:1px solid var(--lz-b);'+bl+'transition:border-color .2s;'+(isPurchase?'cursor:pointer':'cursor:default')+'"'+(isPurchase&&r.lot?' onclick="showAucItemDetail(\''+hid+'\',\''+r.lot+'\')"':'')+ ' onmouseover="this.style.borderColor=\'var(--g)\'" onmouseout="this.style.borderColor=\'var(--lz-b)\'">';
+      out+='<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div style="font-size:.85rem;font-weight:600;color:var(--cr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">'+(r.cn||'')+'</div>';
+      if(isPurchase) out+=aucActionBadge(r);
+      out+='</div>';
+      out+='<div style="font-size:.72rem;color:var(--td);margin-top:2px">'+(r.house||hid||'')+(r.date?' · '+r.date:'')+(r.grade?' · '+r.grade:'')+(r.lot?' · Lot '+r.lot:'')+'</div></div>';
       out+='<div style="font-size:.95rem;font-weight:700;color:var(--ch);flex-shrink:0;white-space:nowrap">'+price+'</div>';
       out+='</div></div>';
     });
@@ -885,12 +967,19 @@ function openSourceDetail(index){
   // Auction records
   if(matched.length){
     h+='<div style="font-size:.88rem;font-weight:700;color:var(--g);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">经典成交案例</div>';
-    h+=renderRecordList(matched,auctionBlockId,'');
+    h+=renderRecordList(matched,auctionBlockId,'',false);
   }
-  // My purchases
+  // My purchases — compute total transaction price
   if(myMatched.length){
-    h+='<div style="font-size:.88rem;font-weight:700;color:var(--ch);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">1024 Collection 购藏纪录 ('+myMatched.length+'件)</div>';
-    h+=renderRecordList(myMatched,purchaseBlockId,'border-left:3px solid var(--ch);');
+    var purTotalUSD=0,purTotalRMB=0;
+    myMatched.forEach(function(p){if(p.cur==='USD')purTotalUSD+=p.t;else purTotalRMB+=p.t});
+    var purTotalStr=purTotalUSD?'$'+purTotalUSD.toLocaleString():'';
+    if(purTotalRMB){if(purTotalStr)purTotalStr+=' + ';purTotalStr+='¥'+purTotalRMB.toLocaleString();}
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--lz-b)">';
+    h+='<span style="font-size:.88rem;font-weight:700;color:var(--ch)">1024 Collection 购藏纪录 ('+myMatched.length+'件)</span>';
+    h+='<span style="font-size:.82rem;font-weight:700;color:var(--g)">成交价 '+purTotalStr+'</span>';
+    h+='</div>';
+    h+=renderRecordList(myMatched,purchaseBlockId,'border-left:3px solid var(--ch);',true);
   }
   dp.innerHTML=h;
   document.getElementById('detailOverlay').classList.add('open');
@@ -1016,7 +1105,7 @@ const grailLogicEn={
   'C002':'Fengtian Tael · Highest auction record for Chinese silver (¥46.575M). Peak expression of Northeast local minting authority.',
   'C007':'Shanghai Tael · Among China\'s earliest modern milled coins (1856). Predating Kwangtung by 30+ years, the harbinger of monetary modernization.'
 };
-document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="圣杯" data-en="The Grails">圣杯</div><div class="chapter-line"></div></div>
+document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="收藏圣杯" data-en="The Grails">收藏圣杯</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:24px;line-height:2;color:var(--cr)">
 <p style="margin-bottom:14px">在中国机制币收藏史上，真正具有时代意义的私人收藏并不多见。</p>
 <p style="margin-bottom:14px">19世纪末至20世纪初，中国现代货币体系的形成被铭刻在一批极为稀见的试铸币与样币之中。能够以实物系统重建这一历史脉络，不仅需要巨额资源，更需要长期的学术视野与罕见的历史机遇。</p>
@@ -1039,7 +1128,7 @@ document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="
 <p style="margin-bottom:14px">若这一结构最终完成，这将是真正意义上的<strong style="color:var(--ch)">中国机制币大满贯 (Grand Slam)</strong>。在过去一百余年的中国钱币收藏史中，几乎没有任何私人藏家能够以一己之力同时拥有如此完整且品相顶级的清末与民国样币体系。</p>
 <p style="margin-bottom:14px;border-left:3px solid var(--ch);padding-left:14px;font-style:italic;color:var(--g)">那将不再只是一个私人收藏，而是一部仍在继续书写的<strong>《中国近代机制币史》</strong>。</p>
 </div>
-<div class="strategy-block" style="margin-bottom:28px"><h3 style="color:var(--ch);font-size:1rem;letter-spacing:.06em">十二圣杯优先级</h3><ul>
+<div class="strategy-block" style="margin-bottom:28px"><h3 style="color:var(--ch);font-size:1rem;letter-spacing:.06em">十二收藏圣杯优先级</h3><ul>
 <li><strong>第一梯队（4000万+）：</strong>广东寿字双龙壹两</li>
 <li><strong>第二梯队（1000万+）：</strong>宣三短须龙、户部壹两、金本位下三鸟壹圆</li>
 <li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
@@ -1078,9 +1167,9 @@ ${ranked.map((c,i)=>{
   </div>
 </div>`}).join('')}`;
 
-// MASTERPIECES — 大珍 (all COINS with category sub-tabs)
+// MASTERPIECES — 顶级名誉品 (all COINS with category sub-tabs)
 (function(){
-  let mhtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章" data-en="Chapter III">第叁章</div><div class="chapter-title" data-cn="大珍" data-en="Masterpieces">大珍</div><div class="chapter-line"></div></div>`;
+  let mhtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章" data-en="Chapter III">第叁章</div><div class="chapter-title" data-cn="顶级名誉品" data-en="Masterpieces">顶级名誉品</div><div class="chapter-line"></div></div>`;
   mhtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="收录${COINS.length}枚中国机制币核心品种——涵盖壹两、中央龙洋、地方龙洋、孙像、袁像、军阀人像。按稀缺程度与历史地位排列，点击查看完整档案。" data-en="A curated registry of ${COINS.length} core Chinese milled coin types — taels, central dragons, provincial dragons, Sun Yat-sen, Yuan Shikai, and warlord portraits. Sorted by rarity and historical significance.">收录${COINS.length}枚中国机制币核心品种。按稀缺程度与历史地位排列，点击查看完整档案。</p></div>`;
   // Category filter tabs
   mhtml+=`<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">`;
@@ -1173,6 +1262,8 @@ ${ranked.map((c,i)=>{
     {p:"北洋",cn:"北洋造三十四年七钱二分",era:"清·光绪三十四年",year:"1908",mint:"北洋造币局",note:"北洋龙洋最晚期品种之一。三十四年为光绪帝驾崩之年。",est:"¥20,000+"},
     {p:"湖北",cn:"湖北省造光绪元宝七钱二分",era:"清·光绪",year:"c.1895",mint:"湖北造币厂",note:"湖北为继广东之后第二个开铸机制银圆的省份。张之洞调任湖广总督后将广东经验带至湖北。",est:"¥30,000+"},
     {p:"湖北",cn:"湖北省造宣统元宝七钱二分",era:"清·宣统",year:"c.1909",mint:"湖北造币厂",note:"宣统年号湖北龙洋，清末湖北最后的龙洋铸造。",est:"¥30,000+"},
+    {p:"湖北",cn:"湖北省造双龙一两大字版",era:"清·光绪",year:"1904",mint:"湖北造币厂",note:"湖北双龙壹两为清末湖北造币厂铸造的「壹两」面额银币。大字版与小字版以面文字体大小区分，双龙拱卫设计庄重。评级32枚，珍罕。",owned:true,est:"¥8,000,000+"},
+    {p:"湖北",cn:"湖北省造双龙一两小字版",era:"清·光绪",year:"1904",mint:"湖北造币厂",note:"小字版面文字体较小，与大字版形成版别对照。湖北双龙壹两是清末「两」制银币的重要代表。",owned:true,est:"¥10,000,000+"},
     {p:"江南",cn:"江南省造甲辰七钱二分",era:"清·光绪甲辰",year:"1904",mint:"江南造币厂",note:"甲辰年铸造。",est:"¥50,000+"},
     {p:"吉林",cn:"吉林省造辛丑三钱六分",era:"清·光绪辛丑",year:"1901",mint:"吉林造币厂",note:"半圆面额三钱六分。吉林小面额龙洋。",est:"¥60,000+"},
     {p:"四川",cn:"四川省造光绪元宝三钱六分",era:"清·光绪",year:"c.1901",mint:"四川造币厂",note:"四川半圆面额龙洋，存世稀少。",est:"¥100,000+"},
@@ -1720,6 +1811,7 @@ document.getElementById('collectors').innerHTML+=`
     if(showSrc) t+=`<th style="${ths}" onclick="sortFC('${tid}','house')">来源${ar}</th>`;
     t+=`<th style="${ths}" onclick="sortFC('${tid}','year')">年份${ar}</th>
       <th style="${ths}" onclick="sortFC('${tid}','cn')">拍品${ar}</th>
+      <th style="padding:6px 8px;color:var(--g);border-bottom:2px solid var(--gd);font-size:.72rem;font-weight:600">标签</th>
       <th style="${ths}" onclick="sortFC('${tid}','company')">评级公司${ar}</th>
       <th style="${ths}" onclick="sortFC('${tid}','score')">分数${ar}</th>
       <th style="${ths}" onclick="sortFC('${tid}','husd')">落锤价（USD）${ar}</th>
@@ -1736,12 +1828,14 @@ document.getElementById('collectors').innerHTML+=`
       const cleanCn=it.cn.replace(/\s*\([^)]*\)/g,'').replace(/\s*(SP|MS|AU|XF|VF|UNC|FINE)\s*\d*\+?\s*(Detail|Det\.?)?$/gi,'').trim();
       const hammerUSD=it.cur==='USD'?it.h:Math.round((it.h||0)/FX);
       const hammerRMB=it.cur==='USD'?Math.round((it.h||0)*FX):(it.h||0);
-      t+=`<tr class="fc-row" data-house="${it.house}" data-cat="${it._cat}" data-graded="${isGraded?1:0}" data-lot="${it.lot}" data-year="${yr}" data-cn="${cleanCn}" data-company="${company}" data-score="${score}" data-husd="${hammerUSD}" data-hrmb="${hammerRMB}" data-rmb="${rmbVal}" style="border-bottom:1px solid rgba(26,58,102,.2)">
+      const hid=it.house||'';
+      t+=`<tr class="fc-row" data-house="${hid}" data-cat="${it._cat}" data-graded="${isGraded?1:0}" data-lot="${it.lot}" data-year="${yr}" data-cn="${cleanCn}" data-company="${company}" data-score="${score}" data-husd="${hammerUSD}" data-hrmb="${hammerRMB}" data-rmb="${rmbVal}" style="border-bottom:1px solid rgba(26,58,102,.2);cursor:pointer" onclick="showAucItemDetail('${hid}','${it.lot}')">
         <td class="fc-idx" style="padding:5px 8px;color:var(--td)">${i+1}</td>
         <td style="padding:5px 8px;color:var(--gd);font-weight:600;font-size:.72rem">${it.lot}</td>`;
-      if(showSrc) t+=`<td style="padding:5px 8px;font-size:.68rem;color:${houseColors[it.house]};font-weight:600">${it.house}</td>`;
+      if(showSrc) t+=`<td style="padding:5px 8px;font-size:.68rem;color:${houseColors[hid]};font-weight:600">${hid}</td>`;
       t+=`<td style="padding:5px 8px;color:var(--td);font-size:.74rem">${yr}</td>
         <td style="padding:5px 8px;color:var(--cr);max-width:260px;font-family:'Noto Serif SC',serif">${cleanCn}</td>
+        <td style="padding:5px 8px;white-space:nowrap">${aucActionBadge({_house:hid,house:hid,lot:it.lot,cn:it.cn})}</td>
         <td style="padding:5px 8px;${gc};font-size:.74rem;white-space:nowrap">${company}</td>
         <td style="padding:5px 8px;${gc};font-size:.74rem;white-space:nowrap">${score}</td>
         <td style="padding:5px 8px;color:var(--td);white-space:nowrap">$${hammerUSD.toLocaleString()}</td>
@@ -1806,10 +1900,11 @@ document.getElementById('collectors').innerHTML+=`
     const hRMB=items.filter(i=>i.cur!=='USD').reduce((s,i)=>s+i.t,0);
     fc+=`<div class="fc-house" data-house="${hid}" style="margin-bottom:24px">`;
     fc+=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px;padding:10px 14px;background:var(--lz-s);border-left:3px solid ${houseColors[hid]};border-radius:4px">`;
-    fc+=`<div style="font-weight:700;color:var(--cr);font-size:.95rem">${houseMap[hid]} <span style="font-size:.76rem;color:var(--td);font-weight:400">${items.length} lots</span></div>`;
+    fc+=`<div style="font-weight:700;color:var(--cr);font-size:.95rem">${houseMap[hid]} <span style="font-size:.76rem;color:var(--td);font-weight:400">购藏记录 ${items.length} 件</span></div>`;
     const hTotalUSD=hUSD+Math.round(hRMB/FX);
     const hTotalRMB=hRMB+Math.round(hUSD*FX);
     fc+=`<div style="font-size:.82rem">`;
+    fc+=`<span style="font-size:.72rem;color:var(--td);margin-right:4px">成交价</span>`;
     fc+=`<span style="color:var(--g);font-weight:700">$${hTotalUSD.toLocaleString()}</span> `;
     fc+=`<span style="color:var(--td);font-size:.72rem">/</span> `;
     fc+=`<span style="color:var(--g);font-weight:700">¥${hTotalRMB.toLocaleString()}</span>`;
