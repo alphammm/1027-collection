@@ -1203,7 +1203,7 @@ function renderCoinCards(coins){
     // myCopies table for owned coins with multiple copies
     let copiesHtml='';
     if(isOwned&&c.myCopies&&c.myCopies.length>0){
-      copiesHtml=`<div style="margin-top:10px;border-top:1px solid var(--lz-b);padding-top:8px"><div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">我的藏品明细 (${c.myCopies.length}枚)</div><table style="width:100%;font-size:.75rem;color:var(--td);border-collapse:collapse"><tr style="color:var(--g);font-size:.68rem"><td>评级</td><td>来源</td><td>时间</td><td>成本</td><td>估价</td></tr>${c.myCopies.map(cp=>`<tr style="border-top:1px solid var(--lz-b)"><td style="padding:3px 4px;color:var(--cr)">${cp.grade}</td><td style="padding:3px 4px">${cp.source||'-'}</td><td style="padding:3px 4px">${cp.date||'-'}</td><td style="padding:3px 4px">${cp.cost||'-'}</td><td style="padding:3px 4px;color:var(--g)">${cp.est||'-'}</td></tr>`).join('')}</table></div>`;
+      copiesHtml=`<div style="margin-top:10px;border-top:1px solid var(--lz-b);padding-top:8px"><div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">我的藏品明细 (${c.myCopies.length}枚)</div><table style="width:100%;font-size:.75rem;color:var(--td);border-collapse:collapse"><tr style="color:var(--g);font-size:.68rem"><td>评级</td><td>来源</td><td>时间</td><td>成本</td><td>估价</td></tr>${c.myCopies.map(cp=>`<tr style="border-top:1px solid var(--lz-b)"><td style="padding:3px 4px;color:var(--cr)">${cp.grade}</td><td style="padding:3px 4px">${cp.source||'-'}</td><td style="padding:3px 4px">${cp.date||'-'}</td><td style="padding:3px 4px">${cp.cost||'-'}</td><td style="padding:3px 4px;color:var(--g)">${cp.est||'-'} ${actionBadge(c)}</td></tr>`).join('')}</table></div>`;
     }
     return `<div class="coin-card" style="${borderSt};margin-bottom:10px;padding:16px" onclick="showDetail('${c.id}')">
       <div style="display:flex;gap:14px;align-items:flex-start">
@@ -1218,7 +1218,7 @@ function renderCoinCards(coins){
           <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
           <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
           ${isOwned?`<div class="grade-row">${gradeBadge(c)}${pcgsTotalBadge(c)}${higherBadge(c)}</div>`:`<div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>`}
-          <div class="value">¥${c.est_rmb} ${actionBadge(c)}</div>
+          ${c.myCopies&&c.myCopies.length>0?'':`<div class="value">¥${c.est_rmb} ${actionBadge(c)}</div>`}
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,120)||''}${c.history_cn?.length>120?'...':''}</div>
           ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--gd);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
           ${copiesHtml}
