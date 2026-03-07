@@ -1998,7 +1998,7 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     cols.forEach((c,ci)=>{
       const isSort=sortKey.col===ci;
       const arrow=isSort?(sortKey.desc?' ↓':' ↑'):'';
-      t+=`<td style="${hp};text-align:${c.align};cursor:pointer;user-select:none;position:relative;white-space:nowrap" onclick="window._sortPnlBatch(${bi},${ci})">
+      t+=`<td draggable="true" data-bi="${bi}" data-ci="${ci}" ondragstart="window._pnlDragCol(event,${bi},${ci})" ondragover="event.preventDefault();this.style.borderLeft='2px solid var(--ch)'" ondragleave="this.style.borderLeft=''" ondrop="this.style.borderLeft='';window._pnlDropCol(event,${bi},${ci})" style="${hp};text-align:${c.align};cursor:grab;user-select:none;position:relative;white-space:nowrap" onclick="window._sortPnlBatch(${bi},${ci})">
         <span>${c.label}${arrow}</span>
         <span onclick="event.stopPropagation();window._pnlColMenu(${bi},${ci},event)" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:3px;opacity:.6" title="列操作">▼</span>
       </td>`;
@@ -2012,11 +2012,11 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       t+=`<tr style="border-bottom:1px solid var(--lz-b)">`;
       cols.forEach((c,ci)=>{
         const val=getCellVal(r,c);
-        // Accumulate sums for numeric/computed
         if(c.numeric)sums[ci]+=(parseFloat(r[c.key])||0);
         if(c.key==='_profit')sums[ci]+=(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0);
-        if(c.key==='_pct')sums[ci]=0; // recalculated in footer
-        t+=`<td style="${hp};text-align:${c.align};${getCellStyle(r,c)}">${val}</td>`;
+        if(c.key==='_pct')sums[ci]=0;
+        const canEdit=!c.computed;
+        t+=`<td style="${hp};text-align:${c.align};${getCellStyle(r,c)}${canEdit?';cursor:pointer':''}" ${canEdit?`onclick="window._pnlEditCell(${bi},${ri},${ci},this,event)"`:''} title="${canEdit?'点击编辑':''}">${val}</td>`;
       });
       t+=`<td style="${hp};text-align:center;white-space:nowrap">
         <span onclick="window._editPnlItem(${bi},${ri})" style="cursor:pointer;color:var(--g);font-size:.68rem;margin-right:4px" title="编辑">✎</span>
@@ -2148,14 +2148,20 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     const col=cols[ci];
     const btnS='display:block;width:100%;text-align:left;background:none;border:none;color:var(--td);padding:6px 14px;font-size:.78rem;cursor:pointer;font-family:inherit';
     const btnH='onmouseover="this.style.background=\'var(--lz-b)\'" onmouseout="this.style.background=\'none\'"';
-    let menu=`<div id="pnlColMenu" style="position:fixed;z-index:10000;background:var(--lz-s);border:1px solid var(--gd);border-radius:6px;padding:4px 0;min-width:140px;box-shadow:0 4px 20px rgba(0,0,0,.5)">
-      <button ${btnH} style="${btnS}" onclick="window._pnlRenameCol(${bi},${ci})">✎ 重命名列</button>
-      <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci})">← 左侧插入列</button>
-      <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci+1})">→ 右侧插入列</button>
+    const canMove=!col.computed;
+    const canDel=col.key!=='name'&&!col.computed;
+    let menu=`<div id="pnlColMenu" style="position:fixed;z-index:10000;background:var(--lz-s);border:1px solid var(--gd);border-radius:6px;padding:4px 0;min-width:160px;box-shadow:0 4px 20px rgba(0,0,0,.5)">
+      <button ${btnH} style="${btnS}" onclick="window._pnlRenameCol(${bi},${ci})">✎ 重命名「${col.label}」</button>
+      <div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
+      ${ci>0?`<button ${btnH} style="${btnS}" onclick="window._pnlMoveCol(${bi},${ci},-1)">⇠ 左移一列</button>`:''}
+      ${ci<cols.length-1?`<button ${btnH} style="${btnS}" onclick="window._pnlMoveCol(${bi},${ci},1)">⇢ 右移一列</button>`:''}
+      <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci})">＋ 左侧插入列</button>
+      <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci+1})">＋ 右侧插入列</button>
       <div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
       <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},true)">↓ 从大到小排序</button>
       <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},false)">↑ 从小到大排序</button>
-      ${col.key!=='name'&&!col.computed?`<div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
+      ${canDel?`<div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
+      <button ${btnH} style="${btnS}" onclick="window._pnlClearCol(${bi},${ci})">⌫ 清空列数据</button>
       <button ${btnH} style="${btnS};color:var(--r)" onclick="window._pnlDeleteCol(${bi},${ci})">✕ 删除此列</button>`:''}
     </div>`;
     document.body.insertAdjacentHTML('beforeend',menu);
@@ -2206,14 +2212,85 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     document.getElementById('pnlColMenu')?.remove();
     const batches=getPnlBatches();
     const cols=getBatchCols(batches[bi]);
-    if(!confirm('确认删除列「'+cols[ci].label+'」？'))return;
+    if(!confirm('确认删除列「'+cols[ci].label+'」及所有数据？'))return;
     const key=cols[ci].key;
     cols.splice(ci,1);
-    // Remove data from items
     batches[bi].items.forEach(r=>{delete r[key]});
     batches[bi].columns=cols;
     savePnlBatches(batches);
     renderPnl();
+  };
+  // Clear column data (keep column, wipe values)
+  window._pnlClearCol=function(bi,ci){
+    document.getElementById('pnlColMenu')?.remove();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    if(!confirm('确认清空列「'+cols[ci].label+'」的所有数据？列本身保留。'))return;
+    const key=cols[ci].key;
+    batches[bi].items.forEach(r=>{r[key]=cols[ci].numeric?0:''});
+    savePnlBatches(batches);
+    renderPnl();
+  };
+  // Move column left/right
+  window._pnlMoveCol=function(bi,ci,dir){
+    document.getElementById('pnlColMenu')?.remove();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    const ni=ci+dir;
+    if(ni<0||ni>=cols.length)return;
+    [cols[ci],cols[ni]]=[cols[ni],cols[ci]];
+    saveBatchCols(bi,cols);
+    renderPnl();
+  };
+  // Drag and drop columns
+  window._pnlDragCol=function(ev,bi,ci){
+    ev.dataTransfer.setData('text/plain',JSON.stringify({bi,ci}));
+    ev.dataTransfer.effectAllowed='move';
+  };
+  window._pnlDropCol=function(ev,bi,targetCi){
+    ev.preventDefault();
+    try{
+      const d=JSON.parse(ev.dataTransfer.getData('text/plain'));
+      if(d.bi!==bi||d.ci===targetCi)return;
+      const batches=getPnlBatches();
+      const cols=getBatchCols(batches[bi]);
+      const moved=cols.splice(d.ci,1)[0];
+      const insertAt=d.ci<targetCi?targetCi-1:targetCi;
+      cols.splice(insertAt,0,moved);
+      saveBatchCols(bi,cols);
+      renderPnl();
+    }catch(e){}
+  };
+  // Inline cell edit — click a cell to edit in place
+  window._pnlEditCell=function(bi,ri,ci,td,ev){
+    ev.stopPropagation();
+    if(td.querySelector('input'))return; // already editing
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    const col=cols[ci];
+    if(!col||col.computed)return;
+    const r=batches[bi].items[ri];
+    const rawVal=r[col.key]||'';
+    const origHTML=td.innerHTML;
+    const inp=document.createElement('input');
+    inp.value=rawVal;
+    inp.type=col.numeric?'number':'text';
+    inp.style.cssText='width:100%;background:var(--lz);border:1px solid var(--ch);color:var(--g);padding:2px 4px;border-radius:3px;font-size:.78rem;box-sizing:border-box;font-family:inherit';
+    td.innerHTML='';
+    td.appendChild(inp);
+    inp.focus();
+    inp.select();
+    function save(){
+      const nv=inp.value.trim();
+      r[col.key]=col.numeric?(parseFloat(nv)||0):nv;
+      savePnlBatches(batches);
+      renderPnl();
+    }
+    inp.addEventListener('blur',save);
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){e.preventDefault();save();}
+      if(e.key==='Escape'){e.preventDefault();td.innerHTML=origHTML;}
+    });
   };
 
   // Smart parser: extract fields from free-form text
