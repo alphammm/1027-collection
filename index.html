@@ -785,13 +785,14 @@ const NUMIS_SOURCES = [
   { name:'北京保利', nameEn:'Poly Auction', type:'direct', records:'3万+', volume:'¥8亿+', desc:'中国大型综合拍卖行，钱币专场稳步增长' },
   { name:'Champion', nameEn:'Champion Auctions', type:'direct', records:'1.5万+', volume:'¥5亿+', desc:'澳门钱币拍卖行。2021年NC Collection单场成交$1800万创纪录' },
   { name:'西泠印社', nameEn:'Xiling Yinshe', type:'direct', records:'2.5万+', volume:'¥6亿+', desc:'杭州百年老号，以艺术品拍卖见长，钱币专场精品迭出。2024春拍钱币¥3262万' },
+  { name:'华艺国际', nameEn:'Holly International', type:'direct', records:'3万+', volume:'¥8亿+', desc:'广州综合拍卖行，钱币专场近年崛起。2025秋拍钱币专场精品迭出' },
   { name:'华夏古泉', nameEn:'Huaxia Guquan', type:'direct', records:'15万+', volume:'¥10亿+', desc:'国内最大古钱币网拍平台，古泉交易活跃，成交量领先' },
 ];
 // Compute purchase match counts per source from auctions.js
 const _allPurchases=[];
 if(typeof MY_PURCHASES!=='undefined'){['HA','SBP','HY','HS'].forEach(h=>(MY_PURCHASES[h]||[]).forEach(i=>_allPurchases.push({...i,_house:h})))}
-const _houseMap={0:'ALL',1:'诚轩',2:'泓盛',3:'SBP',4:'HA',5:'嘉德',6:'SPINK',7:'保利',8:'Champion',9:'西泠',10:'华夏'};
-const _houseKeyMap={'诚轩':[],'泓盛':['HS'],'SBP':['SBP'],'HA':['HA'],'嘉德':['JD'],'SPINK':[],'保利':[],'Champion':[],'西泠':[],'华夏':[]};
+const _houseMap={0:'ALL',1:'诚轩',2:'泓盛',3:'SBP',4:'HA',5:'嘉德',6:'SPINK',7:'保利',8:'Champion',9:'西泠',10:'华艺',11:'华夏'};
+const _houseKeyMap={'诚轩':['AC'],'泓盛':['HS'],'SBP':['SBP'],'HA':['HA'],'嘉德':['JD'],'SPINK':[],'保利':[],'Champion':[],'西泠':[],'华艺':['HY'],'华夏':[]};
 NUMIS_SOURCES.forEach((s,i)=>{
   if(i===0){s._matchCount=_allPurchases.length;return;}
   const keys=_houseKeyMap[_houseMap[i]]||[];
@@ -1038,7 +1039,7 @@ ${numisHeroCard}
   <div style="font-size:.7rem;color:var(--td);opacity:.6">数据持续更新中 · Continuously Updated</div>
 </div>`;
 function renderDB(list){
-  const houseNames={"HA":"Heritage","SBP":"SBP","HY":"华艺","HS":"泓盛","JD":"嘉德","AC":"阿城哥","PVT":"私人"};
+  const houseNames={"HA":"Heritage","SBP":"SBP","HY":"华艺","HS":"泓盛","JD":"嘉德","AC":"诚轩","PVT":"私人"};
   document.getElementById('dbGrid').innerHTML=list.map(c=>{
     const bl=c.myStatus==='owned'?'var(--g)':c.myStatus==='want'?'var(--gd)':'var(--lz-b)';
     const src=getCoinSource(c);
@@ -1700,9 +1701,9 @@ document.getElementById('collectors').innerHTML+=`
 
 // ═══════ FULL COLLECTION (所有藏品) — Two classification modes ═══════
 (function(){
-  const houseMap={"HA":"Heritage Auctions","SBP":"Stack's Bowers","HY":"华艺国际","HS":"上海泓盛","JD":"中国嘉德","AC":"阿城哥拍卖","PVT":"私人渠道"};
+  const houseMap={"HA":"Heritage Auctions","SBP":"Stack's Bowers","HY":"华艺国际","HS":"上海泓盛","JD":"中国嘉德","AC":"北京诚轩","PVT":"私人渠道"};
   const houseColors={"HA":"#6B2D8B","SBP":"#8B0000","HY":"#8B1A4A","HS":"#C41E3A","JD":"#1A3A6B","AC":"#4A4A4A","PVT":"#2a6a4a"};
-  const houseOrder=["SBP","HS","HA","HY"];
+  const houseOrder=["HS","HA","SBP","HY"];
 
   // Flatten all purchases into one array with house tag
   const allItems=[];

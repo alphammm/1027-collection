@@ -3,14 +3,6 @@
 // est_mkt = estimated current market value (based on ShouXi/comparable recent sales)
 
 const AUCTION_HOUSES = [
-  { id:"SBP", cn:"Stack's Bowers", en:"Stack's Bowers Galleries", logo:"SBP", color:"#8B0000", hq:"Costa Mesa / HK / Singapore", bp:"20%",
-    url:"https://stacksbowers.com/",
-    schedule:[
-      {event:"2025 Dec HK Collectors Choice",date:"2025-12-15",status:"done"},
-      {event:"2026 Apr HK 春拍 (14th HK Coin Show)",date:"2026-04-13~20",status:"next",
-        highlights:["北洋造光绪元宝壹两","湖北省造双龙一两","奉天省造癸卯七钱二分","广东省造寿字双龙壹两","袁世凯像飞龙壹圆样币"]},
-      {event:"2026 Fall HK 秋拍",date:"2026-10~11 (预计)",status:"plan"},
-    ]},
   { id:"HS", cn:"上海泓盛", en:"Shanghai Hosane", logo:"泓盛", color:"#8B1A4A", hq:"上海", bp:"13%",
     url:"https://www.hosane.com/",
     schedule:[
@@ -27,6 +19,14 @@ const AUCTION_HOUSES = [
         highlights:["张作霖像大元帅壹圆","广东省造七三反版","江南省造喜敦版样币","袁世凯像签字版壹圆","宣统三年大清银币反龙"]},
       {event:"2026 Dec HKINF 秋拍",date:"2026-12 (预计early-Dec)",status:"plan"},
     ]},
+  { id:"SBP", cn:"Stack's Bowers", en:"Stack's Bowers Galleries", logo:"SBP", color:"#8B0000", hq:"Costa Mesa / HK / Singapore", bp:"20%",
+    url:"https://stacksbowers.com/",
+    schedule:[
+      {event:"2025 Dec HK Collectors Choice",date:"2025-12-15",status:"done"},
+      {event:"2026 Apr HK 春拍 (14th HK Coin Show)",date:"2026-04-13~20",status:"next",
+        highlights:["北洋造光绪元宝壹两","湖北省造双龙一两","奉天省造癸卯七钱二分","广东省造寿字双龙壹两","袁世凯像飞龙壹圆样币"]},
+      {event:"2026 Fall HK 秋拍",date:"2026-10~11 (预计)",status:"plan"},
+    ]},
   { id:"HY", cn:"华艺国际", en:"Holly's International", logo:"华艺", color:"#C41E3A", hq:"广州/北京/香港", bp:"13%",
     url:"https://www.hollyauction.com/",
     schedule:[
@@ -42,10 +42,12 @@ const AUCTION_HOUSES = [
       {event:"2026春拍 邮品钱币",date:"2026-05 (预计)",status:"plan",
         highlights:["袁世凯像签字版壹圆","宣统三年大清银币","造币总厂光绪元宝七钱二分"]},
     ]},
-  { id:"AC", cn:"阿城哥拍卖", en:"Acheng Auctions", logo:"阿城", color:"#4A4A4A", hq:"", bp:"",
+  { id:"AC", cn:"北京诚轩", en:"Beijing ChengXuan", logo:"诚轩", color:"#4A6B3A", hq:"北京", bp:"15%",
+    url:"https://www.chengxuan.com/",
     schedule:[
-      {event:"2025",date:"2025",status:"done"},
-      {event:"2026 (待定)",date:"TBD",status:"plan"},
+      {event:"2025秋拍 钱币专场",date:"2025-11",status:"done"},
+      {event:"2026春拍 钱币邮品",date:"2026-05 (预计)",status:"plan",
+        highlights:["中国机制币精品","金银锭","古钱"]},
     ]},
 ];
 
