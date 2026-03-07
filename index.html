@@ -474,9 +474,12 @@ function showDetail(coinId){
   h+=`</div></div>`;
   h+=`</div>`;
 
-  // Action buttons (right after photos)
+  // Badge row (right after photos)
   const curActions=getActions(c);
   const _abOn=(a)=>curActions.includes(a);
+  h+=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding:8px 0">${gradeBadge(c)}${pcgsTotalBadge(c)}${higherBadge(c)}${catBadge(c)}${c.myRank?'<span style="background:rgba(255,215,0,.15);color:var(--ch);border:1px solid rgba(255,215,0,.35);font-size:.65rem;padding:2px 9px;border-radius:10px;font-weight:700">'+c.myRank+'</span>':''}${actionBadge(c)}</div>`;
+
+  // Action buttons
   h+=`<div style="margin-bottom:16px;padding:10px 16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;display:flex;align-items:center;gap:8px">
     <span style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-right:4px">操作</span>
     <button onclick="toggleAction('${c.id}','collect')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_abOn('collect')?'#ffd700':'var(--lz-b)'};background:${_abOn('collect')?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_abOn('collect')?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">收藏</button>
