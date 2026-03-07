@@ -1204,7 +1204,7 @@ ${ranked.map((c,i)=>{
           </div>
           <div class="name-cn" style="font-size:1.05rem;margin-bottom:2px">${d.cn}</div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:6px">${d.mint}</div>
-          <div class="value">${d.est||''}</div>
+          <div class="value">${d.est||''}${d.owned?' <span class="gt" style="background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700;font-size:.68rem">藏</span>':''}</div>
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${d.note}</div>
         </div>
       </div>`;
@@ -1254,8 +1254,8 @@ function renderCoinCards(coins){
           ${eraTagHTML(c.id)}
           <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
           <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
-          ${isOwned?`<div class="grade-row">${gradeBadge(c)}${pcgsTotalBadge(c)}${higherBadge(c)}</div>`:`<div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>`}
-          ${c.myCopies&&c.myCopies.length>0?'':`<div class="value">¥${c.est_rmb} ${actionBadge(c)}</div>`}
+          <div class="grade-row">${gradeBadge(c)}${pcgsTotalBadge(c)}${higherBadge(c)}</div>
+          <div class="value">¥${c.est_rmb} ${actionBadge(c)}</div>
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,120)||''}${c.history_cn?.length>120?'...':''}</div>
           ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--gd);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
           ${copiesHtml}
