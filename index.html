@@ -2406,43 +2406,107 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 
   // Smart parser: extract fields from free-form text
   window._pnlParsedRows=[];
+  // Grade pattern: NGC/PCGS/GBCA/公博/华夏 + MS/AU/SP/XF/VF/EF/G/VG/F + number
+  const _gradeRe=/(NGC|PCGS|GBCA|公博|华夏|NPGS|ACG)?\s*(MS|AU|SP|XF|VF|EF|VG|PR|PF|UNC)\s*[-]?\s*(\d{1,2})/i;
+  const _gradeStandaloneRe=/^(NGC|PCGS|GBCA|公博|华夏|NPGS|ACG)?\s*(MS|AU|SP|XF|VF|EF|VG|PR|PF|UNC)\s*[-]?\s*(\d{1,2})$/i;
+  const _dateRe=/\d{4}\s*[-\/年\.]\s*\d{1,2}(\s*[-\/月\.]\s*\d{1,2})?/;
+  const _priceRe=/[¥$￥]?\s*[\d,，]+(\.\d+)?\s*(万|元|块)?/;
+
+  function extractGrade(str){
+    const m=str.match(_gradeRe);
+    if(!m)return null;
+    const company=m[1]?m[1].toUpperCase()+' ':'';
+    return {grade:company+m[2].toUpperCase()+m[3],match:m[0],index:m.index};
+  }
+  function extractPrices(str){
+    const prices=[];
+    // Match ¥/$/￥ prefixed or plain numbers with optional 万/元
+    const re=/[\u00A5$\uFFE5¥￥]\s*[\d,，]+(?:\.\d+)?(?:\s*(?:万|元|块))?|[\d,，]+(?:\.\d+)?\s*(?:万|元|块)|(?<![a-zA-Z])[\d,，]{4,}(?:\.\d+)?(?!\s*[-\/年月])/g;
+    let m;
+    while((m=re.exec(str))!==null){
+      let raw=m[0].replace(/[\u00A5$\uFFE5¥￥,，\s元块]/g,'');
+      let v=parseFloat(raw);
+      if(/万/.test(m[0]))v*=10000;
+      if(v>=1900&&v<=2099&&!/[\u00A5$\uFFE5¥￥万元块]/.test(m[0]))continue;
+      if(v>=100)prices.push({val:v,match:m[0],index:m.index,len:m[0].length});
+    }
+    return prices;
+  }
+  function extractDate(str){
+    const m=str.match(_dateRe);
+    return m?{date:m[0].replace(/\s+/g,''),match:m[0],index:m.index}:null;
+  }
+
   function smartParseLine(line){
     line=line.trim();if(!line||line.startsWith('#'))return null;
-    // Try CSV/TSV split
-    let parts;
-    if(line.includes('\t')) parts=line.split('\t');
-    else if(line.includes(',')&&line.split(',').length>=3) parts=line.split(',');
-    else parts=line.split(/\s{2,}/); // double-space
-    parts=parts.map(s=>s.trim()).filter(s=>s);
-    if(parts.length<2) parts=line.split(/\s+/);
-    // Extract numbers (prices)
-    const nums=[];const texts=[];
-    parts.forEach(p=>{
-      const cleaned=p.replace(/[¥$,，元]/g,'').replace(/买入|卖出|手续费|成本|售价/g,'');
-      const n=parseFloat(cleaned);
-      if(!isNaN(n)&&/\d{3,}/.test(cleaned)) nums.push(n);
-      else texts.push(p);
-    });
-    // Extract grade (MS/AU/SP/XF/VF + number)
+    // Normalize currency symbols and whitespace
+    line=line.replace(/[\u00A5\uFFE5]/g,'¥').replace(/\u3000/g,' ');
+
+    // Step 1: If structured (tab or 3+ commas), split by delimiter
+    let parts=null;
+    if(line.includes('\t')){parts=line.split('\t').map(s=>s.trim()).filter(s=>s);}
+    else if(line.includes(',')&&line.split(',').length>=3){parts=line.split(',').map(s=>s.trim()).filter(s=>s);}
+    else if(line.includes('，')&&line.split('，').length>=3){parts=line.split('，').map(s=>s.trim()).filter(s=>s);}
+
+    if(parts&&parts.length>=2){
+      // Structured input: try to match each part
+      let grade='',name='',date='',buyPrice=0,sellPrice=0,fee=0,buyFrom='',sellTo='';
+      const nums=[];const texts=[];
+      parts.forEach(p=>{
+        const gm=p.match(_gradeStandaloneRe);
+        if(gm&&!grade){grade=(gm[1]?gm[1].toUpperCase()+' ':'')+gm[2].toUpperCase()+gm[3];return;}
+        const dm=p.match(_dateRe);
+        if(dm&&dm[0].length>p.length*0.5&&!date){date=dm[0].replace(/\s+/g,'');return;}
+        const cleaned=p.replace(/[¥$￥,，元块万]/g,'');
+        const n=parseFloat(cleaned);
+        if(!isNaN(n)&&/\d{3,}/.test(cleaned)){nums.push(n);return;}
+        // Check for "万" suffix
+        if(!isNaN(n)&&/万/.test(p)){nums.push(n*10000);return;}
+        texts.push(p);
+      });
+      name=texts[0]||'';buyFrom=texts[1]||'';sellTo=texts[2]||'';
+      // Try extracting grade from name if not found
+      if(!grade){const g=extractGrade(name);if(g){grade=g.grade;name=name.replace(g.match,'').replace(/\s{2,}/g,' ').trim();}}
+      buyPrice=nums[0]||0;sellPrice=nums[1]||0;fee=nums[2]||0;
+      return {name,grade,buyPrice,sellPrice,fee,buyFrom,sellTo,date,ts:Date.now()};
+    }
+
+    // Step 2: Unstructured free-form — smart extraction
+    let remaining=line;
+    // Extract grade (e.g. "NGC AU55", "PCGS MS65", "MS62", etc.)
     let grade='';
-    texts.forEach((t,i)=>{if(/^(MS|AU|SP|XF|VF|NGC|PCGS)\s*\d/i.test(t)){grade=t;texts.splice(i,1)}});
+    const gInfo=extractGrade(remaining);
+    if(gInfo){grade=gInfo.grade;remaining=remaining.replace(gInfo.match,'  ');}
     // Extract date
     let date='';
-    texts.forEach((t,i)=>{if(/\d{4}[-\/]\d{1,2}/.test(t)||/^\d{4}年/.test(t)){date=t;texts.splice(i,1)}});
-    // Name is typically the first/longest text
-    let name=texts[0]||'';
-    const buyFrom=texts[1]||'';
-    const sellTo=texts[2]||'';
-    // Smart extract: pull grade info embedded in name like "XXX NGC AU55" or "XXX PCGS MS65"
-    if(!grade&&name){
-      const gm=name.match(/\b(NGC|PCGS|GBCA|公博|华夏)\s*(MS|AU|SP|XF|VF|EF|G|VG|F)\s*[-]?\s*(\d{1,2})\b/i);
-      if(gm){grade=gm[1].toUpperCase()+' '+gm[2].toUpperCase()+gm[3];name=name.replace(gm[0],'').replace(/\s{2,}/g,' ').trim();}
-      else{
-        const gm2=name.match(/\b(MS|AU|SP|XF|VF|EF)\s*[-]?\s*(\d{1,2})\b/i);
-        if(gm2){grade=gm2[1].toUpperCase()+gm2[2];name=name.replace(gm2[0],'').replace(/\s{2,}/g,' ').trim();}
-      }
+    const dInfo=extractDate(remaining);
+    if(dInfo){date=dInfo.date;remaining=remaining.replace(dInfo.match,'  ');}
+    // Extract prices (numbers >= 100)
+    const prices=extractPrices(remaining);
+    // Remove prices from remaining, from end to start to preserve indices
+    const sortedPrices=[...prices].sort((a,b)=>b.index-a.index);
+    sortedPrices.forEach(p=>{remaining=remaining.substring(0,p.index)+'  '+remaining.substring(p.index+p.len);});
+    // Clean remaining: strip price/trade keywords
+    remaining=remaining.replace(/买入|卖出|手续费|成本|售价|成交/g,' ').trim();
+    // Split into meaningful segments by: commas, semicolons, double spaces, or single space between distinct text chunks
+    let finalParts=remaining.split(/[,，;；、|]|\s{2,}/).map(s=>s.trim()).filter(s=>s&&s.length>0);
+    // If still one big chunk, split by single space (Chinese names don't have spaces normally)
+    if(finalParts.length===1){
+      finalParts=finalParts[0].split(/\s+/).map(s=>s.trim()).filter(s=>s);
+      // Re-merge consecutive short Chinese fragments that look like one name
+      // e.g. ["宣统三年大清银币", "泓盛2025秋拍"] should stay separate
+      // but ["民国", "十八年", "孙中山像地球"] is unlikely
     }
-    return {name,grade,buyPrice:nums[0]||0,sellPrice:nums[1]||0,fee:nums[2]||0,buyFrom,sellTo,date,ts:Date.now()};
+    // The longest text is likely the coin name
+    let name='',buyFrom='',sellTo='';
+    if(finalParts.length>0){
+      const sorted=[...finalParts].sort((a,b)=>b.length-a.length);
+      name=sorted[0];
+      const rest=finalParts.filter(t=>t!==name);
+      buyFrom=rest[0]||'';sellTo=rest[1]||'';
+    }
+    if(!name)name=remaining.replace(/\s+/g,' ').trim();
+    return {name:name||'',grade,buyPrice:prices[0]?.val||0,sellPrice:prices[1]?.val||0,fee:prices[2]?.val||0,buyFrom,sellTo,date,ts:Date.now()};
   }
   window._handlePnlFile=function(input){
     const file=input.files[0];if(!file)return;
