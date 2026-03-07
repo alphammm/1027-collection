@@ -289,8 +289,8 @@ function pcgsHigherHTML(c){
 
 // Photo storage helpers (localStorage)
 function getPhotos(coinId){try{return JSON.parse(localStorage.getItem('photo_'+coinId))||{}}catch(e){return {}}}
-function savePhoto(coinId,side,dataUrl){const p=getPhotos(coinId);p[side]=dataUrl;localStorage.setItem('photo_'+coinId,JSON.stringify(p))}
-function removePhoto(coinId,side){const p=getPhotos(coinId);delete p[side];localStorage.setItem('photo_'+coinId,JSON.stringify(p))}
+function savePhoto(coinId,side,dataUrl){const p=getPhotos(coinId);p[side]=dataUrl;localStorage.setItem('photo_'+coinId,JSON.stringify(p));_detailDirty=true}
+function removePhoto(coinId,side){const p=getPhotos(coinId);delete p[side];localStorage.setItem('photo_'+coinId,JSON.stringify(p));_detailDirty=true}
 function resizeAndStore(file,coinId,side,cb){
   const reader=new FileReader();
   reader.onload=function(e){
@@ -339,9 +339,9 @@ function pcgsTotalBadge(c){if(!c.pcgs_pop?.total)return '';const t=c.pcgs_pop.to
 
 // Editable market price helpers
 function toggleEstEdit(cid){const el=document.getElementById('estEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none'}
-function saveEst(cid){const v=document.getElementById('estInput_'+cid).value.trim();if(v){localStorage.setItem('est_'+cid,v);document.getElementById('estVal_'+cid).textContent='¥'+v;document.getElementById('estEdit_'+cid).style.display='none'}}
+function saveEst(cid){const v=document.getElementById('estInput_'+cid).value.trim();if(v){localStorage.setItem('est_'+cid,v);document.getElementById('estVal_'+cid).textContent='¥'+v;document.getElementById('estEdit_'+cid).style.display='none';_detailDirty=true}}
 function toggleSrcEdit(cid){const el=document.getElementById('srcEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none';const cur=localStorage.getItem('src_'+cid)||'';const sel=document.getElementById('srcSelect_'+cid);const opts=['Heritage','洪盛','SBP','华谊','HONG'];if(opts.includes(cur)){sel.value=cur}else if(cur){sel.value='_custom';const ci=document.getElementById('srcCustom_'+cid);ci.style.display='inline';ci.value=cur}}
-function saveSrc(cid){const sel=document.getElementById('srcSelect_'+cid).value;const custom=document.getElementById('srcCustom_'+cid).value.trim();const v=sel==='_custom'?custom:sel;if(v){localStorage.setItem('src_'+cid,v);document.getElementById('srcVal_'+cid).textContent=v}else{localStorage.removeItem('src_'+cid);document.getElementById('srcVal_'+cid).textContent=''}document.getElementById('srcEdit_'+cid).style.display='none'}
+function saveSrc(cid){const sel=document.getElementById('srcSelect_'+cid).value;const custom=document.getElementById('srcCustom_'+cid).value.trim();const v=sel==='_custom'?custom:sel;if(v){localStorage.setItem('src_'+cid,v);document.getElementById('srcVal_'+cid).textContent=v}else{localStorage.removeItem('src_'+cid);document.getElementById('srcVal_'+cid).textContent=''}document.getElementById('srcEdit_'+cid).style.display='none';_detailDirty=true}
 
 // Shared: generate coin thumbnail HTML
 function coinImgTag(c,size){
@@ -573,6 +573,7 @@ function setCoinAction(cid,action){
   const cur=localStorage.getItem('action_'+cid);
   if(cur===action) localStorage.removeItem('action_'+cid);
   else localStorage.setItem('action_'+cid,action);
+  _detailDirty=true;
   showDetail(cid);
 }
 function actionBadge(c){
@@ -583,7 +584,8 @@ function actionBadge(c){
   if(a==='sell') return '<span class="gt" style="background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3);font-weight:700;font-size:.68rem">卖</span>';
   return '';
 }
-function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow=''}
+var _detailDirty=false;
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow='';if(_detailDirty){_detailDirty=false;location.reload()}}
 
 // === RENDER SECTIONS ===
 // PROLOGUE
