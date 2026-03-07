@@ -323,7 +323,7 @@ function higherCount(c){
   Object.entries(c.pcgs_pop).forEach(([k,v])=>{if(k!=='total'&&v){const val=gv[k];if(val&&val>myVal)n+=v;}});
   return n;
 }
-function higherBadge(c){const n=higherCount(c);if(n<0)return '';return n===0?'<span class="gt normal" style="color:#ffd700">0 ↑</span>':`<span class="gt normal">${n} ↑</span>`;}
+function higherBadge(c){const n=higherCount(c);if(n<0)return '';const bright='background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700';return n===0?`<span class="gt" style="${bright}">0 ↑</span>`:n<10?`<span class="gt" style="${bright}">${n} ↑</span>`:`<span class="gt normal">${n} ↑</span>`;}
 
 // Grade badge: SP (bright yellow) or MS (dark yellow "gt owned"), mutually exclusive
 function gradeBadge(c){
