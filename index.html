@@ -1885,57 +1885,65 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       </div>
     </div>`;
 
-    // Fold state
-    if(!window._pnlFold) window._pnlFold={};
-    const totalGroups=(aucSold.length+copySold.length>0?1:0)+batches.length;
+    // Preview limit: show first N rows, expand to see all
+    const PREVIEW_LIMIT=10;
+    if(!window._pnlExpanded) window._pnlExpanded={};
 
     // Auto-collected sold items (拍品/复品)
     if(aucSold.length+copySold.length>0){
-      const autoFolded=window._pnlFold['auto']!==false;
       const autoTotal=[...aucSold,...copySold];
       const autoSum=autoTotal.reduce((s,r)=>s+(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0),0);
+      const autoExp=window._pnlExpanded['auto'];
+      const autoShow=autoExp?autoTotal:autoTotal.slice(0,PREVIEW_LIMIT);
+      const autoMore=autoTotal.length>PREVIEW_LIMIT&&!autoExp;
       h+=`<div style="margin-bottom:16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
-        <div onclick="window._pnlFold['auto']=!${autoFolded};renderPnl()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
-          <span style="color:var(--gd);font-size:.78rem;width:16px">${autoFolded?'▶':'▼'}</span>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--ch)"></span>
           <span style="font-size:.9rem;font-weight:700;color:var(--ch)">已卖拍品 · 自动汇总</span>
           <span style="font-size:.72rem;color:var(--td)">${autoTotal.length} 笔</span>
           <span style="font-size:.72rem;margin-left:auto;color:${autoSum>=0?'#4caf50':'var(--r)'};font-weight:600">${fmtMoney(autoSum)}</span>
         </div>
-        ${autoFolded?'':`<div style="margin-top:10px">${renderItemTable(autoTotal)}</div>`}
+        ${renderItemTable(autoShow)}
+        ${autoMore?`<div style="text-align:right;margin-top:6px"><span onclick="window._pnlExpanded['auto']=true;window._renderPnl()" style="cursor:pointer;color:var(--g);font-size:.75rem;padding:4px 12px;border:1px solid var(--gd);border-radius:4px">展开剩余 ${autoTotal.length-PREVIEW_LIMIT} 条 ▼</span></div>`:''}
+        ${autoExp&&autoTotal.length>PREVIEW_LIMIT?`<div style="text-align:right;margin-top:6px"><span onclick="window._pnlExpanded['auto']=false;window._renderPnl()" style="cursor:pointer;color:var(--td);font-size:.75rem;padding:4px 12px;border:1px solid var(--lz-b);border-radius:4px">收起 ▲</span></div>`:''}
       </div>`;
     }
 
     // User batches — each displayed as a group
     batches.forEach((b,bi)=>{
       const cols=getBatchCols(b);
-      const items=(b.items||[]).map((r,ri)=>({...r,_ri:ri,buyPrice:parseFloat(r.buyPrice)||0,sellPrice:parseFloat(r.sellPrice)||0,fee:parseFloat(r.fee)||0}));
+      const allItems=(b.items||[]).map((r,ri)=>({...r,_ri:ri,buyPrice:parseFloat(r.buyPrice)||0,sellPrice:parseFloat(r.sellPrice)||0,fee:parseFloat(r.fee)||0}));
       const chLabel=b.channel==='private'?'私下转让':'拍卖出售';
       const chColor=b.channel==='private'?'var(--gd)':'var(--ch)';
-      const folded=window._pnlFold[bi]!==false;
-      const batchSum=items.reduce((s,r)=>s+(r.sellPrice||0)-(r.buyPrice||0)-(r.fee||0),0);
+      const batchSum=allItems.reduce((s,r)=>s+(r.sellPrice||0)-(r.buyPrice||0)-(r.fee||0),0);
       const safeName=(b.name||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+      const isExp=window._pnlExpanded[bi];
+      const items=isExp?allItems:allItems.slice(0,PREVIEW_LIMIT);
+      const hasMore=allItems.length>PREVIEW_LIMIT&&!isExp;
       h+=`<div style="margin-bottom:16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span onclick="window._pnlFold[${bi}]=!${folded};renderPnl()" style="color:var(--gd);font-size:.78rem;width:16px;cursor:pointer;user-select:none">${folded?'▶':'▼'}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
           <span style="width:8px;height:8px;border-radius:50%;background:${chColor}"></span>
           <span onclick="window._renamePnlBatch(${bi})" style="font-size:.9rem;font-weight:700;color:var(--cr);cursor:pointer" title="点击修改批次名称">${b.name||'批次 '+(bi+1)}</span>
           <span style="font-size:.65rem;padding:1px 8px;border-radius:3px;background:${b.channel==='private'?'rgba(197,162,88,.15)':'rgba(255,215,0,.15)'};color:${chColor}">${chLabel}</span>
-          <span style="font-size:.72rem;color:var(--td)">${items.length} 笔</span>
-          ${!folded?`<span onclick="window._pnlInsertCol(${bi})" style="cursor:pointer;font-size:.68rem;color:var(--g);padding:1px 8px;border:1px solid var(--gd);border-radius:3px" title="添加列">+ 列</span>`:''}
+          <span style="font-size:.72rem;color:var(--td)">${allItems.length} 笔</span>
+          <span onclick="window._pnlInsertCol(${bi})" style="cursor:pointer;font-size:.68rem;color:var(--g);padding:1px 8px;border:1px solid var(--gd);border-radius:3px" title="添加列">+ 列</span>
           <span style="font-size:.72rem;margin-left:auto;color:${batchSum>=0?'#4caf50':'var(--r)'};font-weight:600">${fmtMoney(batchSum)}</span>
           <span onclick="if(confirm('确认删除批次「${safeName}」？此操作不可恢复。')){window._deletePnlBatch(${bi})}" style="cursor:pointer;color:var(--r);font-size:.72rem;padding:2px 8px;border:1px solid rgba(180,40,40,.3);border-radius:3px">删除</span>
         </div>
-        ${folded?'':`<div style="margin-top:10px">${renderBatchTable(items,cols,bi)}</div>`}
+        ${renderBatchTable(items,cols,bi)}
+        ${hasMore?`<div style="text-align:right;margin-top:6px"><span onclick="window._pnlExpanded[${bi}]=true;window._renderPnl()" style="cursor:pointer;color:var(--g);font-size:.75rem;padding:4px 12px;border:1px solid var(--gd);border-radius:4px">展开剩余 ${allItems.length-PREVIEW_LIMIT} 条 ▼</span></div>`:''}
+        ${isExp&&allItems.length>PREVIEW_LIMIT?`<div style="text-align:right;margin-top:6px"><span onclick="window._pnlExpanded[${bi}]=false;window._renderPnl()" style="cursor:pointer;color:var(--td);font-size:.75rem;padding:4px 12px;border:1px solid var(--lz-b);border-radius:4px">收起 ▲</span></div>`:''}
       </div>`;
     });
 
     // Expand/Collapse all button
-    if(totalGroups>1){
-      const allExpanded=Object.values(window._pnlFold).every(v=>v===false);
-      h+=`<div style="text-align:center;margin-top:8px;margin-bottom:16px">
-        <button onclick="window._pnlToggleAll()" style="background:var(--lz-s);color:var(--g);border:1px solid var(--gd);padding:6px 24px;border-radius:4px;font-size:.78rem;cursor:pointer">${allExpanded?'▲ 全部折叠':'▼ 展开全部'}</button>
-      </div>`;
+    if(batches.length>1){
+      const anyCollapsed=batches.some((b,bi)=>!window._pnlExpanded[bi]&&(b.items||[]).length>PREVIEW_LIMIT);
+      if(anyCollapsed){
+        h+=`<div style="text-align:center;margin-top:8px;margin-bottom:16px">
+          <button onclick="window._pnlExpandAll()" style="background:var(--lz-s);color:var(--g);border:1px solid var(--gd);padding:6px 24px;border-radius:4px;font-size:.78rem;cursor:pointer">▼ 展开所有批次</button>
+        </div>`;
+      }
     }
 
     document.getElementById('pnl').innerHTML=h;
@@ -2089,6 +2097,8 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     if(window._pnlBatchSort)delete window._pnlBatchSort[idx];
     renderPnl();
   };
+  // Make renderPnl callable from onclick
+  window._renderPnl=renderPnl;
   // Rename batch
   window._renamePnlBatch=function(bi){
     const batches=getPnlBatches();
@@ -2099,13 +2109,11 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     savePnlBatches(batches);
     renderPnl();
   };
-  // Toggle all fold/expand
-  window._pnlToggleAll=function(){
-    const allExpanded=Object.values(window._pnlFold||{}).every(v=>v===false);
+  // Expand all batches
+  window._pnlExpandAll=function(){
     const batches=getPnlBatches();
-    // Set all to folded or expanded
-    window._pnlFold['auto']=allExpanded?true:false;
-    batches.forEach((b,bi)=>{window._pnlFold[bi]=allExpanded?true:false;});
+    window._pnlExpanded['auto']=true;
+    batches.forEach((b,bi)=>{window._pnlExpanded[bi]=true;});
     renderPnl();
   };
   // Delete single item from a batch
