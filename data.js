@@ -1015,7 +1015,7 @@ const COLLECTORS = [
   },
   {
     id:"COL22", cn:"山西大海", en:"Shanxi Dahai",
-    loc_cn:"山西", mode:"hold", stars:3,
+    loc_cn:"山西", mode:"none", stars:3,
     bg_cn:"持有地球壹圆（从姚浩伟处购入）。",
     profile_cn:"「二手市场买家」。从币商姚浩伟处购入地球壹圆，而非直接从拍场——说明他偏好私洽渠道，可能是为了避免拍场溢价。山西地区的藏家相对低调，不在主流社交圈。地球壹圆的持有让他自动进入顶级藏家行列。",
     coins:[

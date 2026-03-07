@@ -343,6 +343,7 @@ function saveEst(cid){const v=document.getElementById('estInput_'+cid).value.tri
 function toggleSrcEdit(cid){const el=document.getElementById('srcEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none';const cur=localStorage.getItem('src_'+cid)||'';const sel=document.getElementById('srcSelect_'+cid);const opts=['Heritage','洪盛','SBP','华谊','HONG'];if(opts.includes(cur)){sel.value=cur}else if(cur){sel.value='_custom';const ci=document.getElementById('srcCustom_'+cid);ci.style.display='inline';ci.value=cur}}
 function saveSrc(cid){const sel=document.getElementById('srcSelect_'+cid).value;const custom=document.getElementById('srcCustom_'+cid).value.trim();const v=sel==='_custom'?custom:sel;if(v){localStorage.setItem('src_'+cid,v);document.getElementById('srcVal_'+cid).textContent=v}else{localStorage.removeItem('src_'+cid);document.getElementById('srcVal_'+cid).textContent=''}document.getElementById('srcEdit_'+cid).style.display='none';_detailDirty=true}
 
+function setCollMode(colId,mode){localStorage.setItem('collmode_'+colId,mode);location.reload()}
 function toggleCatEdit(cid){const el=document.getElementById('catEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none'}
 function saveCat(cid){const v=document.getElementById('catSelect_'+cid).value;localStorage.setItem('cat_'+cid,v);document.getElementById('catVal_'+cid).textContent=_catLabels[v]||'';document.getElementById('catEdit_'+cid).style.display='none';_detailDirty=true;showDetail(cid)}
 function toggleNoteEdit(cid){const el=document.getElementById('noteEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none'}
@@ -1423,13 +1424,14 @@ collRegions.forEach(reg=>{
   collHTML+=`<h3 style="color:var(--g);margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--lz-b);display:flex;align-items:center;gap:10px;font-size:.95rem" data-cn="${reg.cn} (${group.length})" data-en="${reg.en} (${group.length})">${reg.cn} <span style="font-size:.78rem;color:var(--td);font-weight:400">(${group.length})</span></h3>`;
   const _hlNames=new Set(['肖志军','李广宏','重庆陶姐','赵勇','王中强','李跃明','张安生','林宪璋','何代水']);
   group.forEach(c=>{
-  const modeMap={buy:{cls:'buy',label:'持续购买中'},sell:{cls:'sell',label:'出售中'},hold:{cls:'hold',label:'持有不卖'},'active-sell':{cls:'sell',label:'积极出售中'},liquidated:{cls:'sell',label:'已出清'}};
-  const m=modeMap[c.mode]||{cls:'hold',label:''};
+  const _collModeMap={buy:{cls:'buy',label:'持续购买中'},sell:{cls:'sell',label:'出售中'},hold:{cls:'hold',label:'持有不卖'},'active-sell':{cls:'sell',label:'积极出售中'},liquidated:{cls:'sell',label:'已出清'},none:{cls:'',label:''}};
+  const _curMode=localStorage.getItem('collmode_'+c.id)||c.mode;
+  const m=_collModeMap[_curMode]||{cls:'',label:''};
   const top3=c.coins.slice(0,3);
   const isHL=_hlNames.has(c.cn);
   collHTML+=`<div class="coll-card${isHL?' hl':' key'}"${isHL?' style="border-left:3px solid var(--ch)"':''}>
     <div class="coll-header" onclick="this.querySelector('.ch-toggle').classList.toggle('open');const body=this.parentElement.querySelector('.coll-body');body.classList.toggle('open')">
-      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span>${c.stars?starsHTML(c.stars):''}<span class="cm ${m.cls}">${m.label}</span></div>
+      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span>${c.stars?starsHTML(c.stars):''}${m.label?`<span class="cm ${m.cls}">${m.label}</span>`:''}</div>
       <span class="ch-toggle">&#x276F;</span>
     </div>
     ${top3.length?`<div class="coll-preview">${top3.map(cc=>`<span class="coll-preview-tag">${cc.cn}${cc.grade?' '+cc.grade:''}</span>`).join('')}</div>`:''}
@@ -1439,6 +1441,14 @@ collRegions.forEach(reg=>{
         ${c.profile_cn?`<div class="ci-section"><div class="ci-title" style="color:var(--ch)" data-cn="人物侧写 Profile" data-en="Profile Analysis">人物侧写 Profile</div><div class="ci-text" style="color:var(--td);line-height:1.9;border-left:2px solid var(--ch);padding-left:12px;margin:8px 0">${c.profile_cn}</div></div>`:''}
         ${c.coins.length?`<div class="ci-section"><div class="ci-title" data-cn="藏品持仓" data-en="Holdings">藏品持仓</div>${c.coins.map(cc=>`<div class="ci-coin"><span class="cc-name">${cc.cn}</span><span class="cc-grade">${cc.grade||''}</span><span class="cc-val">${(cc.cost?'成本:'+cc.cost:'')+' '+(cc.current_est?'估值:'+cc.current_est:'')}</span></div>`).join('')}${c.est_total?`<div style="margin-top:8px;padding:6px 12px;background:rgba(197,162,88,.1);border-radius:4px;font-size:.82rem"><span style="color:var(--g);font-weight:700">总持仓估值:</span> <span style="color:var(--ch);font-weight:700;font-size:.95rem">${c.est_total}</span></div>`:''}</div>`:''}
         <div class="ci-section"><div class="ci-title" data-cn="深度分析" data-en="Deep Analysis">深度分析</div><div class="ci-text" style="color:var(--cr);line-height:1.9">${c.analysis_cn}</div></div>
+        <div class="ci-section"><div class="ci-title">状态标签</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+          <button onclick="setCollMode('${c.id}','hold')" style="padding:5px 12px;border-radius:4px;border:1px solid ${_curMode==='hold'?'#ffd700':'var(--lz-b)'};background:${_curMode==='hold'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_curMode==='hold'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.78rem;font-weight:600">持有不卖</button>
+          <button onclick="setCollMode('${c.id}','buy')" style="padding:5px 12px;border-radius:4px;border:1px solid ${_curMode==='buy'?'#ffd700':'var(--lz-b)'};background:${_curMode==='buy'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_curMode==='buy'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.78rem;font-weight:600">持续购买中</button>
+          <button onclick="setCollMode('${c.id}','sell')" style="padding:5px 12px;border-radius:4px;border:1px solid ${_curMode==='sell'?'var(--r)':'var(--lz-b)'};background:${_curMode==='sell'?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${_curMode==='sell'?'var(--r)':'var(--td)'};cursor:pointer;font-size:.78rem;font-weight:600">出售中</button>
+          <button onclick="setCollMode('${c.id}','active-sell')" style="padding:5px 12px;border-radius:4px;border:1px solid ${_curMode==='active-sell'?'var(--r)':'var(--lz-b)'};background:${_curMode==='active-sell'?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${_curMode==='active-sell'?'var(--r)':'var(--td)'};cursor:pointer;font-size:.78rem;font-weight:600">积极出售中</button>
+          <button onclick="setCollMode('${c.id}','liquidated')" style="padding:5px 12px;border-radius:4px;border:1px solid ${_curMode==='liquidated'?'var(--r)':'var(--lz-b)'};background:${_curMode==='liquidated'?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${_curMode==='liquidated'?'var(--r)':'var(--td)'};cursor:pointer;font-size:.78rem;font-weight:600">已出清</button>
+          <button onclick="setCollMode('${c.id}','none')" style="padding:5px 12px;border-radius:4px;border:1px solid ${_curMode==='none'?'var(--g)':'var(--lz-b)'};background:${_curMode==='none'?'rgba(197,162,88,.15)':'var(--lz-s)'};color:${_curMode==='none'?'var(--g)':'var(--td)'};cursor:pointer;font-size:.78rem;font-weight:600">无标签</button>
+        </div></div>
       </div>
     </div>
   </div>`;
