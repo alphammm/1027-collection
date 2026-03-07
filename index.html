@@ -101,7 +101,7 @@ nav button:hover,nav button.active{background:var(--g);color:var(--lz-deep);bord
 .flow-map text{font-family:'EB Garamond','Noto Serif SC',serif}
 
 /* COLLECTOR CARDS */
-.coll-card{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;margin-bottom:12px;overflow:hidden;transition:.2s}
+.coll-card{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;margin-bottom:12px;overflow:hidden;transition:.2s;position:relative}
 .coll-card:hover{border-color:var(--gd)}
 .coll-card.key{border-left:3px solid var(--g)}
 .coll-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
@@ -1429,9 +1429,12 @@ collRegions.forEach(reg=>{
   const m=_collModeMap[_curMode]||{cls:'',label:''};
   const top3=c.coins.slice(0,3);
   const isHL=_hlNames.has(c.cn);
+  const _mBright=m.cls==='hold'||m.cls==='buy';
+  const _mStyle=_mBright?'background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.35)':'background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3)';
   collHTML+=`<div class="coll-card${isHL?' hl':' key'}"${isHL?' style="border-left:3px solid var(--ch)"':''}>
+    ${m.label?`<span style="position:absolute;top:10px;right:10px;font-size:.6rem;padding:2px 9px;border-radius:10px;font-weight:700;letter-spacing:.04em;${_mStyle};z-index:1">${m.label}</span>`:''}
     <div class="coll-header" onclick="this.querySelector('.ch-toggle').classList.toggle('open');const body=this.parentElement.querySelector('.coll-body');body.classList.toggle('open')">
-      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span>${c.stars?starsHTML(c.stars):''}${m.label?`<span class="cm ${m.cls}">${m.label}</span>`:''}</div>
+      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span>${c.stars?starsHTML(c.stars):''}</div>
       <span class="ch-toggle">&#x276F;</span>
     </div>
     ${top3.length?`<div class="coll-preview">${top3.map(cc=>{const _sold=cc.cn.includes('已出')||cc.cn.includes('已售');return`<span class="coll-preview-tag" style="${_sold?'':'background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700'}">${cc.cn}${cc.grade?' '+cc.grade:''}</span>`}).join('')}</div>`:''}
