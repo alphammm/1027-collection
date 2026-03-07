@@ -1998,9 +1998,9 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     cols.forEach((c,ci)=>{
       const isSort=sortKey.col===ci;
       const arrow=isSort?(sortKey.desc?' ↓':' ↑'):'';
-      t+=`<td draggable="true" data-bi="${bi}" data-ci="${ci}" ondragstart="window._pnlDragCol(event,${bi},${ci})" ondragover="event.preventDefault();this.style.borderLeft='2px solid var(--ch)'" ondragleave="this.style.borderLeft=''" ondrop="this.style.borderLeft='';window._pnlDropCol(event,${bi},${ci})" style="${hp};text-align:${c.align};cursor:grab;user-select:none;position:relative;white-space:nowrap" onclick="window._sortPnlBatch(${bi},${ci})">
+      t+=`<td draggable="true" data-bi="${bi}" data-ci="${ci}" ondragstart="window._pnlDragCol(event,${bi},${ci})" ondragover="event.preventDefault();this.style.borderLeft='2px solid var(--ch)'" ondragleave="this.style.borderLeft=''" ondrop="this.style.borderLeft='';window._pnlDropCol(event,${bi},${ci})" oncontextmenu="event.preventDefault();window._pnlColMenu(${bi},${ci},event)" style="${hp};text-align:${c.align};cursor:pointer;user-select:none;position:relative;white-space:nowrap" onclick="window._pnlColMenu(${bi},${ci},event)">
         <span>${c.label}${arrow}</span>
-        <span onclick="event.stopPropagation();window._pnlColMenu(${bi},${ci},event)" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:3px;opacity:.6" title="列操作">▼</span>
+        <span style="font-size:.68rem;color:var(--gd);margin-left:4px">▾</span>
       </td>`;
     });
     t+=`<td style="${hp};text-align:center;width:50px">操作</td></tr>`;
@@ -2148,28 +2148,33 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     const col=cols[ci];
     const btnS='display:block;width:100%;text-align:left;background:none;border:none;color:var(--td);padding:6px 14px;font-size:.78rem;cursor:pointer;font-family:inherit';
     const btnH='onmouseover="this.style.background=\'var(--lz-b)\'" onmouseout="this.style.background=\'none\'"';
-    const canMove=!col.computed;
     const canDel=col.key!=='name'&&!col.computed;
-    let menu=`<div id="pnlColMenu" style="position:fixed;z-index:10000;background:var(--lz-s);border:1px solid var(--gd);border-radius:6px;padding:4px 0;min-width:160px;box-shadow:0 4px 20px rgba(0,0,0,.5)">
-      <button ${btnH} style="${btnS}" onclick="window._pnlRenameCol(${bi},${ci})">✎ 重命名「${col.label}」</button>
+    const canEdit=!col.computed;
+    const itemCount=batches[bi].items?batches[bi].items.length:0;
+    let menu=`<div id="pnlColMenu" style="position:fixed;z-index:10000;background:var(--lz-s);border:1px solid var(--gd);border-radius:8px;padding:6px 0;min-width:180px;box-shadow:0 6px 30px rgba(0,0,0,.6)">
+      <div style="padding:6px 14px;font-size:.72rem;color:var(--gd);border-bottom:1px solid var(--lz-b);margin-bottom:4px">列: ${col.label}</div>
+      <button ${btnH} style="${btnS}" onclick="window._pnlRenameCol(${bi},${ci})">✎ 重命名</button>
+      ${canEdit?`<button ${btnH} style="${btnS}" onclick="window._pnlEditColBulk(${bi},${ci})">📝 批量编辑 (${itemCount}条)</button>`:''}
       <div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
-      ${ci>0?`<button ${btnH} style="${btnS}" onclick="window._pnlMoveCol(${bi},${ci},-1)">⇠ 左移一列</button>`:''}
-      ${ci<cols.length-1?`<button ${btnH} style="${btnS}" onclick="window._pnlMoveCol(${bi},${ci},1)">⇢ 右移一列</button>`:''}
+      ${ci>0?`<button ${btnH} style="${btnS}" onclick="window._pnlMoveCol(${bi},${ci},-1)">⇠ 左移</button>`:''}
+      ${ci<cols.length-1?`<button ${btnH} style="${btnS}" onclick="window._pnlMoveCol(${bi},${ci},1)">⇢ 右移</button>`:''}
       <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci})">＋ 左侧插入列</button>
       <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci+1})">＋ 右侧插入列</button>
       <div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
-      <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},true)">↓ 从大到小排序</button>
-      <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},false)">↑ 从小到大排序</button>
+      <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},true)">↓ 从大到小</button>
+      <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},false)">↑ 从小到大</button>
       ${canDel?`<div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
-      <button ${btnH} style="${btnS}" onclick="window._pnlClearCol(${bi},${ci})">⌫ 清空列数据</button>
-      <button ${btnH} style="${btnS};color:var(--r)" onclick="window._pnlDeleteCol(${bi},${ci})">✕ 删除此列</button>`:''}
+      <button ${btnH} style="${btnS};color:var(--gd)" onclick="window._pnlClearCol(${bi},${ci})">⌫ 清空此列数据</button>
+      <button ${btnH} style="${btnS};color:var(--r)" onclick="window._pnlDeleteCol(${bi},${ci})">✕ 删除整列</button>`:''}
     </div>`;
     document.body.insertAdjacentHTML('beforeend',menu);
     const el=document.getElementById('pnlColMenu');
-    const rect=ev.target.getBoundingClientRect();
-    el.style.left=Math.min(rect.left,window.innerWidth-160)+'px';
-    el.style.top=(rect.bottom+4)+'px';
-    setTimeout(()=>{document.addEventListener('click',function h(){el.remove();document.removeEventListener('click',h)},{once:true})},50);
+    // Position near the click
+    const mx=Math.min(ev.clientX||ev.pageX||0,window.innerWidth-190);
+    const my=Math.min((ev.clientY||ev.pageY||0)+5,window.innerHeight-el.offsetHeight-10);
+    el.style.left=mx+'px';
+    el.style.top=my+'px';
+    setTimeout(()=>{document.addEventListener('click',function h(){el.remove();document.removeEventListener('click',h)},{once:true})},100);
   };
   // Rename column
   window._pnlRenameCol=function(bi,ci){
@@ -2219,6 +2224,62 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     batches[bi].columns=cols;
     savePnlBatches(batches);
     renderPnl();
+  };
+  // Bulk edit all values in a column
+  window._pnlEditColBulk=function(bi,ci){
+    document.getElementById('pnlColMenu')?.remove();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    const col=cols[ci];
+    if(!col||col.computed)return;
+    const items=batches[bi].items||[];
+    let m=`<div id="pnlEditOverlay" onclick="if(event.target===this)this.remove()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--lz-s);border:1px solid var(--gd);border-radius:10px;padding:20px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto">
+        <div style="font-size:.88rem;color:var(--g);font-weight:700;margin-bottom:4px">批量编辑「${col.label}」</div>
+        <div style="font-size:.68rem;color:var(--td);margin-bottom:14px">共 ${items.length} 条记录，逐条修改后点击保存</div>
+        <div style="display:flex;flex-direction:column;gap:6px">`;
+    items.forEach((r,ri)=>{
+      const val=r[col.key]||'';
+      const rowLabel=r.name||('第'+(ri+1)+'条');
+      m+=`<div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:.72rem;color:var(--td);min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${rowLabel}">${rowLabel}</span>
+        <input id="pnl_bulkedit_${ri}" value="${String(val).replace(/"/g,'&quot;')}" ${col.numeric?'type="number"':''} style="flex:1;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:5px 8px;border-radius:4px;font-size:.82rem;box-sizing:border-box">
+      </div>`;
+    });
+    m+=`</div>
+        <div style="margin-top:14px;display:flex;gap:8px;justify-content:space-between">
+          <button onclick="window._pnlBulkClear(${bi},${ci})" style="background:none;color:var(--r);border:1px solid rgba(180,40,40,.3);padding:6px 16px;border-radius:4px;font-size:.82rem;cursor:pointer">全部清空</button>
+          <div style="display:flex;gap:8px">
+            <button onclick="document.getElementById('pnlEditOverlay').remove()" style="background:var(--lz);color:var(--td);border:1px solid var(--lz-b);padding:6px 20px;border-radius:4px;font-size:.82rem;cursor:pointer">取消</button>
+            <button onclick="window._pnlBulkSave(${bi},${ci})" style="background:var(--g);color:var(--lz-deep);border:none;padding:6px 20px;border-radius:4px;font-size:.82rem;cursor:pointer;font-weight:600">保存</button>
+          </div>
+        </div>
+      </div></div>`;
+    document.body.insertAdjacentHTML('beforeend',m);
+  };
+  window._pnlBulkSave=function(bi,ci){
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    const col=cols[ci];
+    const items=batches[bi].items||[];
+    items.forEach((r,ri)=>{
+      const el=document.getElementById('pnl_bulkedit_'+ri);
+      if(!el)return;
+      r[col.key]=col.numeric?(parseFloat(el.value)||0):el.value.trim();
+    });
+    savePnlBatches(batches);
+    document.getElementById('pnlEditOverlay')?.remove();
+    renderPnl();
+  };
+  window._pnlBulkClear=function(bi,ci){
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    const col=cols[ci];
+    const items=batches[bi].items||[];
+    items.forEach((r,ri)=>{
+      const el=document.getElementById('pnl_bulkedit_'+ri);
+      if(el)el.value='';
+    });
   };
   // Clear column data (keep column, wipe values)
   window._pnlClearCol=function(bi,ci){
