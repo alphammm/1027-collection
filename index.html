@@ -1885,14 +1885,24 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       </div>
     </div>`;
 
+    // Fold state
+    if(!window._pnlFold) window._pnlFold={};
+    const totalGroups=(aucSold.length+copySold.length>0?1:0)+batches.length;
+
     // Auto-collected sold items (拍品/复品)
     if(aucSold.length+copySold.length>0){
-      h+=`<div style="margin-bottom:24px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
-        <h3 style="color:var(--ch);font-size:.9rem;margin:0 0 10px;display:flex;align-items:center;gap:8px">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--ch)"></span>已卖拍品 · 自动汇总
-          <span style="font-size:.72rem;color:var(--td);font-weight:400">${aucSold.length+copySold.length} 笔</span>
-        </h3>
-        ${renderItemTable([...aucSold,...copySold])}
+      const autoFolded=window._pnlFold['auto']!==false;
+      const autoTotal=[...aucSold,...copySold];
+      const autoSum=autoTotal.reduce((s,r)=>s+(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0),0);
+      h+=`<div style="margin-bottom:16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
+        <div onclick="window._pnlFold['auto']=!${autoFolded};renderPnl()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+          <span style="color:var(--gd);font-size:.78rem;width:16px">${autoFolded?'▶':'▼'}</span>
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--ch)"></span>
+          <span style="font-size:.9rem;font-weight:700;color:var(--ch)">已卖拍品 · 自动汇总</span>
+          <span style="font-size:.72rem;color:var(--td)">${autoTotal.length} 笔</span>
+          <span style="font-size:.72rem;margin-left:auto;color:${autoSum>=0?'#4caf50':'var(--r)'};font-weight:600">${fmtMoney(autoSum)}</span>
+        </div>
+        ${autoFolded?'':`<div style="margin-top:10px">${renderItemTable(autoTotal)}</div>`}
       </div>`;
     }
 
@@ -1902,18 +1912,31 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       const items=(b.items||[]).map((r,ri)=>({...r,_ri:ri,buyPrice:parseFloat(r.buyPrice)||0,sellPrice:parseFloat(r.sellPrice)||0,fee:parseFloat(r.fee)||0}));
       const chLabel=b.channel==='private'?'私下转让':'拍卖出售';
       const chColor=b.channel==='private'?'var(--gd)':'var(--ch)';
+      const folded=window._pnlFold[bi]!==false;
+      const batchSum=items.reduce((s,r)=>s+(r.sellPrice||0)-(r.buyPrice||0)-(r.fee||0),0);
+      const safeName=(b.name||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
       h+=`<div style="margin-bottom:16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span onclick="window._pnlFold[${bi}]=!${folded};renderPnl()" style="color:var(--gd);font-size:.78rem;width:16px;cursor:pointer;user-select:none">${folded?'▶':'▼'}</span>
           <span style="width:8px;height:8px;border-radius:50%;background:${chColor}"></span>
-          <span style="font-size:.9rem;font-weight:700;color:var(--cr)">${b.name||'批次 '+(bi+1)}</span>
+          <span onclick="window._renamePnlBatch(${bi})" style="font-size:.9rem;font-weight:700;color:var(--cr);cursor:pointer" title="点击修改批次名称">${b.name||'批次 '+(bi+1)}</span>
           <span style="font-size:.65rem;padding:1px 8px;border-radius:3px;background:${b.channel==='private'?'rgba(197,162,88,.15)':'rgba(255,215,0,.15)'};color:${chColor}">${chLabel}</span>
           <span style="font-size:.72rem;color:var(--td)">${items.length} 笔</span>
-          <span onclick="window._pnlInsertCol(${bi})" style="cursor:pointer;font-size:.68rem;color:var(--g);padding:1px 8px;border:1px solid var(--gd);border-radius:3px;margin-left:8px" title="添加列">+ 列</span>
-          <span onclick="if(confirm('确认删除批次「${(b.name||'').replace(/'/g,"\\'")}」？此操作不可恢复。')){window._deletePnlBatch(${bi})}" style="margin-left:auto;cursor:pointer;color:var(--r);font-size:.72rem;padding:2px 8px;border:1px solid rgba(180,40,40,.3);border-radius:3px">删除批次</span>
+          ${!folded?`<span onclick="window._pnlInsertCol(${bi})" style="cursor:pointer;font-size:.68rem;color:var(--g);padding:1px 8px;border:1px solid var(--gd);border-radius:3px" title="添加列">+ 列</span>`:''}
+          <span style="font-size:.72rem;margin-left:auto;color:${batchSum>=0?'#4caf50':'var(--r)'};font-weight:600">${fmtMoney(batchSum)}</span>
+          <span onclick="if(confirm('确认删除批次「${safeName}」？此操作不可恢复。')){window._deletePnlBatch(${bi})}" style="cursor:pointer;color:var(--r);font-size:.72rem;padding:2px 8px;border:1px solid rgba(180,40,40,.3);border-radius:3px">删除</span>
         </div>
-        ${renderBatchTable(items,cols,bi)}
+        ${folded?'':`<div style="margin-top:10px">${renderBatchTable(items,cols,bi)}</div>`}
       </div>`;
     });
+
+    // Expand/Collapse all button
+    if(totalGroups>1){
+      const allExpanded=Object.values(window._pnlFold).every(v=>v===false);
+      h+=`<div style="text-align:center;margin-top:8px;margin-bottom:16px">
+        <button onclick="window._pnlToggleAll()" style="background:var(--lz-s);color:var(--g);border:1px solid var(--gd);padding:6px 24px;border-radius:4px;font-size:.78rem;cursor:pointer">${allExpanded?'▲ 全部折叠':'▼ 展开全部'}</button>
+      </div>`;
+    }
 
     document.getElementById('pnl').innerHTML=h;
   }
@@ -2064,6 +2087,25 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     batches.splice(idx,1);
     savePnlBatches(batches);
     if(window._pnlBatchSort)delete window._pnlBatchSort[idx];
+    renderPnl();
+  };
+  // Rename batch
+  window._renamePnlBatch=function(bi){
+    const batches=getPnlBatches();
+    if(!batches[bi])return;
+    const newName=prompt('修改批次名称:',batches[bi].name||'');
+    if(newName===null)return;
+    batches[bi].name=newName.trim()||('批次 '+(bi+1));
+    savePnlBatches(batches);
+    renderPnl();
+  };
+  // Toggle all fold/expand
+  window._pnlToggleAll=function(){
+    const allExpanded=Object.values(window._pnlFold||{}).every(v=>v===false);
+    const batches=getPnlBatches();
+    // Set all to folded or expanded
+    window._pnlFold['auto']=allExpanded?true:false;
+    batches.forEach((b,bi)=>{window._pnlFold[bi]=allExpanded?true:false;});
     renderPnl();
   };
   // Delete single item from a batch
@@ -2380,9 +2422,18 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     let date='';
     texts.forEach((t,i)=>{if(/\d{4}[-\/]\d{1,2}/.test(t)||/^\d{4}年/.test(t)){date=t;texts.splice(i,1)}});
     // Name is typically the first/longest text
-    const name=texts[0]||'';
+    let name=texts[0]||'';
     const buyFrom=texts[1]||'';
     const sellTo=texts[2]||'';
+    // Smart extract: pull grade info embedded in name like "XXX NGC AU55" or "XXX PCGS MS65"
+    if(!grade&&name){
+      const gm=name.match(/\b(NGC|PCGS|GBCA|公博|华夏)\s*(MS|AU|SP|XF|VF|EF|G|VG|F)\s*[-]?\s*(\d{1,2})\b/i);
+      if(gm){grade=gm[1].toUpperCase()+' '+gm[2].toUpperCase()+gm[3];name=name.replace(gm[0],'').replace(/\s{2,}/g,' ').trim();}
+      else{
+        const gm2=name.match(/\b(MS|AU|SP|XF|VF|EF)\s*[-]?\s*(\d{1,2})\b/i);
+        if(gm2){grade=gm2[1].toUpperCase()+gm2[2];name=name.replace(gm2[0],'').replace(/\s{2,}/g,' ').trim();}
+      }
+    }
     return {name,grade,buyPrice:nums[0]||0,sellPrice:nums[1]||0,fee:nums[2]||0,buyFrom,sellTo,date,ts:Date.now()};
   }
   window._handlePnlFile=function(input){
