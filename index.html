@@ -112,8 +112,8 @@ nav button:hover,nav button.active{background:var(--g);color:var(--lz-deep);bord
 .coll-header .ch-toggle.open{transform:rotate(90deg)}
 .coll-preview{padding:0 20px 12px;display:flex;gap:6px;flex-wrap:wrap}
 .coll-preview-tag{font-size:.68rem;padding:2px 8px;border-radius:3px;background:var(--lz-s2);color:var(--td);border:1px solid var(--lz-b);white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
-.cm{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:3px;font-weight:600;letter-spacing:.04em;margin-left:8px}
-.cm.buy{background:rgba(74,152,104,.2);color:var(--gr)}.cm.sell{background:rgba(196,64,64,.2);color:var(--r)}.cm.hold{background:rgba(197,162,88,.15);color:var(--gd)}
+.cm{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:3px;font-weight:700;letter-spacing:.04em;margin-left:8px}
+.cm.buy{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3)}.cm.sell{background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3)}.cm.hold{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3)}
 .coll-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
 .coll-body.open{max-height:2000px}
 .coll-inner{padding:0 20px 20px}
@@ -1410,7 +1410,7 @@ collRegions.forEach(reg=>{
   collHTML+=`<h3 style="color:var(--g);margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--lz-b);display:flex;align-items:center;gap:10px;font-size:.95rem" data-cn="${reg.cn} (${group.length})" data-en="${reg.en} (${group.length})">${reg.cn} <span style="font-size:.78rem;color:var(--td);font-weight:400">(${group.length})</span></h3>`;
   const _hlNames=new Set(['肖志军','李广宏','重庆陶姐','赵勇','王中强','李跃明','张安生','林宪璋','何代水']);
   group.forEach(c=>{
-  const modeMap={buy:{cls:'buy',label:'买入'},sell:{cls:'sell',label:'出售'},hold:{cls:'hold',label:'持有'},liquidated:{cls:'sell',label:'出清'}};
+  const modeMap={buy:{cls:'buy',label:'持续购买中'},sell:{cls:'sell',label:'出售中'},hold:{cls:'hold',label:'持有不卖'},'active-sell':{cls:'sell',label:'积极出售中'},liquidated:{cls:'sell',label:'已出清'}};
   const m=modeMap[c.mode]||{cls:'hold',label:''};
   const top3=c.coins.slice(0,3);
   const isHL=_hlNames.has(c.cn);
