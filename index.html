@@ -1606,9 +1606,8 @@ document.getElementById('collectors').innerHTML+=`
 
   // Category classifier based on coin name
   function classifyItem(cn){
-    if(/金锭|金条|金币|方宝/.test(cn)) return 'gold';
-    if(/银锭|厂条/.test(cn)) return 'silver';
     if(/壹两|一两|五两/.test(cn)) return 'tael';
+    if(/金锭|金条|金币|银锭|厂条|方宝/.test(cn)) return 'ingot';
     if(/造币总厂|大清银币|宣统三年|户部|丙午/.test(cn)) return 'central';
     if(/北洋|江南|吉林|奉天|广东|湖北|安徽|四川|云南|浙江|福建|新疆|江苏|贵州|陕西|河南|山东|造光绪|宣统元宝/.test(cn)) return 'provincial';
     if(/孙中山|孙像|三鸟|帆船|中山/.test(cn)) return 'sun';
@@ -1619,8 +1618,7 @@ document.getElementById('collectors').innerHTML+=`
   allItems.forEach(it=>{it._cat=classifyItem(it.cn)});
   const catDefs=[
     {id:'tael',cn:'壹两',en:'Taels'},
-    {id:'gold',cn:'金币',en:'Gold Coins'},
-    {id:'silver',cn:'银锭',en:'Silver Ingots'},
+    {id:'ingot',cn:'金银锭',en:'Gold & Silver Ingots'},
     {id:'central',cn:'中央龙洋',en:'Central Mint Dragons'},
     {id:'provincial',cn:'地方龙洋',en:'Provincial Dragons'},
     {id:'sun',cn:'孙像',en:'Sun Yat-sen'},
