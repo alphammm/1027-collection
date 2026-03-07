@@ -192,6 +192,7 @@ footer .gold{color:var(--gd)}
   <div class="section" id="collectors"></div>
   <div class="section" id="coinFlow"></div>
   <div class="section" id="numisDB"></div>
+  <div class="section" id="pnl"></div>
   <div class="section" id="intel"></div>
 </div>
 
@@ -223,6 +224,7 @@ const NAV=[
   {id:'collectors',cn:'藏家档案',en:'Collector Profiles'},
   {id:'coinFlow',cn:'珍币流转',en:'Provenance Flow'},
   {id:'numisDB',cn:'数据库',en:'Numismatic Database'},
+  {id:'pnl',cn:'盈亏记录',en:'P&L Tracker'},
   {id:'intel',cn:'市场资讯',en:'Market News'}
 ];
 const nav=document.getElementById('mainNav');
@@ -1706,6 +1708,143 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 </div>
 
 </div>`;
+
+// P&L TRACKER — 盈亏记录
+(function(){
+  const PNL_KEY='pnl_records';
+  function getPnlRecords(){return JSON.parse(localStorage.getItem(PNL_KEY)||'[]')}
+  function savePnlRecords(records){localStorage.setItem(PNL_KEY,JSON.stringify(records))}
+  function calcPnl(r){
+    const buy=parseFloat(r.buyPrice)||0;
+    const sell=parseFloat(r.sellPrice)||0;
+    const fee=parseFloat(r.fee)||0;
+    const profit=sell-buy-fee;
+    const pct=buy>0?((profit/buy)*100).toFixed(1):0;
+    return {profit,pct};
+  }
+  function fmtMoney(v){
+    if(v>=0) return '<span style="color:#4caf50">+¥'+Math.abs(v).toLocaleString()+'</span>';
+    return '<span style="color:var(--r)">-¥'+Math.abs(v).toLocaleString()+'</span>';
+  }
+  function renderPnl(){
+    const records=getPnlRecords();
+    // Summary
+    let totalBuy=0,totalSell=0,totalFee=0,totalProfit=0,wins=0,losses=0;
+    records.forEach(r=>{
+      const b=parseFloat(r.buyPrice)||0;const s=parseFloat(r.sellPrice)||0;const f=parseFloat(r.fee)||0;
+      totalBuy+=b;totalSell+=s;totalFee+=f;
+      const p=s-b-f;totalProfit+=p;
+      if(p>0)wins++;else if(p<0)losses++;
+    });
+    const totalPct=totalBuy>0?((totalProfit/totalBuy)*100).toFixed(1):'0';
+
+    let h=`<div class="chapter"><div class="chapter-num" data-cn="第拾伍章" data-en="Chapter XV">第拾伍章</div><div class="chapter-title" data-cn="盈亏记录" data-en="P&L Tracker">盈亏记录</div><div class="chapter-line"></div></div>`;
+    h+=`<div class="story" style="margin-bottom:16px"><p data-cn="记录买入与卖出的机制币交易，自动计算盈亏数据。" data-en="Track coin buy/sell transactions with automatic P&L calculation.">记录买入与卖出的机制币交易，自动计算盈亏数据。</p></div>`;
+
+    // Summary cards
+    h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:20px">
+      <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">总交易</div>
+        <div style="font-size:1.3rem;color:var(--g);font-weight:700">${records.length}</div>
+      </div>
+      <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">总买入</div>
+        <div style="font-size:1.1rem;color:var(--g);font-weight:700">¥${totalBuy.toLocaleString()}</div>
+      </div>
+      <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">总卖出</div>
+        <div style="font-size:1.1rem;color:var(--g);font-weight:700">¥${totalSell.toLocaleString()}</div>
+      </div>
+      <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">总盈亏</div>
+        <div style="font-size:1.1rem;font-weight:700">${fmtMoney(totalProfit)}</div>
+        <div style="font-size:.72rem;color:${totalProfit>=0?'#4caf50':'var(--r)'}">${totalPct}%</div>
+      </div>
+      <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">胜/负</div>
+        <div style="font-size:1.1rem;font-weight:700"><span style="color:#4caf50">${wins}</span> / <span style="color:var(--r)">${losses}</span></div>
+      </div>
+    </div>`;
+
+    // Add new record button
+    h+=`<div style="margin-bottom:16px"><button onclick="document.getElementById('pnlAddForm').style.display=document.getElementById('pnlAddForm').style.display==='none'?'block':'none'" style="background:var(--gd);color:var(--lz-deep);border:none;padding:8px 20px;border-radius:4px;font-size:.85rem;cursor:pointer;font-weight:600">+ 添加交易记录</button></div>`;
+
+    // Add form (hidden by default)
+    h+=`<div id="pnlAddForm" style="display:none;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;margin-bottom:20px">
+      <div style="font-size:.82rem;color:var(--g);font-weight:600;margin-bottom:12px">新增交易</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">币名</label><input id="pnl_name" placeholder="例：袁大头三年" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">评级</label><input id="pnl_grade" placeholder="例：MS65" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">买入价 (¥)</label><input id="pnl_buy" type="number" placeholder="0" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">卖出价 (¥)</label><input id="pnl_sell" type="number" placeholder="0" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">手续费/佣金 (¥)</label><input id="pnl_fee" type="number" placeholder="0" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">买入来源</label><input id="pnl_buyFrom" placeholder="例：泓盛2025秋拍" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">卖出渠道</label><input id="pnl_sellTo" placeholder="例：私人/拍卖行" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">日期</label><input id="pnl_date" placeholder="例：2025-12" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div style="grid-column:1/-1"><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">备注</label><input id="pnl_note" placeholder="备注信息" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button onclick="window._addPnlRecord()" style="background:var(--g);color:var(--lz-deep);border:none;padding:8px 24px;border-radius:4px;font-size:.85rem;cursor:pointer;font-weight:600">保存</button>
+        <button onclick="document.getElementById('pnlAddForm').style.display='none'" style="background:var(--lz);color:var(--td);border:1px solid var(--lz-b);padding:8px 24px;border-radius:4px;font-size:.85rem;cursor:pointer">取消</button>
+      </div>
+    </div>`;
+
+    // Records table
+    if(records.length>0){
+      h+=`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;color:var(--td);border-collapse:collapse;min-width:600px">
+        <tr style="color:var(--g);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--lz-b)">
+          <td style="padding:6px 8px">币名</td><td style="padding:6px 4px">评级</td><td style="padding:6px 4px;text-align:right">买入价</td><td style="padding:6px 4px;text-align:right">卖出价</td><td style="padding:6px 4px;text-align:right">手续费</td><td style="padding:6px 4px;text-align:right">盈亏</td><td style="padding:6px 4px;text-align:right">收益率</td><td style="padding:6px 4px">来源/渠道</td><td style="padding:6px 4px">日期</td><td style="padding:6px 2px"></td>
+        </tr>`;
+      records.forEach((r,i)=>{
+        const {profit,pct}=calcPnl(r);
+        h+=`<tr style="border-bottom:1px solid var(--lz-b)">
+          <td style="padding:6px 8px;color:var(--cr);font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name||'-'}</td>
+          <td style="padding:6px 4px">${r.grade||'-'}</td>
+          <td style="padding:6px 4px;text-align:right">¥${(parseFloat(r.buyPrice)||0).toLocaleString()}</td>
+          <td style="padding:6px 4px;text-align:right">¥${(parseFloat(r.sellPrice)||0).toLocaleString()}</td>
+          <td style="padding:6px 4px;text-align:right">¥${(parseFloat(r.fee)||0).toLocaleString()}</td>
+          <td style="padding:6px 4px;text-align:right;font-weight:700">${fmtMoney(profit)}</td>
+          <td style="padding:6px 4px;text-align:right;color:${profit>=0?'#4caf50':'var(--r)'}">${pct}%</td>
+          <td style="padding:6px 4px;font-size:.72rem">${r.buyFrom||''}${r.buyFrom&&r.sellTo?' → ':''}${r.sellTo||''}</td>
+          <td style="padding:6px 4px;font-size:.72rem">${r.date||'-'}</td>
+          <td style="padding:6px 2px"><span onclick="window._deletePnlRecord(${i})" style="cursor:pointer;color:var(--r);font-size:.68rem">✕</span></td>
+        </tr>`;
+      });
+      h+=`</table></div>`;
+    }
+
+    document.getElementById('pnl').innerHTML=h;
+  }
+
+  window._addPnlRecord=function(){
+    const r={
+      name:document.getElementById('pnl_name').value.trim(),
+      grade:document.getElementById('pnl_grade').value.trim(),
+      buyPrice:document.getElementById('pnl_buy').value.trim(),
+      sellPrice:document.getElementById('pnl_sell').value.trim(),
+      fee:document.getElementById('pnl_fee').value.trim(),
+      buyFrom:document.getElementById('pnl_buyFrom').value.trim(),
+      sellTo:document.getElementById('pnl_sellTo').value.trim(),
+      date:document.getElementById('pnl_date').value.trim(),
+      note:document.getElementById('pnl_note').value.trim(),
+      ts:Date.now()
+    };
+    if(!r.name){alert('请输入币名');return;}
+    const records=getPnlRecords();
+    records.push(r);
+    savePnlRecords(records);
+    renderPnl();
+  };
+  window._deletePnlRecord=function(idx){
+    if(!confirm('确认删除此记录？'))return;
+    const records=getPnlRecords();
+    records.splice(idx,1);
+    savePnlRecords(records);
+    renderPnl();
+  };
+
+  renderPnl();
+})();
 
 // MARKET NEWS — 市场资讯
 document.getElementById('intel').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾肆章" data-en="Chapter XIV">第拾肆章</div><div class="chapter-title" data-cn="市场资讯" data-en="Market News">市场资讯</div><div class="chapter-line"></div></div>
