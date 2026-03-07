@@ -1236,20 +1236,23 @@ function renderCoinCards(coins){
     const isOwned=c.myStatus==='owned';const isWant=c.myStatus==='want';
     const borderSt=isOwned?'border-left:3px solid var(--g)':isWant?'border-left:3px solid var(--gd)':'';
     const statusBadge=isOwned?`<span style="background:var(--g);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">已入藏</span>`:isWant?`<span style="background:var(--gd);color:#fff;font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">圣杯目标</span>`:'';
-    const rankBadge=c.myRank?`<span style="background:var(--ch);color:var(--lz-deep);font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700;margin-left:4px">${c.myRank}</span>`:'';
+    const isChamp=c.myRank&&(c.myRank.includes('冠军')||c.myRank.includes('Champion'));
+    const isRunner=c.myRank&&(c.myRank.includes('亚军')||c.myRank.includes('Runner'));
+    const rankBadge=c.myRank?`<span class="rb ${isChamp?'champ':isRunner?'ru':'champ'}">${c.myRank}</span>`:'';
     // myCopies table for owned coins with multiple copies
     let copiesHtml='';
     if(isOwned&&c.myCopies&&c.myCopies.length>0){
       copiesHtml=`<div style="margin-top:10px;border-top:1px solid var(--lz-b);padding-top:8px"><div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">我的藏品明细 (${c.myCopies.length}枚)</div><table style="width:100%;font-size:.75rem;color:var(--td);border-collapse:collapse"><tr style="color:var(--g);font-size:.68rem"><td>评级</td><td>来源</td><td>时间</td><td>成本</td><td>估价</td></tr>${c.myCopies.map(cp=>`<tr style="border-top:1px solid var(--lz-b)"><td style="padding:3px 4px;color:var(--cr)">${cp.grade}</td><td style="padding:3px 4px">${cp.source||'-'}</td><td style="padding:3px 4px">${cp.date||'-'}</td><td style="padding:3px 4px">${cp.cost||'-'}</td><td style="padding:3px 4px;color:var(--g)">${cp.est||'-'} ${actionBadge(c)}</td></tr>`).join('')}</table></div>`;
     }
     return `<div class="coin-card" style="${borderSt};margin-bottom:10px;padding:16px" onclick="showDetail('${c.id}')">
+      ${rankBadge}
       <div style="display:flex;gap:14px;align-items:flex-start">
         <div style="flex-shrink:0">${coinImgTag(c,100)}</div>
         <div style="flex:1;min-width:180px">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
             <span style="color:var(--gd);font-size:.72rem;font-weight:600">${tierLabel[c.tier]||'珍品'} · T${c.tier}</span>
             <span style="color:var(--td);font-size:.72rem">${c.era} ${c.year}</span>
-            ${statusBadge}${rankBadge}
+            ${statusBadge}
           </div>
           ${eraTagHTML(c.id)}
           <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
