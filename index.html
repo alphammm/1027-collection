@@ -612,6 +612,72 @@ function toggleAction(cid,action){
   _detailDirty=true;
   showDetail(cid);
 }
+// Per-copy actions for myCopies
+function getCopyActions(cid,idx){
+  const stored=localStorage.getItem('copyaction_'+cid+'_'+idx);
+  if(stored) return stored.split(',');
+  return ['collect'];
+}
+function copyActionBadge(cid,idx){
+  const acts=getCopyActions(cid,idx);
+  const bs='background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700;font-size:.68rem';
+  const rs='background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3);font-weight:700;font-size:.68rem';
+  const ds='background:rgba(100,100,100,.15);color:var(--td);border:1px solid rgba(100,100,100,.3);font-weight:700;font-size:.68rem';
+  let html='';
+  if(acts.includes('collect')) html+='<span class="gt" style="'+bs+'">藏</span>';
+  if(acts.includes('buy')) html+='<span class="gt" style="'+bs+'">买</span>';
+  if(acts.includes('sell')) html+='<span class="gt" style="'+rs+'">卖</span>';
+  if(acts.includes('sold')) html+='<span class="gt" style="'+ds+'">已卖</span>';
+  return html;
+}
+function toggleCopyAction(cid,idx,action){
+  const acts=getCopyActions(cid,idx);
+  let newActs;
+  if(acts.includes(action)) newActs=acts.filter(a=>a!==action);
+  else newActs=[...acts,action];
+  if(newActs.length===0) localStorage.removeItem('copyaction_'+cid+'_'+idx);
+  else localStorage.setItem('copyaction_'+cid+'_'+idx,newActs.join(','));
+  _detailDirty=true;
+  showCopyDetail(cid,idx);
+}
+function showCopyDetail(cid,copyIdx){
+  const c=COINS.find(x=>x.id===cid);if(!c||!c.myCopies)return;
+  const sorted=[...c.myCopies].sort((a,b)=>{const ga=parseInt((a.grade.match(/\d+/)||[0])[0])||0;const gb=parseInt((b.grade.match(/\d+/)||[0])[0])||0;return gb-ga});
+  const cp=sorted[copyIdx];if(!cp)return;
+  const dp=document.getElementById('detailPanel');
+  const acts=getCopyActions(cid,copyIdx);
+  const _on=(a)=>acts.includes(a);
+  const lk=(field)=>localStorage.getItem('copydet_'+cid+'_'+copyIdx+'_'+field)||'';
+  let h=`<button class="detail-close" onclick="showDetail('${cid}')">&times;</button>`;
+  h+=`<span style="display:inline-block;background:rgba(197,162,88,.2);color:var(--g);padding:3px 12px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.06em;margin-bottom:10px">复品 #${copyIdx+1}</span>`;
+  h+=`<div class="detail-name" style="font-size:1.15rem;margin-bottom:4px">${c.cn}</div>`;
+  h+=`<div style="color:var(--td);font-size:.82rem;margin-bottom:12px">${c.en||''}</div>`;
+  // Grade badge
+  const bright='background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700';
+  h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="gt" style="${bright};font-size:.9rem">${cp.grade}</span>${copyActionBadge(cid,copyIdx)}</div>`;
+  // Action buttons
+  h+=`<div style="margin-bottom:16px;padding:10px 16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-right:4px">操作</span>
+    <button onclick="toggleCopyAction('${cid}',${copyIdx},'collect')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_on('collect')?'#ffd700':'var(--lz-b)'};background:${_on('collect')?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_on('collect')?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">收藏</button>
+    <button onclick="toggleCopyAction('${cid}',${copyIdx},'buy')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_on('buy')?'#ffd700':'var(--lz-b)'};background:${_on('buy')?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_on('buy')?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">买入</button>
+    <button onclick="toggleCopyAction('${cid}',${copyIdx},'sell')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_on('sell')?'var(--r)':'var(--lz-b)'};background:${_on('sell')?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${_on('sell')?'var(--r)':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">卖出</button>
+    <button onclick="toggleCopyAction('${cid}',${copyIdx},'sold')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_on('sold')?'var(--td)':'var(--lz-b)'};background:${_on('sold')?'rgba(100,100,100,.15)':'var(--lz-s)'};color:${_on('sold')?'var(--td)':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">已卖</button>
+  </div>`;
+  // Detail fields
+  h+=`<div class="dmeta">
+    <div><div class="dl">评级 Grade</div><div class="dv" style="color:var(--cr);font-weight:600">${cp.grade}</div></div>
+    <div><div class="dl">来源 Source</div><div class="dv">${cp.source||'-'}</div></div>
+    <div><div class="dl">入藏时间</div><div class="dv">${cp.date||'-'}</div></div>
+    <div><div class="dl">买入成本</div><div class="dv">${cp.cost||'-'}</div></div>
+    <div><div class="dl">估价</div><div class="dv" style="color:var(--g)">${cp.est||'-'}</div></div>
+    <div><div class="dl">市场价格 <span onclick="event.stopPropagation();var el=document.getElementById('cpMkt_${cid}_${copyIdx}');el.style.display=el.style.display==='none'?'block':'none'" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" id="cpMktVal_${cid}_${copyIdx}" style="color:var(--g)">${lk('mkt')||'-'}</div><div id="cpMkt_${cid}_${copyIdx}" style="display:none;margin-top:4px"><input id="cpMktIn_${cid}_${copyIdx}" value="${lk('mkt')}" placeholder="输入市场价" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.85rem;width:140px"> <button onclick="var v=document.getElementById('cpMktIn_${cid}_${copyIdx}').value.trim();if(v){localStorage.setItem('copydet_${cid}_${copyIdx}_mkt',v);document.getElementById('cpMktVal_${cid}_${copyIdx}').textContent=v}document.getElementById('cpMkt_${cid}_${copyIdx}').style.display='none'" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer">保存</button></div></div>
+    <div><div class="dl">卖出价格 <span onclick="event.stopPropagation();var el=document.getElementById('cpSell_${cid}_${copyIdx}');el.style.display=el.style.display==='none'?'block':'none'" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" id="cpSellVal_${cid}_${copyIdx}" style="color:var(--r)">${lk('sell')||'-'}</div><div id="cpSell_${cid}_${copyIdx}" style="display:none;margin-top:4px"><input id="cpSellIn_${cid}_${copyIdx}" value="${lk('sell')}" placeholder="输入卖出价" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.85rem;width:140px"> <button onclick="var v=document.getElementById('cpSellIn_${cid}_${copyIdx}').value.trim();if(v){localStorage.setItem('copydet_${cid}_${copyIdx}_sell',v);document.getElementById('cpSellVal_${cid}_${copyIdx}').textContent=v}document.getElementById('cpSell_${cid}_${copyIdx}').style.display='none'" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer">保存</button></div></div>
+    <div style="grid-column:1/-1"><div class="dl">备注 <span onclick="event.stopPropagation();var el=document.getElementById('cpNote_${cid}_${copyIdx}');el.style.display=el.style.display==='none'?'block':'none'" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" id="cpNoteVal_${cid}_${copyIdx}">${lk('note')||''}</div><div id="cpNote_${cid}_${copyIdx}" style="display:none;margin-top:4px"><textarea id="cpNoteIn_${cid}_${copyIdx}" rows="2" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.82rem;resize:vertical;font-family:inherit">${lk('note')}</textarea><button onclick="var v=document.getElementById('cpNoteIn_${cid}_${copyIdx}').value.trim();if(v){localStorage.setItem('copydet_${cid}_${copyIdx}_note',v)}else{localStorage.removeItem('copydet_${cid}_${copyIdx}_note')}document.getElementById('cpNoteVal_${cid}_${copyIdx}').textContent=v;document.getElementById('cpNote_${cid}_${copyIdx}').style.display='none'" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer;margin-top:4px">保存</button></div></div>
+  </div>`;
+  dp.innerHTML=h;
+  dp.style.display='block';
+  dp.scrollTop=0;
+}
 function getActions(c){
   const _DB=new Set(['C031','C032','C033','C034','C005']);
   const stored=localStorage.getItem('action_'+c.id);
@@ -1370,7 +1436,7 @@ function renderCoinCards(coins){
     let copiesHtml='';
     if(isOwned&&c.myCopies&&c.myCopies.length>0){
       const _sortedCopies=[...c.myCopies].sort((a,b)=>{const ga=parseInt((a.grade.match(/\d+/)||[0])[0])||0;const gb=parseInt((b.grade.match(/\d+/)||[0])[0])||0;return gb-ga});
-      copiesHtml=`<div style="margin-top:10px;border-top:1px solid var(--lz-b);padding-top:8px"><div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">我的藏品明细 (${c.myCopies.length}枚)</div><table style="width:100%;font-size:.75rem;color:var(--td);border-collapse:collapse"><tr style="color:var(--g);font-size:.68rem"><td>评级</td><td>来源</td><td>时间</td><td>成本</td><td>估价</td></tr>${_sortedCopies.map(cp=>`<tr style="border-top:1px solid var(--lz-b)"><td style="padding:3px 4px;color:var(--cr)">${cp.grade}</td><td style="padding:3px 4px">${cp.source||'-'}</td><td style="padding:3px 4px">${cp.date||'-'}</td><td style="padding:3px 4px">${cp.cost||'-'}</td><td style="padding:3px 4px;color:var(--g)">${cp.est||'-'} ${actionBadge(c)}</td></tr>`).join('')}</table></div>`;
+      copiesHtml=`<div style="margin-top:10px;border-top:1px solid var(--lz-b);padding-top:8px"><div style="font-size:.7rem;color:var(--g);font-weight:600;margin-bottom:4px">我的藏品明细 (${c.myCopies.length}枚)</div><table style="width:100%;font-size:.75rem;color:var(--td);border-collapse:collapse"><tr style="color:var(--g);font-size:.68rem"><td>评级</td><td>来源</td><td>成本</td><td style="text-align:right">标签</td></tr>${_sortedCopies.map((cp,ci)=>`<tr style="border-top:1px solid var(--lz-b);cursor:pointer" onclick="event.stopPropagation();showCopyDetail('${c.id}',${ci})"><td style="padding:3px 4px;color:var(--cr)">${cp.grade}</td><td style="padding:3px 4px">${cp.source||'-'}</td><td style="padding:3px 4px">${cp.cost||'-'}</td><td style="padding:3px 4px;text-align:right">${copyActionBadge(c.id,ci)}</td></tr>`).join('')}</table></div>`;
     }
     return `<div class="coin-card" style="${borderSt};margin-bottom:10px;padding:16px" onclick="showDetail('${c.id}')">
       ${rankBadge}
