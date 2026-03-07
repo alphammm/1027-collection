@@ -210,7 +210,7 @@ function setLang(l){CL=l;document.querySelectorAll('.lang-toggle button').forEac
 const NAV=[
   {id:'prologue',cn:'序言',en:'Prologue'},
   {id:'highlights',cn:'至臻之藏',en:'The Finest'},
-  {id:'rankings',cn:'高分藏品',en:'Top Grades'},
+  {id:'rankings',cn:'巅峰评级',en:'Top Grades'},
   {id:'masterpieces',cn:'大珍',en:'Masterpieces'},
   {id:'dragons',cn:'各省龙洋',en:'Provincial Dragons'},
   {id:'yuanPortraits',cn:'袁像银圆',en:'Yuan Shikai'},
@@ -548,7 +548,31 @@ function showDetail(coinId){
   }
   h+=`</div>`;
 
+  // Action buttons: 收藏 / 买入 / 卖出
+  const curAction=localStorage.getItem('action_'+c.id)||(c.myStatus==='owned'?'collect':'');
+  h+=`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--lz-b)">
+    <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">操作 Action</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="setCoinAction('${c.id}','collect')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='collect'?'#ffd700':'var(--lz-b)'};background:${curAction==='collect'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${curAction==='collect'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">收藏</button>
+      <button onclick="setCoinAction('${c.id}','buy')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='buy'?'#ffd700':'var(--lz-b)'};background:${curAction==='buy'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${curAction==='buy'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">买入</button>
+      <button onclick="setCoinAction('${c.id}','sell')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='sell'?'var(--r)':'var(--lz-b)'};background:${curAction==='sell'?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${curAction==='sell'?'var(--r)':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">卖出</button>
+    </div>
+  </div>`;
+
   dp.innerHTML=h;document.getElementById('detailOverlay').classList.add('open');document.body.style.overflow='hidden';
+}
+function setCoinAction(cid,action){
+  const cur=localStorage.getItem('action_'+cid);
+  if(cur===action) localStorage.removeItem('action_'+cid);
+  else localStorage.setItem('action_'+cid,action);
+  showDetail(cid);
+}
+function actionBadge(c){
+  const a=localStorage.getItem('action_'+c.id)||(c.myStatus==='owned'?'collect':'');
+  if(a==='collect') return '<span class="gt" style="background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700;font-size:.68rem">藏</span>';
+  if(a==='buy') return '<span class="gt" style="background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700;font-size:.68rem">买</span>';
+  if(a==='sell') return '<span class="gt" style="background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3);font-weight:700;font-size:.68rem">卖</span>';
+  return '';
 }
 function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow=''}
 
@@ -592,7 +616,7 @@ const dzAll=DAZHEN_IDS.map(id=>COINS.find(c=>c.id===id)).filter(c=>c&&c.myStatus
 const dz5=dzAll.filter(c=>SUPREME_5STAR.has(c.id));
 const dz4=dzAll.filter(c=>!SUPREME_5STAR.has(c.id));
 function starsHTML(n){let s='<span style="font-size:.65rem;letter-spacing:1px">';for(let i=0;i<5;i++)s+=i<n?'<span style="color:#ffd700">★</span>':'<span style="color:rgba(154,125,58,.3)">★</span>';return s+'</span>';}
-function dzCard(c){const is5=SUPREME_5STAR.has(c.id);const nStars=is5?5:4;const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;const eraT=ERA_TAGS[c.id]||'';return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}${photoThumbsHTML(c.id,43)}</div><div style="flex:1">${rankBadge}<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${eraT}</span>${starsHTML(nStars)}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row">${gradeBadge(c)}${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}${higherBadge(c)}</div><div class="value">¥${c.est_rmb}</div></div></div>`}
+function dzCard(c){const is5=SUPREME_5STAR.has(c.id);const nStars=is5?5:4;const rankBadge=c.myRank?`<span class="rb champ">${c.myRank}</span>`:`<span class="rb" style="background:${is5?'var(--ch)':'var(--lz-bl)'};color:${is5?'var(--lz-deep)':'var(--g)'}">至臻</span>`;const eraT=ERA_TAGS[c.id]||'';return`<div class="coin-card${is5?' champion':''}" onclick="showDetail('${c.id}')" style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,90)}${photoThumbsHTML(c.id,43)}</div><div style="flex:1">${rankBadge}<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${eraT}</span>${starsHTML(nStars)}</div><div class="name-cn">${c.cn}</div><div class="name-en">${c.en}</div><div class="grade-row">${gradeBadge(c)}${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}${higherBadge(c)}</div><div class="value">¥${c.est_rmb} ${actionBadge(c)}</div></div></div>`}
 document.getElementById('highlights').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第壹章" data-en="Chapter I">第壹章</div><div class="chapter-title" data-cn="至臻之藏" data-en="The Finest">至臻之藏</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="1024 Collection 至臻之藏共收录69枚珍品。每一枚均经严格甄选，代表中国机制银圆收藏的最高层级。甄选标准并非单纯依赖评级分数，而更注重币种本身的历史地位、存世稀缺度与长期收藏价值。" data-en="The 1024 Collection's Supreme Treasury holds 69 treasures. Each is rigorously selected to represent the highest tier of Chinese milled silver collecting. Selection criteria prioritize historical significance, survival rarity, and long-term collector value over grade alone.">1024 Collection 至臻之藏共收录69枚珍品。每一枚均经严格甄选，代表中国机制银圆收藏的最高层级。甄选标准并非单纯依赖评级分数，而更注重币种本身的历史地位、存世稀缺度与长期收藏价值。</p></div>
 <h3 style="color:var(--ch);font-size:1rem;margin-bottom:12px;letter-spacing:.06em" data-cn="一级至臻 Supreme Masterpieces I" data-en="Supreme Masterpieces I">一级至臻 Supreme Masterpieces I</h3>
@@ -874,7 +898,7 @@ function renderDB(list){
           <span style="font-size:.6rem;padding:1px 6px;border-radius:3px;background:var(--lz-s2);color:var(--td);border:1px solid var(--lz-b)">${catLabel}</span>
         </div>
         <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;align-items:center">
-          <span style="font-size:.68rem;color:var(--g);font-weight:600">¥${c.est_rmb}</span>
+          <span style="font-size:.68rem;color:var(--g);font-weight:600">¥${c.est_rmb}</span>${actionBadge(c)}
           ${cost?`<span style="font-size:.65rem;color:var(--td)">成本: ${cost}</span>`:''}
           ${srcName?`<span style="font-size:.65rem;color:var(--tm)">来源: ${srcName}</span>`:''}
         </div>
@@ -968,7 +992,7 @@ ${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substrin
 
 // RANKINGS — 高分典藏
 const ranked=owned.filter(c=>c.myRank).sort((a,b)=>b.rarity-a.rarity);
-document.getElementById('rankings').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第贰章" data-en="Chapter II">第贰章</div><div class="chapter-title" data-cn="高分藏品" data-en="Top-Graded Holdings">高分藏品</div><div class="chapter-line"></div></div>
+document.getElementById('rankings').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第贰章" data-en="Chapter II">第贰章</div><div class="chapter-title" data-cn="巅峰评级" data-en="Top-Graded Holdings">巅峰评级</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="本章收录的藏品在 PCGS 全球评级体系中位列该品种最高分或并列最高分，处于冠军、亚军或季军位置。点击查看完整档案。" data-en="Pieces in this chapter hold the highest or tied-highest grades in the PCGS global registry, ranked as Champion, Runner-up, or 3rd place. Click for full profiles.">本章收录的藏品在 PCGS 全球评级体系中位列该品种最高分或并列最高分，处于冠军、亚军或季军位置。点击查看完整档案。</p></div>
 ${ranked.map((c,i)=>{
   const isChamp=c.myRank.includes('冠军');const isRunner=c.myRank.includes('亚军');
@@ -989,7 +1013,7 @@ ${ranked.map((c,i)=>{
         ${c.pcgs_pop?.total?`<span class="gt normal">PCGS ${c.pcgs_pop.total}</span>`:''}
         ${higherBadge(c)}
       </div>
-      <div class="value">¥${c.est_rmb}</div>
+      <div class="value">¥${c.est_rmb} ${actionBadge(c)}</div>
       <div style="color:var(--td);font-size:.82rem;line-height:1.7;margin-top:6px">${c.history_cn?.substring(0,100)||''}...</div>
       ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--td);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
     </div>
@@ -1188,7 +1212,7 @@ function renderCoinCards(coins){
           <div class="name-cn" style="font-size:1.05rem">${c.cn}</div>
           <div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div>
           ${isOwned?`<div class="grade-row">${gradeBadge(c)}${c.pcgs_pop?.total?'<span class="gt normal">PCGS '+c.pcgs_pop.total+'</span>':''}${higherBadge(c)}</div>`:`<div style="font-size:.72rem;color:var(--td)">PCGS ${c.pcgs_pop?.total||'N/A'}</div>`}
-          <div class="value">¥${c.est_rmb}</div>
+          <div class="value">¥${c.est_rmb} ${actionBadge(c)}</div>
           <div style="color:var(--td);font-size:.82rem;line-height:1.7">${c.history_cn?.substring(0,120)||''}${c.history_cn?.length>120?'...':''}</div>
           ${c.auctions?.length?`<div style="font-size:.7rem;color:var(--gd);margin-top:4px">${c.auctions.length}条拍卖纪录</div>`:''}
           ${copiesHtml}
