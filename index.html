@@ -1434,7 +1434,7 @@ collRegions.forEach(reg=>{
       <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span>${c.stars?starsHTML(c.stars):''}${m.label?`<span class="cm ${m.cls}">${m.label}</span>`:''}</div>
       <span class="ch-toggle">&#x276F;</span>
     </div>
-    ${top3.length?`<div class="coll-preview">${top3.map(cc=>`<span class="coll-preview-tag">${cc.cn}${cc.grade?' '+cc.grade:''}</span>`).join('')}</div>`:''}
+    ${top3.length?`<div class="coll-preview">${top3.map(cc=>{const _sold=cc.cn.includes('已出')||cc.cn.includes('已售');return`<span class="coll-preview-tag" style="${_sold?'':'background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700'}">${cc.cn}${cc.grade?' '+cc.grade:''}</span>`}).join('')}</div>`:''}
     <div class="coll-body">
       <div class="coll-inner">
         <div class="ci-section"><div class="ci-title" data-cn="背景" data-en="Background">背景</div><div class="ci-text">${c.bg_cn}</div></div>
