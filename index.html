@@ -1426,7 +1426,7 @@ collRegions.forEach(reg=>{
   const isHL=_hlNames.has(c.cn);
   collHTML+=`<div class="coll-card${isHL?' hl':' key'}"${isHL?' style="border-left:3px solid var(--ch)"':''}>
     <div class="coll-header" onclick="this.querySelector('.ch-toggle').classList.toggle('open');const body=this.parentElement.querySelector('.coll-body');body.classList.toggle('open')">
-      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span><span class="cm ${m.cls}">${m.label}</span></div>
+      <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span>${c.stars?starsHTML(c.stars):''}<span class="cm ${m.cls}">${m.label}</span></div>
       <span class="ch-toggle">&#x276F;</span>
     </div>
     ${top3.length?`<div class="coll-preview">${top3.map(cc=>`<span class="coll-preview-tag">${cc.cn}${cc.grade?' '+cc.grade:''}</span>`).join('')}</div>`:''}
