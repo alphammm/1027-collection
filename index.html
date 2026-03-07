@@ -472,6 +472,16 @@ function showDetail(coinId){
   h+=`</div></div>`;
   h+=`</div>`;
 
+  // Action buttons (right after photos)
+  const curActions=getActions(c);
+  const _abOn=(a)=>curActions.includes(a);
+  h+=`<div style="margin-bottom:16px;padding:10px 16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-right:4px">操作</span>
+    <button onclick="toggleAction('${c.id}','collect')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_abOn('collect')?'#ffd700':'var(--lz-b)'};background:${_abOn('collect')?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_abOn('collect')?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">收藏</button>
+    <button onclick="toggleAction('${c.id}','buy')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_abOn('buy')?'#ffd700':'var(--lz-b)'};background:${_abOn('buy')?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_abOn('buy')?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">买入</button>
+    <button onclick="toggleAction('${c.id}','sell')" style="padding:6px 16px;border-radius:4px;border:1px solid ${_abOn('sell')?'var(--r)':'var(--lz-b)'};background:${_abOn('sell')?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${_abOn('sell')?'var(--r)':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">卖出</button>
+  </div>`;
+
   // Metadata grid
   h+=`<div class="dmeta">
     <div><div class="dl">年代 Era</div><div class="dv">${c.era} (${c.year})</div></div>
@@ -486,17 +496,6 @@ function showDetail(coinId){
     <div><div class="dl">估值 Est. <span onclick="event.stopPropagation();toggleEstEdit('${c.id}')" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" style="color:var(--g);font-size:1.05rem" id="estVal_${c.id}">¥${localStorage.getItem('est_'+c.id)||c.est_rmb}</div><div id="estEdit_${c.id}" style="display:none;margin-top:4px"><input id="estInput_${c.id}" value="${localStorage.getItem('est_'+c.id)||c.est_rmb}" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.85rem;width:140px"> <button onclick="saveEst('${c.id}')" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer">保存</button></div></div>
   </div>`;
 
-  // Action buttons (after 估值)
-  const curActions=getActions(c);
-  const _abOn=(a)=>curActions.includes(a);
-  h+=`<div style="margin:16px 0;padding:12px 16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px">
-    <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">操作 Action</div>
-    <div style="display:flex;gap:8px">
-      <button onclick="toggleAction('${c.id}','collect')" style="padding:8px 20px;border-radius:4px;border:1px solid ${_abOn('collect')?'#ffd700':'var(--lz-b)'};background:${_abOn('collect')?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_abOn('collect')?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">收藏</button>
-      <button onclick="toggleAction('${c.id}','buy')" style="padding:8px 20px;border-radius:4px;border:1px solid ${_abOn('buy')?'#ffd700':'var(--lz-b)'};background:${_abOn('buy')?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${_abOn('buy')?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">买入</button>
-      <button onclick="toggleAction('${c.id}','sell')" style="padding:8px 20px;border-radius:4px;border:1px solid ${_abOn('sell')?'var(--r)':'var(--lz-b)'};background:${_abOn('sell')?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${_abOn('sell')?'var(--r)':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">卖出</button>
-    </div>
-  </div>`;
 
   // PCGS Pop breakdown (if available)
   const popKeys=Object.keys(c.pcgs_pop||{}).filter(k=>k!=='total'&&c.pcgs_pop[k]>0);
