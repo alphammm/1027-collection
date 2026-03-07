@@ -1733,9 +1733,9 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 
 // TRADE HISTORY — 交易记录 (auto-collects sold items + manual/import entries)
 (function(){
-  const PNL_KEY='pnl_records';
-  function getPnlRecords(){return JSON.parse(localStorage.getItem(PNL_KEY)||'[]')}
-  function savePnlRecords(records){localStorage.setItem(PNL_KEY,JSON.stringify(records))}
+  const PNL_KEY='pnl_batches';
+  function getPnlBatches(){return JSON.parse(localStorage.getItem(PNL_KEY)||'[]')}
+  function savePnlBatches(batches){localStorage.setItem(PNL_KEY,JSON.stringify(batches))}
   function fmtMoney(v){
     if(v>=0) return '<span style="color:#4caf50">+¥'+Math.abs(v).toLocaleString()+'</span>';
     return '<span style="color:var(--r)">-¥'+Math.abs(v).toLocaleString()+'</span>';
@@ -1781,10 +1781,13 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
   }
 
   function renderPnl(){
-    const manualRecords=getPnlRecords();
+    const batches=getPnlBatches();
     const aucSold=getSoldAucItems();
     const copySold=getSoldCopies();
-    const allItems=[...aucSold,...copySold,...manualRecords.map(r=>({...r,type:'manual',buyPrice:parseFloat(r.buyPrice)||0,sellPrice:parseFloat(r.sellPrice)||0,fee:parseFloat(r.fee)||0}))];
+    // Flatten all items for summary
+    const batchItems=[];
+    batches.forEach(b=>(b.items||[]).forEach(r=>batchItems.push({...r,channel:b.channel||'auction',buyPrice:parseFloat(r.buyPrice)||0,sellPrice:parseFloat(r.sellPrice)||0,fee:parseFloat(r.fee)||0})));
+    const allItems=[...aucSold,...copySold,...batchItems];
 
     let totalBuy=0,totalSell=0,totalProfit=0,wins=0,losses=0;
     allItems.forEach(r=>{
@@ -1795,14 +1798,14 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     const totalPct=totalBuy>0?((totalProfit/totalBuy)*100).toFixed(1):'0';
 
     let h=`<div class="chapter"><div class="chapter-num" data-cn="第拾伍章" data-en="Chapter XV">第拾伍章</div><div class="chapter-title" data-cn="交易记录" data-en="Trade History">交易记录</div><div class="chapter-line"></div></div>`;
-    h+=`<div class="story" style="margin-bottom:16px"><p data-cn="自动汇总所有标记为「已卖」的拍品和复品，支持手动添加、粘贴文本或上传表格批量导入交易数据。" data-en="Automatically aggregates sold items. Supports manual entry, paste text, or upload spreadsheet for bulk import.">自动汇总所有标记为「已卖」的拍品和复品，支持手动添加、粘贴文本或上传表格批量导入交易数据。</p></div>`;
+    h+=`<div class="story" style="margin-bottom:16px"><p data-cn="按批次管理交易记录。支持手动添加、粘贴文本或上传表格批量导入，每次导入为一个独立批次。" data-en="Manage trades in batches. Supports manual entry, paste text, or upload spreadsheet — each import creates a separate batch.">按批次管理交易记录。支持手动添加、粘贴文本或上传表格批量导入，每次导入为一个独立批次。</p></div>`;
 
     // Summary cards
     h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:20px">
       <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:12px;text-align:center">
-        <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">已卖总数</div>
+        <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">总笔数</div>
         <div style="font-size:1.3rem;color:var(--g);font-weight:700">${allItems.length}</div>
-        <div style="font-size:.62rem;color:var(--td)">${aucSold.length} 拍品 · ${copySold.length} 复品 · ${manualRecords.length} 手动</div>
+        <div style="font-size:.62rem;color:var(--td)">${batches.length} 批次 · ${aucSold.length+copySold.length} 自动</div>
       </div>
       <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:12px;text-align:center">
         <div style="font-size:.68rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em">总买入</div>
@@ -1829,17 +1832,17 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       <button onclick="document.getElementById('pnlImportForm').style.display=document.getElementById('pnlImportForm').style.display==='none'?'block':'none';document.getElementById('pnlAddForm').style.display='none'" style="background:var(--g);color:var(--lz-deep);border:none;padding:8px 20px;border-radius:4px;font-size:.85rem;cursor:pointer;font-weight:600">批量导入</button>
     </div>`;
 
-    // Import form (paste or upload)
+    // Import form
     h+=`<div id="pnlImportForm" style="display:none;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;margin-bottom:20px">
-      <div style="font-size:.82rem;color:var(--g);font-weight:600;margin-bottom:8px">批量导入交易数据</div>
-      <div style="font-size:.72rem;color:var(--td);margin-bottom:12px;line-height:1.6">支持任意格式：粘贴文本、CSV、或上传 Excel/CSV 文件。系统会自动识别币名、金额、评级等字段。<br>
-      <span style="color:var(--gd)">示例格式（以下任意一种均可）：</span><br>
-      <code style="font-size:.68rem;color:var(--g)">袁大头三年 MS65 买入380000 卖出450000 泓盛 2025-12</code><br>
-      <code style="font-size:.68rem;color:var(--g)">光绪元宝, AU58, 120000, 180000, Heritage, 私人, 2025-06</code><br>
-      <code style="font-size:.68rem;color:var(--g)">币名\t评级\t买入价\t卖出价\t来源\t买家\t日期</code></div>
+      <div style="font-size:.82rem;color:var(--g);font-weight:600;margin-bottom:8px">批量导入交易数据（每次导入为一个批次）</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">批次名称</label><input id="pnl_batch_name" placeholder="例：2026年3月送拍Heritage" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
+        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">交易渠道</label><select id="pnl_batch_channel" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"><option value="auction">拍卖出售</option><option value="private">私下转让</option></select></div>
+      </div>
+      <div style="font-size:.72rem;color:var(--td);margin-bottom:8px;line-height:1.6">支持任意格式，系统自动识别。示例：<br>
+      <code style="font-size:.68rem;color:var(--g)">袁大头三年 MS65 380000 450000 泓盛 2025-12</code></div>
       <div style="margin-bottom:10px">
-        <label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">粘贴数据（每行一条记录）</label>
-        <textarea id="pnl_import_text" rows="6" placeholder="直接粘贴数据，每行一条记录&#10;支持逗号、Tab、空格等分隔符&#10;系统自动智能识别各字段" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:8px;border-radius:4px;font-size:.82rem;resize:vertical;font-family:'JetBrains Mono',monospace;box-sizing:border-box"></textarea>
+        <textarea id="pnl_import_text" rows="6" placeholder="每行一条记录，支持逗号/Tab/空格分隔" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:8px;border-radius:4px;font-size:.82rem;resize:vertical;font-family:'JetBrains Mono',monospace;box-sizing:border-box"></textarea>
       </div>
       <div style="margin-bottom:12px">
         <label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">或上传文件（CSV / TXT）</label>
@@ -1853,15 +1856,14 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       </div>
     </div>`;
 
-    // Add form
+    // Manual add form
     h+=`<div id="pnlAddForm" style="display:none;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px;margin-bottom:20px">
-      <div style="font-size:.82rem;color:var(--g);font-weight:600;margin-bottom:12px">手动新增交易</div>
+      <div style="font-size:.82rem;color:var(--g);font-weight:600;margin-bottom:12px">手动新增单笔交易</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">币名</label><input id="pnl_name" placeholder="例：袁大头三年" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
         <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">评级</label><input id="pnl_grade" placeholder="例：MS65" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
         <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">买入价 (¥)</label><input id="pnl_buy" type="number" placeholder="0" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
         <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">卖出价 (¥)</label><input id="pnl_sell" type="number" placeholder="0" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
-        <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">手续费 (¥)</label><input id="pnl_fee" type="number" placeholder="0" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
         <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">买入来源</label><input id="pnl_buyFrom" placeholder="例：泓盛2025秋拍" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
         <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">卖给谁</label><input id="pnl_sellTo" placeholder="买家/渠道" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
         <div><label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:2px">日期</label><input id="pnl_date" placeholder="例：2025-12" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.85rem;box-sizing:border-box"></div>
@@ -1873,66 +1875,71 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       </div>
     </div>`;
 
-    // Split into auction vs private
-    const auctionItems=allItems.filter(r=>r.channel!=='private');
-    const privateItems=allItems.filter(r=>r.channel==='private');
-
-    function renderTradeTable(items,emptyMsg){
-      if(items.length===0) return `<div style="text-align:center;padding:24px;color:var(--td);font-size:.82rem">${emptyMsg}</div>`;
-      let t=`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;color:var(--td);border-collapse:collapse;min-width:560px">
-        <tr style="color:var(--g);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--lz-b)">
-          <td style="padding:6px 8px">币名</td><td style="padding:6px 4px">评级</td><td style="padding:6px 4px;text-align:right">买入</td><td style="padding:6px 4px;text-align:right">卖出</td><td style="padding:6px 4px;text-align:right">盈亏</td><td style="padding:6px 4px;text-align:right">收益率</td><td style="padding:6px 4px">来源 → 去向</td><td style="padding:6px 4px">日期</td>
-        </tr>`;
-      let subBuy=0,subSell=0,subProfit=0;
-      items.forEach(r=>{
-        const profit=r.sellPrice-r.buyPrice-(r.fee||0);
-        const pct=r.buyPrice>0?((profit/r.buyPrice)*100).toFixed(1):'0';
-        subBuy+=r.buyPrice;subSell+=r.sellPrice;subProfit+=profit;
-        const clickFn=r.type==='auction'?`onclick="showAucItemDetail('${r.hid}','${r.lot}')" style="cursor:pointer"`
-          :r.type==='copy'?`onclick="showCopyDetail('${r.coinId}',${r.copyIdx})" style="cursor:pointer"`:'';
-        t+=`<tr style="border-bottom:1px solid var(--lz-b)" ${clickFn}>
-          <td style="padding:6px 8px;color:var(--cr);font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name||'-'}</td>
-          <td style="padding:6px 4px">${r.grade||'-'}</td>
-          <td style="padding:6px 4px;text-align:right">¥${r.buyPrice.toLocaleString()}</td>
-          <td style="padding:6px 4px;text-align:right">${r.sellPrice?'¥'+r.sellPrice.toLocaleString():'-'}</td>
-          <td style="padding:6px 4px;text-align:right;font-weight:700">${r.sellPrice?fmtMoney(profit):'-'}</td>
-          <td style="padding:6px 4px;text-align:right;color:${profit>=0?'#4caf50':'var(--r)'}">${r.sellPrice?pct+'%':'-'}</td>
-          <td style="padding:6px 4px;font-size:.72rem">${r.buyFrom||''}${r.buyFrom&&r.sellTo?' → ':''}${r.sellTo||''}</td>
-          <td style="padding:6px 4px;font-size:.72rem">${r.date||'-'}</td>
-        </tr>`;
-      });
-      const subPct=subBuy>0?((subProfit/subBuy)*100).toFixed(1):'0';
-      t+=`<tr style="border-top:2px solid var(--lz-b);font-weight:700">
-        <td style="padding:6px 8px;color:var(--g)" colspan="2">小计 (${items.length}笔)</td>
-        <td style="padding:6px 4px;text-align:right;color:var(--g)">¥${subBuy.toLocaleString()}</td>
-        <td style="padding:6px 4px;text-align:right;color:var(--g)">¥${subSell.toLocaleString()}</td>
-        <td style="padding:6px 4px;text-align:right">${fmtMoney(subProfit)}</td>
-        <td style="padding:6px 4px;text-align:right;color:${subProfit>=0?'#4caf50':'var(--r)'}">${subPct}%</td>
-        <td colspan="2"></td>
-      </tr>`;
-      t+=`</table></div>`;
-      return t;
+    // Auto-collected sold items (拍品/复品)
+    if(aucSold.length+copySold.length>0){
+      h+=`<div style="margin-bottom:24px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
+        <h3 style="color:var(--ch);font-size:.9rem;margin:0 0 10px;display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--ch)"></span>已卖拍品 · 自动汇总
+          <span style="font-size:.72rem;color:var(--td);font-weight:400">${aucSold.length+copySold.length} 笔</span>
+        </h3>
+        ${renderItemTable([...aucSold,...copySold])}
+      </div>`;
     }
 
-    // Section 1: 拍卖出售
-    h+=`<div style="margin-bottom:24px">
-      <h3 style="color:var(--ch);font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="width:8px;height:8px;border-radius:50%;background:var(--ch)"></span>拍卖出售
-        <span style="font-size:.72rem;color:var(--td);font-weight:400">${auctionItems.length} 笔</span>
-      </h3>
-      ${renderTradeTable(auctionItems,'暂无拍卖出售记录')}
-    </div>`;
-
-    // Section 2: 私下转让
-    h+=`<div>
-      <h3 style="color:var(--gd);font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="width:8px;height:8px;border-radius:50%;background:var(--gd)"></span>私下转让
-        <span style="font-size:.72rem;color:var(--td);font-weight:400">${privateItems.length} 笔</span>
-      </h3>
-      ${renderTradeTable(privateItems,'暂无私下转让记录')}
-    </div>`;
+    // User batches — each displayed as a group
+    batches.forEach((b,bi)=>{
+      const items=(b.items||[]).map(r=>({...r,buyPrice:parseFloat(r.buyPrice)||0,sellPrice:parseFloat(r.sellPrice)||0,fee:parseFloat(r.fee)||0}));
+      const chLabel=b.channel==='private'?'私下转让':'拍卖出售';
+      const chColor=b.channel==='private'?'var(--gd)':'var(--ch)';
+      h+=`<div style="margin-bottom:16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${chColor}"></span>
+          <span style="font-size:.9rem;font-weight:700;color:var(--cr)">${b.name||'批次 '+(bi+1)}</span>
+          <span style="font-size:.65rem;padding:1px 8px;border-radius:3px;background:${b.channel==='private'?'rgba(197,162,88,.15)':'rgba(255,215,0,.15)'};color:${chColor}">${chLabel}</span>
+          <span style="font-size:.72rem;color:var(--td)">${items.length} 笔</span>
+          <span onclick="if(confirm('确认删除批次「${(b.name||'').replace(/'/g,"\\'")}」？此操作不可恢复。')){window._deletePnlBatch(${bi})}" style="margin-left:auto;cursor:pointer;color:var(--r);font-size:.72rem;padding:2px 8px;border:1px solid rgba(180,40,40,.3);border-radius:3px">删除批次</span>
+        </div>
+        ${renderItemTable(items)}
+      </div>`;
+    });
 
     document.getElementById('pnl').innerHTML=h;
+  }
+
+  function renderItemTable(items){
+    if(!items.length) return '';
+    let t=`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;color:var(--td);border-collapse:collapse;min-width:500px">
+      <tr style="color:var(--g);font-size:.7rem;border-bottom:2px solid var(--lz-b)">
+        <td style="padding:5px 8px">币名</td><td style="padding:5px 4px">评级</td><td style="padding:5px 4px;text-align:right">买入</td><td style="padding:5px 4px;text-align:right">卖出</td><td style="padding:5px 4px;text-align:right">盈亏</td><td style="padding:5px 4px;text-align:right">收益率</td><td style="padding:5px 4px">来源→去向</td><td style="padding:5px 4px">日期</td>
+      </tr>`;
+    let sb=0,ss=0,sp=0;
+    items.forEach(r=>{
+      const profit=r.sellPrice-r.buyPrice-(r.fee||0);
+      const pct=r.buyPrice>0?((profit/r.buyPrice)*100).toFixed(1):'0';
+      sb+=r.buyPrice;ss+=r.sellPrice;sp+=profit;
+      const clickFn=r.type==='auction'?`onclick="showAucItemDetail('${r.hid}','${r.lot}')" style="cursor:pointer"`
+        :r.type==='copy'?`onclick="showCopyDetail('${r.coinId}',${r.copyIdx})" style="cursor:pointer"`:'';
+      t+=`<tr style="border-bottom:1px solid var(--lz-b)" ${clickFn}>
+        <td style="padding:5px 8px;color:var(--cr);font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name||'-'}</td>
+        <td style="padding:5px 4px">${r.grade||'-'}</td>
+        <td style="padding:5px 4px;text-align:right">${r.buyPrice?'¥'+r.buyPrice.toLocaleString():'-'}</td>
+        <td style="padding:5px 4px;text-align:right">${r.sellPrice?'¥'+r.sellPrice.toLocaleString():'-'}</td>
+        <td style="padding:5px 4px;text-align:right;font-weight:700">${r.sellPrice?fmtMoney(profit):'-'}</td>
+        <td style="padding:5px 4px;text-align:right;color:${profit>=0?'#4caf50':'var(--r)'}">${r.sellPrice?pct+'%':'-'}</td>
+        <td style="padding:5px 4px;font-size:.72rem">${r.buyFrom||''}${r.buyFrom&&r.sellTo?' → ':''}${r.sellTo||''}</td>
+        <td style="padding:5px 4px;font-size:.72rem">${r.date||'-'}</td>
+      </tr>`;
+    });
+    const spct=sb>0?((sp/sb)*100).toFixed(1):'0';
+    t+=`<tr style="border-top:2px solid var(--lz-b);font-weight:700">
+      <td style="padding:5px 8px;color:var(--g)" colspan="2">小计 ${items.length}笔</td>
+      <td style="padding:5px 4px;text-align:right;color:var(--g)">¥${sb.toLocaleString()}</td>
+      <td style="padding:5px 4px;text-align:right;color:var(--g)">¥${ss.toLocaleString()}</td>
+      <td style="padding:5px 4px;text-align:right">${fmtMoney(sp)}</td>
+      <td style="padding:5px 4px;text-align:right;color:${sp>=0?'#4caf50':'var(--r)'}">${spct}%</td>
+      <td colspan="2"></td>
+    </tr></table></div>`;
+    return t;
   }
 
   window._addPnlRecord=function(){
@@ -1941,17 +1948,22 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       grade:document.getElementById('pnl_grade').value.trim(),
       buyPrice:document.getElementById('pnl_buy').value.trim(),
       sellPrice:document.getElementById('pnl_sell').value.trim(),
-      fee:document.getElementById('pnl_fee').value.trim(),
       buyFrom:document.getElementById('pnl_buyFrom').value.trim(),
       sellTo:document.getElementById('pnl_sellTo').value.trim(),
-      date:document.getElementById('pnl_date').value.trim(),
-      channel:document.getElementById('pnl_channel').value,
-      ts:Date.now()
+      date:document.getElementById('pnl_date').value.trim()
     };
     if(!r.name){alert('请输入币名');return;}
-    const records=getPnlRecords();
-    records.push(r);
-    savePnlRecords(records);
+    const channel=document.getElementById('pnl_channel').value;
+    const batch={id:Date.now(),name:r.name+' (手动)',channel:channel,items:[r]};
+    const batches=getPnlBatches();
+    batches.push(batch);
+    savePnlBatches(batches);
+    renderPnl();
+  };
+  window._deletePnlBatch=function(idx){
+    const batches=getPnlBatches();
+    batches.splice(idx,1);
+    savePnlBatches(batches);
     renderPnl();
   };
 
@@ -2018,10 +2030,17 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
   };
   window._confirmPnlImport=function(){
     if(!window._pnlParsedRows.length)return;
-    const records=getPnlRecords();
-    window._pnlParsedRows.forEach(r=>records.push(r));
-    savePnlRecords(records);
+    const batchName=document.getElementById('pnl_batch_name').value.trim()||('导入 '+new Date().toLocaleDateString());
+    const batchChannel=document.getElementById('pnl_batch_channel').value||'auction';
+    const batches=getPnlBatches();
+    batches.push({id:Date.now(),name:batchName,channel:batchChannel,items:window._pnlParsedRows});
+    savePnlBatches(batches);
     window._pnlParsedRows=[];
+    document.getElementById('pnlImportForm').style.display='none';
+    document.getElementById('pnl_batch_name').value='';
+    document.getElementById('pnl_import_text').value='';
+    document.getElementById('pnl_import_preview').style.display='none';
+    document.getElementById('pnl_import_confirm').style.display='none';
     renderPnl();
   };
 
