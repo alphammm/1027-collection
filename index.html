@@ -549,7 +549,7 @@ function showDetail(coinId){
   h+=`</div>`;
 
   // Action buttons: 收藏 / 买入 / 卖出
-  const curAction=localStorage.getItem('action_'+c.id)||(c.myStatus==='owned'?'collect':'');
+  const curAction=localStorage.getItem('action_'+c.id)||(c.myStatus==='owned'?'collect':c.myStatus==='want'?'buy':'');
   h+=`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--lz-b)">
     <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">操作 Action</div>
     <div style="display:flex;gap:8px">
@@ -568,7 +568,7 @@ function setCoinAction(cid,action){
   showDetail(cid);
 }
 function actionBadge(c){
-  const a=localStorage.getItem('action_'+c.id)||(c.myStatus==='owned'?'collect':'');
+  const a=localStorage.getItem('action_'+c.id)||(c.myStatus==='owned'?'collect':c.myStatus==='want'?'buy':'');
   if(a==='collect') return '<span class="gt" style="background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700;font-size:.68rem">藏</span>';
   if(a==='buy') return '<span class="gt" style="background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3);font-weight:700;font-size:.68rem">买</span>';
   if(a==='sell') return '<span class="gt" style="background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3);font-weight:700;font-size:.68rem">卖</span>';
