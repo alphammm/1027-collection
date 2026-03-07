@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="data.js"></script>
 <script src="auctions.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 :root{--lz:#002B5C;--lz-deep:#001a3a;--lz-light:#003d80;--lz-s:#0a1e3d;--lz-s2:#112a4d;--lz-b:#1a3a66;--lz-bl:#2a4a7a;--g:#C5A258;--gl:#dfc080;--gb:#e8c84a;--gd:#9a7d3a;--cr:#f5f0e8;--t:#e8e4dc;--td:#8a9ab8;--tm:#5a6a88;--w:#fff;--r:#c44040;--gr:#4a9868;--ch:#ffd700;--sv:#b8c0c8}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1844,10 +1846,18 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
       <div style="margin-bottom:10px">
         <textarea id="pnl_import_text" rows="6" placeholder="每行一条记录，支持逗号/Tab/空格分隔" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:8px;border-radius:4px;font-size:.82rem;resize:vertical;font-family:'JetBrains Mono',monospace;box-sizing:border-box"></textarea>
       </div>
-      <div style="margin-bottom:12px">
-        <label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">或上传文件（CSV / TXT）</label>
-        <input type="file" id="pnl_import_file" accept=".csv,.txt,.tsv" style="font-size:.78rem;color:var(--td)" onchange="window._handlePnlFile(this)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div>
+          <label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">上传文件（Excel / CSV / TXT）</label>
+          <input type="file" id="pnl_import_file" accept=".csv,.txt,.tsv,.xlsx,.xls" style="font-size:.78rem;color:var(--td)" onchange="window._handlePnlFile(this)">
+        </div>
+        <div>
+          <label style="font-size:.72rem;color:var(--td);display:block;margin-bottom:4px">上传照片（自动识别文字）</label>
+          <input type="file" id="pnl_import_img" accept="image/*" style="font-size:.78rem;color:var(--td)" onchange="window._handlePnlImage(this)">
+        </div>
       </div>
+      <div id="pnl_ocr_status" style="display:none;margin-bottom:10px;padding:8px 12px;background:rgba(197,162,88,.1);border:1px solid var(--gd);border-radius:4px;font-size:.78rem;color:var(--g)"></div>
+      <div id="pnl_img_preview" style="display:none;margin-bottom:10px;text-align:center"><img id="pnl_img_thumb" style="max-width:100%;max-height:200px;border-radius:4px;border:1px solid var(--lz-b)"></div>
       <div id="pnl_import_preview" style="display:none;margin-bottom:12px"></div>
       <div style="display:flex;gap:8px">
         <button onclick="window._parsePnlImport()" style="background:var(--g);color:var(--lz-deep);border:none;padding:8px 24px;border-radius:4px;font-size:.85rem;cursor:pointer;font-weight:600">解析并预览</button>
@@ -2000,9 +2010,52 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
   }
   window._handlePnlFile=function(input){
     const file=input.files[0];if(!file)return;
-    const reader=new FileReader();
-    reader.onload=function(e){document.getElementById('pnl_import_text').value=e.target.result};
-    reader.readAsText(file);
+    const ext=file.name.split('.').pop().toLowerCase();
+    if(ext==='xlsx'||ext==='xls'){
+      const reader=new FileReader();
+      reader.onload=function(e){
+        try{
+          const wb=XLSX.read(e.target.result,{type:'array'});
+          const ws=wb.Sheets[wb.SheetNames[0]];
+          const csv=XLSX.utils.sheet_to_csv(ws);
+          document.getElementById('pnl_import_text').value=csv;
+        }catch(err){
+          document.getElementById('pnl_import_text').value='Excel 解析失败: '+err.message;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }else{
+      const reader=new FileReader();
+      reader.onload=function(e){document.getElementById('pnl_import_text').value=e.target.result};
+      reader.readAsText(file);
+    }
+  };
+  window._handlePnlImage=function(input){
+    const file=input.files[0];if(!file)return;
+    // Show image preview
+    const url=URL.createObjectURL(file);
+    document.getElementById('pnl_img_thumb').src=url;
+    document.getElementById('pnl_img_preview').style.display='block';
+    // Show OCR status
+    const status=document.getElementById('pnl_ocr_status');
+    status.style.display='block';
+    status.innerHTML='⏳ 正在识别图片文字，请稍候…（首次加载OCR引擎可能需要10-20秒）';
+    // Run Tesseract OCR
+    Tesseract.recognize(file,'chi_sim+eng',{
+      logger:m=>{
+        if(m.status==='recognizing text'&&m.progress){
+          status.innerHTML='⏳ 识别中… '+Math.round(m.progress*100)+'%';
+        }
+      }
+    }).then(({data:{text}})=>{
+      status.innerHTML='✅ 识别完成！已填入文本框，请检查后点击"解析并预览"';
+      const ta=document.getElementById('pnl_import_text');
+      ta.value=(ta.value?ta.value+'\n':'')+text;
+      URL.revokeObjectURL(url);
+    }).catch(err=>{
+      status.innerHTML='❌ 图片识别失败: '+err.message;
+      URL.revokeObjectURL(url);
+    });
   };
   window._parsePnlImport=function(){
     const text=document.getElementById('pnl_import_text').value;
