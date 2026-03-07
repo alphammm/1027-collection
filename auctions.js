@@ -3,34 +3,44 @@
 // est_mkt = estimated current market value (based on ShouXi/comparable recent sales)
 
 const AUCTION_HOUSES = [
-  { id:"HA", cn:"Heritage Auctions", en:"Heritage Auctions", logo:"HA", color:"#6B2D8B", hq:"Dallas / Hong Kong", bp:"20%",
-    schedule:[
-      {event:"2025 Dec HKINF 秋拍",date:"2025-12-06~09",status:"done"},
-      {event:"2026 Jun HKINF 春拍",date:"2026-06 (预计mid-Jun)",status:"next"},
-      {event:"2026 Dec HKINF 秋拍",date:"2026-12 (预计early-Dec)",status:"plan"},
-    ]},
   { id:"SBP", cn:"Stack's Bowers", en:"Stack's Bowers Galleries", logo:"SBP", color:"#8B0000", hq:"Costa Mesa / HK / Singapore", bp:"20%",
+    url:"https://stacksbowers.com/",
     schedule:[
       {event:"2025 Dec HK Collectors Choice",date:"2025-12-15",status:"done"},
-      {event:"2026 Apr HK 春拍 (14th HK Coin Show)",date:"2026-04-13~20",status:"next"},
+      {event:"2026 Apr HK 春拍 (14th HK Coin Show)",date:"2026-04-13~20",status:"next",
+        highlights:["北洋造光绪元宝壹两","湖北省造双龙一两","奉天省造癸卯七钱二分","广东省造寿字双龙壹两","袁世凯像飞龙壹圆样币"]},
       {event:"2026 Fall HK 秋拍",date:"2026-10~11 (预计)",status:"plan"},
     ]},
-  { id:"HY", cn:"华艺国际", en:"Holly's International", logo:"华艺", color:"#C41E3A", hq:"广州/北京/香港", bp:"13%",
-    schedule:[
-      {event:"2025秋拍 钱币专场",date:"2025-12-21",status:"done"},
-      {event:"2026春拍",date:"2026-06 (预计)",status:"plan"},
-      {event:"2026秋拍",date:"2026-12 (预计)",status:"plan"},
-    ]},
   { id:"HS", cn:"上海泓盛", en:"Shanghai Hosane", logo:"泓盛", color:"#8B1A4A", hq:"上海", bp:"13%",
+    url:"https://www.hosane.com/",
     schedule:[
       {event:"2025秋拍 机制币/金银锭/古泉",date:"2025-10~11",status:"done"},
-      {event:"2026春拍",date:"2026-04~05 (预计)",status:"plan"},
+      {event:"2026春拍",date:"2026-04~05 (预计)",status:"next",
+        highlights:["广东省造寿字双龙壹两（蔡先生委托·开价¥1500万）","宣统三年大清银币长须龙样币","造币总厂光绪元宝七钱二分","湖北省造双龙一两","袁世凯像飞龙壹圆"]},
       {event:"2026秋拍",date:"2026-10~11 (预计)",status:"plan"},
     ]},
+  { id:"HA", cn:"Heritage Auctions", en:"Heritage Auctions", logo:"HA", color:"#6B2D8B", hq:"Dallas / Hong Kong", bp:"20%",
+    url:"https://coins.ha.com/",
+    schedule:[
+      {event:"2025 Dec HKINF 秋拍",date:"2025-12-06~09",status:"done"},
+      {event:"2026 Jun HKINF 春拍",date:"2026-06 (预计mid-Jun)",status:"next",
+        highlights:["张作霖像大元帅壹圆","广东省造七三反版","江南省造喜敦版样币","袁世凯像签字版壹圆","宣统三年大清银币反龙"]},
+      {event:"2026 Dec HKINF 秋拍",date:"2026-12 (预计early-Dec)",status:"plan"},
+    ]},
+  { id:"HY", cn:"华艺国际", en:"Holly's International", logo:"华艺", color:"#C41E3A", hq:"广州/北京/香港", bp:"13%",
+    url:"https://www.hollyauction.com/",
+    schedule:[
+      {event:"2025秋拍 钱币专场",date:"2025-12-21",status:"done"},
+      {event:"2026春拍",date:"2026-06 (预计)",status:"plan",
+        highlights:["广东省造喜敦版七钱二分样币","吉林省造光绪元宝七钱二分","张作霖像纪念银章"]},
+      {event:"2026秋拍",date:"2026-12 (预计)",status:"plan"},
+    ]},
   { id:"JD", cn:"中国嘉德", en:"China Guardian", logo:"嘉德", color:"#1A3A6B", hq:"北京/香港", bp:"15%",
+    url:"https://www.cguardian.com/",
     schedule:[
       {event:"2025秋拍",date:"2025-11~12",status:"done"},
-      {event:"2026春拍 邮品钱币",date:"2026-05 (预计)",status:"plan"},
+      {event:"2026春拍 邮品钱币",date:"2026-05 (预计)",status:"plan",
+        highlights:["袁世凯像签字版壹圆","宣统三年大清银币","造币总厂光绪元宝七钱二分"]},
     ]},
   { id:"AC", cn:"阿城哥拍卖", en:"Acheng Auctions", logo:"阿城", color:"#4A4A4A", hq:"", bp:"",
     schedule:[
