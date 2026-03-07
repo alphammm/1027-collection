@@ -1007,12 +1007,12 @@ document.getElementById('rankings').innerHTML=`<div class="chapter"><div class="
 <div class="story" style="margin-bottom:20px"><p data-cn="本章收录的藏品在 PCGS 全球评级体系中位列该品种最高分或并列最高分，处于冠军、亚军或季军位置。点击查看完整档案。" data-en="Pieces in this chapter hold the highest or tied-highest grades in the PCGS global registry, ranked as Champion, Runner-up, or 3rd place. Click for full profiles.">本章收录的藏品在 PCGS 全球评级体系中位列该品种最高分或并列最高分，处于冠军、亚军或季军位置。点击查看完整档案。</p></div>
 ${ranked.map((c,i)=>{
   const isChamp=c.myRank.includes('冠军');const isRunner=c.myRank.includes('亚军');
-  const badge=isChamp?'background:var(--ch);color:var(--lz-deep)':isRunner?'background:var(--g);color:var(--lz-deep)':'background:var(--lz-bl);color:var(--cr)';
+  const rbClass=isChamp?'rb champ':isRunner?'rb ru':'rb champ';
   return`<div class="coin-card ${isChamp?'champion':isRunner?'runner':''}" style="margin-bottom:10px;padding:16px;cursor:pointer" onclick="showDetail('${c.id}')">
+  <span class="${rbClass}">${c.myRank}</span>
   <div style="display:flex;gap:14px;align-items:flex-start">
     <div style="flex-shrink:0">${coinImgTag(c,100)}</div>
     <div style="flex:1;min-width:180px">
-      <span style="${badge};font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:700">${c.myRank}</span>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;margin-top:4px">
         ${ERA_TAGS[c.id]?`<span style="font-size:.62rem;color:var(--gd);letter-spacing:.08em;font-family:'Noto Serif SC',serif">${ERA_TAGS[c.id]}</span>`:''}
         ${starsHTML(SUPREME_5STAR.has(c.id)?5:4)}
