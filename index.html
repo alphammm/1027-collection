@@ -1898,73 +1898,146 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
 
     // User batches — each displayed as a group
     batches.forEach((b,bi)=>{
+      const cols=getBatchCols(b);
       const items=(b.items||[]).map((r,ri)=>({...r,_ri:ri,buyPrice:parseFloat(r.buyPrice)||0,sellPrice:parseFloat(r.sellPrice)||0,fee:parseFloat(r.fee)||0}));
       const chLabel=b.channel==='private'?'私下转让':'拍卖出售';
       const chColor=b.channel==='private'?'var(--gd)':'var(--ch)';
-      const sortKey=window._pnlBatchSort&&window._pnlBatchSort[bi]?window._pnlBatchSort[bi]:{field:null,desc:true};
-      const sortBtnStyle='cursor:pointer;font-size:.62rem;padding:1px 6px;border-radius:3px;border:1px solid var(--lz-b);color:var(--td)';
-      const activeSortStyle='background:var(--gd);color:var(--lz-deep);border-color:var(--gd);font-weight:600';
-      function sortBtn(f,label){
-        const isActive=sortKey.field===f;
-        const arrow=isActive?(sortKey.desc?'↓':'↑'):'';
-        return `<span onclick="window._sortPnlBatch(${bi},'${f}')" style="${sortBtnStyle};${isActive?activeSortStyle:''}">${label}${arrow}</span>`;
-      }
       h+=`<div style="margin-bottom:16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:8px;padding:16px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
           <span style="width:8px;height:8px;border-radius:50%;background:${chColor}"></span>
           <span style="font-size:.9rem;font-weight:700;color:var(--cr)">${b.name||'批次 '+(bi+1)}</span>
           <span style="font-size:.65rem;padding:1px 8px;border-radius:3px;background:${b.channel==='private'?'rgba(197,162,88,.15)':'rgba(255,215,0,.15)'};color:${chColor}">${chLabel}</span>
           <span style="font-size:.72rem;color:var(--td)">${items.length} 笔</span>
-          <span style="display:flex;gap:3px;align-items:center;font-size:.62rem;color:var(--td);margin-left:8px">排序: ${sortBtn('buyPrice','买入')} ${sortBtn('sellPrice','卖出')} ${sortBtn('profit','盈亏')} ${sortBtn('date','日期')}</span>
+          <span onclick="window._pnlInsertCol(${bi})" style="cursor:pointer;font-size:.68rem;color:var(--g);padding:1px 8px;border:1px solid var(--gd);border-radius:3px;margin-left:8px" title="添加列">+ 列</span>
           <span onclick="if(confirm('确认删除批次「${(b.name||'').replace(/'/g,"\\'")}」？此操作不可恢复。')){window._deletePnlBatch(${bi})}" style="margin-left:auto;cursor:pointer;color:var(--r);font-size:.72rem;padding:2px 8px;border:1px solid rgba(180,40,40,.3);border-radius:3px">删除批次</span>
         </div>
-        ${renderItemTable(items,bi)}
+        ${renderBatchTable(items,cols,bi)}
       </div>`;
     });
 
     document.getElementById('pnl').innerHTML=h;
   }
 
-  function renderItemTable(items,batchIdx){
+  // Default columns for batches
+  const DEFAULT_COLS=[
+    {key:'name',label:'币名',align:'left'},
+    {key:'grade',label:'评级',align:'left'},
+    {key:'buyPrice',label:'买入',align:'right',numeric:true},
+    {key:'sellPrice',label:'卖出',align:'right',numeric:true},
+    {key:'_profit',label:'盈亏',align:'right',computed:true},
+    {key:'_pct',label:'收益率',align:'right',computed:true},
+    {key:'buyFrom',label:'来源',align:'left'},
+    {key:'sellTo',label:'去向',align:'left'},
+    {key:'date',label:'日期',align:'left'}
+  ];
+  function getBatchCols(b){return b.columns||DEFAULT_COLS.map(c=>({...c}))}
+  function saveBatchCols(bi,cols){
+    const batches=getPnlBatches();
+    if(!batches[bi])return;
+    batches[bi].columns=cols;
+    savePnlBatches(batches);
+  }
+  function getCellVal(r,col){
+    if(col.key==='_profit'){const p=(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0);return r.sellPrice?fmtMoney(p):'-';}
+    if(col.key==='_pct'){const p=(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0);const pct=(parseFloat(r.buyPrice)||0)>0?((p/(parseFloat(r.buyPrice)))*100).toFixed(1):'0';return r.sellPrice?pct+'%':'-';}
+    const v=r[col.key];
+    if(col.numeric&&v)return '¥'+(parseFloat(v)||0).toLocaleString();
+    return v||'-';
+  }
+  function getCellStyle(r,col){
+    if(col.key==='name')return 'color:var(--cr);font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    if(col.key==='_profit')return 'font-weight:700';
+    if(col.key==='_pct'){const p=(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0);return 'color:'+(p>=0?'#4caf50':'var(--r)');}
+    if(col.key==='buyFrom'||col.key==='sellTo'||col.key==='date')return 'font-size:.72rem';
+    return '';
+  }
+  function getColSortVal(r,col){
+    if(col.key==='_profit')return (parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0);
+    if(col.key==='_pct'){const bp=parseFloat(r.buyPrice)||0;return bp>0?((parseFloat(r.sellPrice)||0)-bp-(parseFloat(r.fee)||0))/bp:0;}
+    if(col.numeric)return parseFloat(r[col.key])||0;
+    return r[col.key]||'';
+  }
+
+  // Render auto-collected (read-only) table
+  function renderItemTable(items){
     if(!items.length) return '';
-    const editable=typeof batchIdx==='number';
+    const cols=DEFAULT_COLS;
     const hp='padding:5px 4px';
     let t=`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;color:var(--td);border-collapse:collapse;min-width:500px">
-      <tr style="color:var(--g);font-size:.7rem;border-bottom:2px solid var(--lz-b)">
-        <td style="padding:5px 8px">币名</td><td style="${hp}">评级</td><td style="${hp};text-align:right">买入</td><td style="${hp};text-align:right">卖出</td><td style="${hp};text-align:right">盈亏</td><td style="${hp};text-align:right">收益率</td><td style="${hp}">来源→去向</td><td style="${hp}">日期</td>${editable?`<td style="${hp};text-align:center;width:50px">操作</td>`:''}
-      </tr>`;
+      <tr style="color:var(--g);font-size:.7rem;border-bottom:2px solid var(--lz-b)">`;
+    cols.forEach(c=>{t+=`<td style="${hp};text-align:${c.align}">${c.label}</td>`;});
+    t+=`</tr>`;
     let sb=0,ss=0,sp=0;
     items.forEach(r=>{
-      const profit=r.sellPrice-r.buyPrice-(r.fee||0);
-      const pct=r.buyPrice>0?((profit/r.buyPrice)*100).toFixed(1):'0';
-      sb+=r.buyPrice;ss+=r.sellPrice;sp+=profit;
-      const clickFn=r.type==='auction'?`onclick="showAucItemDetail('${r.hid}','${r.lot}')" style="cursor:pointer"`
-        :r.type==='copy'?`onclick="showCopyDetail('${r.coinId}',${r.copyIdx})" style="cursor:pointer"`:'';
-      const ri=r._ri!=null?r._ri:'';
-      t+=`<tr style="border-bottom:1px solid var(--lz-b)" ${editable?'':clickFn}>
-        <td style="padding:5px 8px;color:var(--cr);font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name||'-'}</td>
-        <td style="${hp}">${r.grade||'-'}</td>
-        <td style="${hp};text-align:right">${r.buyPrice?'¥'+r.buyPrice.toLocaleString():'-'}</td>
-        <td style="${hp};text-align:right">${r.sellPrice?'¥'+r.sellPrice.toLocaleString():'-'}</td>
-        <td style="${hp};text-align:right;font-weight:700">${r.sellPrice?fmtMoney(profit):'-'}</td>
-        <td style="${hp};text-align:right;color:${profit>=0?'#4caf50':'var(--r)'}">${r.sellPrice?pct+'%':'-'}</td>
-        <td style="${hp};font-size:.72rem">${r.buyFrom||''}${r.buyFrom&&r.sellTo?' → ':''}${r.sellTo||''}</td>
-        <td style="${hp};font-size:.72rem">${r.date||'-'}</td>
-        ${editable?`<td style="${hp};text-align:center;white-space:nowrap">
-          <span onclick="window._editPnlItem(${batchIdx},${ri})" style="cursor:pointer;color:var(--g);font-size:.68rem;margin-right:4px" title="编辑">✎</span>
-          <span onclick="if(confirm('删除此条记录？')){window._deletePnlItem(${batchIdx},${ri})}" style="cursor:pointer;color:var(--r);font-size:.68rem" title="删除">✕</span>
-        </td>`:''}
-      </tr>`;
+      sb+=parseFloat(r.buyPrice)||0;ss+=parseFloat(r.sellPrice)||0;sp+=(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0);
+      const clickFn=r.type==='auction'?`onclick="showAucItemDetail('${r.hid}','${r.lot}')" style="cursor:pointer"`:r.type==='copy'?`onclick="showCopyDetail('${r.coinId}',${r.copyIdx})" style="cursor:pointer"`:'';
+      t+=`<tr style="border-bottom:1px solid var(--lz-b)" ${clickFn}>`;
+      cols.forEach(c=>{t+=`<td style="${hp};text-align:${c.align};${getCellStyle(r,c)}">${getCellVal(r,c)}</td>`;});
+      t+=`</tr>`;
     });
     const spct=sb>0?((sp/sb)*100).toFixed(1):'0';
     t+=`<tr style="border-top:2px solid var(--lz-b);font-weight:700">
-      <td style="padding:5px 8px;color:var(--g)" colspan="2">小计 ${items.length}笔</td>
+      <td style="${hp};color:var(--g)" colspan="2">小计 ${items.length}笔</td>
       <td style="${hp};text-align:right;color:var(--g)">¥${sb.toLocaleString()}</td>
       <td style="${hp};text-align:right;color:var(--g)">¥${ss.toLocaleString()}</td>
       <td style="${hp};text-align:right">${fmtMoney(sp)}</td>
       <td style="${hp};text-align:right;color:${sp>=0?'#4caf50':'var(--r)'}">${spct}%</td>
-      <td colspan="${editable?'3':'2'}"></td>
+      <td colspan="3"></td>
     </tr></table></div>`;
+    return t;
+  }
+
+  // Render editable batch table with column management
+  function renderBatchTable(items,cols,bi){
+    if(!items.length) return '';
+    const hp='padding:5px 4px';
+    const sortKey=window._pnlBatchSort&&window._pnlBatchSort[bi]?window._pnlBatchSort[bi]:{col:null,desc:true};
+    // Header row with clickable sort + column menu
+    let t=`<div style="overflow-x:auto"><table style="width:100%;font-size:.78rem;color:var(--td);border-collapse:collapse;min-width:500px">
+      <tr style="color:var(--g);font-size:.7rem;border-bottom:2px solid var(--lz-b)">`;
+    cols.forEach((c,ci)=>{
+      const isSort=sortKey.col===ci;
+      const arrow=isSort?(sortKey.desc?' ↓':' ↑'):'';
+      t+=`<td style="${hp};text-align:${c.align};cursor:pointer;user-select:none;position:relative;white-space:nowrap" onclick="window._sortPnlBatch(${bi},${ci})">
+        <span>${c.label}${arrow}</span>
+        <span onclick="event.stopPropagation();window._pnlColMenu(${bi},${ci},event)" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:3px;opacity:.6" title="列操作">▼</span>
+      </td>`;
+    });
+    t+=`<td style="${hp};text-align:center;width:50px">操作</td></tr>`;
+    // Data rows
+    let sums={};
+    cols.forEach((c,ci)=>{if(c.numeric||c.computed)sums[ci]=0;});
+    items.forEach(r=>{
+      const ri=r._ri;
+      t+=`<tr style="border-bottom:1px solid var(--lz-b)">`;
+      cols.forEach((c,ci)=>{
+        const val=getCellVal(r,c);
+        // Accumulate sums for numeric/computed
+        if(c.numeric)sums[ci]+=(parseFloat(r[c.key])||0);
+        if(c.key==='_profit')sums[ci]+=(parseFloat(r.sellPrice)||0)-(parseFloat(r.buyPrice)||0)-(parseFloat(r.fee)||0);
+        if(c.key==='_pct')sums[ci]=0; // recalculated in footer
+        t+=`<td style="${hp};text-align:${c.align};${getCellStyle(r,c)}">${val}</td>`;
+      });
+      t+=`<td style="${hp};text-align:center;white-space:nowrap">
+        <span onclick="window._editPnlItem(${bi},${ri})" style="cursor:pointer;color:var(--g);font-size:.68rem;margin-right:4px" title="编辑">✎</span>
+        <span onclick="if(confirm('删除此条记录？')){window._deletePnlItem(${bi},${ri})}" style="cursor:pointer;color:var(--r);font-size:.68rem" title="删除">✕</span>
+      </td></tr>`;
+    });
+    // Footer summary row
+    const totalBuy=sums[cols.findIndex(c=>c.key==='buyPrice')]||0;
+    const totalSell=sums[cols.findIndex(c=>c.key==='sellPrice')]||0;
+    const totalProfit=totalSell-totalBuy;
+    const totalPct=totalBuy>0?((totalProfit/totalBuy)*100).toFixed(1):'0';
+    t+=`<tr style="border-top:2px solid var(--lz-b);font-weight:700">`;
+    cols.forEach((c,ci)=>{
+      if(ci===0){t+=`<td style="${hp};color:var(--g)">小计 ${items.length}笔</td>`;return;}
+      if(c.key==='buyPrice')t+=`<td style="${hp};text-align:right;color:var(--g)">¥${totalBuy.toLocaleString()}</td>`;
+      else if(c.key==='sellPrice')t+=`<td style="${hp};text-align:right;color:var(--g)">¥${totalSell.toLocaleString()}</td>`;
+      else if(c.key==='_profit')t+=`<td style="${hp};text-align:right">${fmtMoney(totalProfit)}</td>`;
+      else if(c.key==='_pct')t+=`<td style="${hp};text-align:right;color:${totalProfit>=0?'#4caf50':'var(--r)'}">${totalPct}%</td>`;
+      else t+=`<td style="${hp}"></td>`;
+    });
+    t+=`<td style="${hp}"></td></tr></table></div>`;
     return t;
   }
 
@@ -2002,29 +2075,21 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     savePnlBatches(batches);
     renderPnl();
   };
-  // Edit single item — show inline edit modal
+  // Edit single item — modal uses batch columns
   window._editPnlItem=function(bi,ri){
     const batches=getPnlBatches();
     if(!batches[bi]||!batches[bi].items[ri])return;
     const r=batches[bi].items[ri];
-    const fields=[
-      {key:'name',label:'币名',val:r.name||''},
-      {key:'grade',label:'评级',val:r.grade||''},
-      {key:'buyPrice',label:'买入价',val:r.buyPrice||'',type:'number'},
-      {key:'sellPrice',label:'卖出价',val:r.sellPrice||'',type:'number'},
-      {key:'fee',label:'手续费',val:r.fee||'',type:'number'},
-      {key:'buyFrom',label:'来源',val:r.buyFrom||''},
-      {key:'sellTo',label:'去向',val:r.sellTo||''},
-      {key:'date',label:'日期',val:r.date||''}
-    ];
+    const cols=getBatchCols(batches[bi]).filter(c=>!c.computed);
     let m=`<div id="pnlEditOverlay" onclick="if(event.target===this)this.remove()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px">
-      <div style="background:var(--lz-s);border:1px solid var(--gd);border-radius:10px;padding:20px;width:100%;max-width:420px">
+      <div style="background:var(--lz-s);border:1px solid var(--gd);border-radius:10px;padding:20px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto">
         <div style="font-size:.88rem;color:var(--g);font-weight:700;margin-bottom:14px">编辑交易记录</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">`;
-    fields.forEach(f=>{
-      m+=`<div${f.key==='name'?' style="grid-column:1/-1"':''}>
-        <label style="font-size:.68rem;color:var(--td);display:block;margin-bottom:2px">${f.label}</label>
-        <input id="pnl_edit_${f.key}" value="${String(f.val).replace(/"/g,'&quot;')}" ${f.type?'type="'+f.type+'"':''} style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.82rem;box-sizing:border-box">
+    cols.forEach(c=>{
+      const val=r[c.key]||'';
+      m+=`<div${c.key==='name'?' style="grid-column:1/-1"':''}>
+        <label style="font-size:.68rem;color:var(--td);display:block;margin-bottom:2px">${c.label}</label>
+        <input id="pnl_edit_${c.key}" value="${String(val).replace(/"/g,'&quot;')}" ${c.numeric?'type="number"':''} style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.82rem;box-sizing:border-box">
       </div>`;
     });
     m+=`</div><div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
@@ -2037,31 +2102,116 @@ document.getElementById('strategy').innerHTML=`<div class="chapter"><div class="
     const batches=getPnlBatches();
     if(!batches[bi]||!batches[bi].items[ri])return;
     const r=batches[bi].items[ri];
-    ['name','grade','buyFrom','sellTo','date'].forEach(k=>{r[k]=document.getElementById('pnl_edit_'+k).value.trim()});
-    ['buyPrice','sellPrice','fee'].forEach(k=>{r[k]=parseFloat(document.getElementById('pnl_edit_'+k).value)||0});
+    const cols=getBatchCols(batches[bi]).filter(c=>!c.computed);
+    cols.forEach(c=>{
+      const el=document.getElementById('pnl_edit_'+c.key);
+      if(!el)return;
+      r[c.key]=c.numeric?(parseFloat(el.value)||0):el.value.trim();
+    });
     savePnlBatches(batches);
     document.getElementById('pnlEditOverlay').remove();
     renderPnl();
   };
-  // Sort batch items
+  // Sort by column index
   if(!window._pnlBatchSort) window._pnlBatchSort={};
-  window._sortPnlBatch=function(bi,field){
-    if(!window._pnlBatchSort[bi]) window._pnlBatchSort[bi]={field:null,desc:true};
+  window._sortPnlBatch=function(bi,colIdx){
+    if(!window._pnlBatchSort[bi]) window._pnlBatchSort[bi]={col:null,desc:true};
     const cur=window._pnlBatchSort[bi];
-    if(cur.field===field) cur.desc=!cur.desc;
-    else{cur.field=field;cur.desc=true;}
-    // Sort the actual stored data
+    if(cur.col===colIdx) cur.desc=!cur.desc;
+    else{cur.col=colIdx;cur.desc=true;}
     const batches=getPnlBatches();
     if(!batches[bi])return;
+    const cols=getBatchCols(batches[bi]);
+    const col=cols[colIdx];
+    if(!col)return;
+    const isText=!col.numeric&&!col.computed;
     batches[bi].items.sort((a,b)=>{
-      let va,vb;
-      if(field==='buyPrice'){va=parseFloat(a.buyPrice)||0;vb=parseFloat(b.buyPrice)||0;}
-      else if(field==='sellPrice'){va=parseFloat(a.sellPrice)||0;vb=parseFloat(b.sellPrice)||0;}
-      else if(field==='profit'){va=(parseFloat(a.sellPrice)||0)-(parseFloat(a.buyPrice)||0)-(parseFloat(a.fee)||0);vb=(parseFloat(b.sellPrice)||0)-(parseFloat(b.buyPrice)||0)-(parseFloat(b.fee)||0);}
-      else if(field==='date'){va=a.date||'';vb=b.date||'';return cur.desc?vb.localeCompare(va):va.localeCompare(vb);}
-      else return 0;
+      const va=getColSortVal(a,col),vb=getColSortVal(b,col);
+      if(isText){return cur.desc?String(vb).localeCompare(String(va)):String(va).localeCompare(String(vb));}
       return cur.desc?vb-va:va-vb;
     });
+    savePnlBatches(batches);
+    renderPnl();
+  };
+  // Sort with explicit direction (from menu)
+  window._pnlSortDir=function(bi,ci,desc){
+    document.getElementById('pnlColMenu')?.remove();
+    window._pnlBatchSort[bi]={col:ci,desc:!desc}; // set opposite so toggle flips to desired
+    window._sortPnlBatch(bi,ci);
+  };
+  // Column context menu
+  window._pnlColMenu=function(bi,ci,ev){
+    // Remove existing menu
+    const old=document.getElementById('pnlColMenu');if(old)old.remove();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    const col=cols[ci];
+    const btnS='display:block;width:100%;text-align:left;background:none;border:none;color:var(--td);padding:6px 14px;font-size:.78rem;cursor:pointer;font-family:inherit';
+    const btnH='onmouseover="this.style.background=\'var(--lz-b)\'" onmouseout="this.style.background=\'none\'"';
+    let menu=`<div id="pnlColMenu" style="position:fixed;z-index:10000;background:var(--lz-s);border:1px solid var(--gd);border-radius:6px;padding:4px 0;min-width:140px;box-shadow:0 4px 20px rgba(0,0,0,.5)">
+      <button ${btnH} style="${btnS}" onclick="window._pnlRenameCol(${bi},${ci})">✎ 重命名列</button>
+      <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci})">← 左侧插入列</button>
+      <button ${btnH} style="${btnS}" onclick="window._pnlInsertColAt(${bi},${ci+1})">→ 右侧插入列</button>
+      <div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
+      <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},true)">↓ 从大到小排序</button>
+      <button ${btnH} style="${btnS}" onclick="window._pnlSortDir(${bi},${ci},false)">↑ 从小到大排序</button>
+      ${col.key!=='name'&&!col.computed?`<div style="border-top:1px solid var(--lz-b);margin:4px 0"></div>
+      <button ${btnH} style="${btnS};color:var(--r)" onclick="window._pnlDeleteCol(${bi},${ci})">✕ 删除此列</button>`:''}
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend',menu);
+    const el=document.getElementById('pnlColMenu');
+    const rect=ev.target.getBoundingClientRect();
+    el.style.left=Math.min(rect.left,window.innerWidth-160)+'px';
+    el.style.top=(rect.bottom+4)+'px';
+    setTimeout(()=>{document.addEventListener('click',function h(){el.remove();document.removeEventListener('click',h)},{once:true})},50);
+  };
+  // Rename column
+  window._pnlRenameCol=function(bi,ci){
+    document.getElementById('pnlColMenu')?.remove();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    const newName=prompt('输入新列名:',cols[ci].label);
+    if(newName===null||!newName.trim())return;
+    cols[ci].label=newName.trim();
+    saveBatchCols(bi,cols);
+    renderPnl();
+  };
+  // Insert column at position
+  window._pnlInsertColAt=function(bi,ci){
+    document.getElementById('pnlColMenu')?.remove();
+    const name=prompt('输入新列名:');
+    if(!name||!name.trim())return;
+    const key='custom_'+Date.now();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    cols.splice(ci,0,{key:key,label:name.trim(),align:'left'});
+    saveBatchCols(bi,cols);
+    renderPnl();
+  };
+  // Insert column (from batch header button)
+  window._pnlInsertCol=function(bi){
+    const name=prompt('输入新列名:');
+    if(!name||!name.trim())return;
+    const key='custom_'+Date.now();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    // Insert before computed columns
+    const insertAt=cols.findIndex(c=>c.computed);
+    cols.splice(insertAt>=0?insertAt:cols.length,0,{key:key,label:name.trim(),align:'left'});
+    saveBatchCols(bi,cols);
+    renderPnl();
+  };
+  // Delete column
+  window._pnlDeleteCol=function(bi,ci){
+    document.getElementById('pnlColMenu')?.remove();
+    const batches=getPnlBatches();
+    const cols=getBatchCols(batches[bi]);
+    if(!confirm('确认删除列「'+cols[ci].label+'」？'))return;
+    const key=cols[ci].key;
+    cols.splice(ci,1);
+    // Remove data from items
+    batches[bi].items.forEach(r=>{delete r[key]});
+    batches[bi].columns=cols;
     savePnlBatches(batches);
     renderPnl();
   };
