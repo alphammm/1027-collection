@@ -343,6 +343,12 @@ function saveEst(cid){const v=document.getElementById('estInput_'+cid).value.tri
 function toggleSrcEdit(cid){const el=document.getElementById('srcEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none';const cur=localStorage.getItem('src_'+cid)||'';const sel=document.getElementById('srcSelect_'+cid);const opts=['Heritage','洪盛','SBP','华谊','HONG'];if(opts.includes(cur)){sel.value=cur}else if(cur){sel.value='_custom';const ci=document.getElementById('srcCustom_'+cid);ci.style.display='inline';ci.value=cur}}
 function saveSrc(cid){const sel=document.getElementById('srcSelect_'+cid).value;const custom=document.getElementById('srcCustom_'+cid).value.trim();const v=sel==='_custom'?custom:sel;if(v){localStorage.setItem('src_'+cid,v);document.getElementById('srcVal_'+cid).textContent=v}else{localStorage.removeItem('src_'+cid);document.getElementById('srcVal_'+cid).textContent=''}document.getElementById('srcEdit_'+cid).style.display='none';_detailDirty=true}
 
+function toggleNoteEdit(cid){const el=document.getElementById('noteEdit_'+cid);el.style.display=el.style.display==='none'?'block':'none'}
+function saveNote(cid){const v=document.getElementById('noteInput_'+cid).value.trim();if(v){localStorage.setItem('note_'+cid,v)}else{localStorage.removeItem('note_'+cid)}document.getElementById('noteVal_'+cid).textContent=v;document.getElementById('noteEdit_'+cid).style.display='none';_detailDirty=true}
+function toggleHolderAdd(cid){const el=document.getElementById('holderAdd_'+cid);el.style.display=el.style.display==='none'?'block':'none'}
+function addHolder(cid){const n=document.getElementById('holderName_'+cid).value.trim();if(!n)return;const g=document.getElementById('holderGrade_'+cid).value.trim();const info=document.getElementById('holderInfo_'+cid).value.trim();const list=JSON.parse(localStorage.getItem('holders_'+cid)||'[]');list.push({name:n,grade:g,info:info});localStorage.setItem('holders_'+cid,JSON.stringify(list));_detailDirty=true;showDetail(cid)}
+function removeHolder(cid,idx){const list=JSON.parse(localStorage.getItem('holders_'+cid)||'[]');list.splice(idx,1);localStorage.setItem('holders_'+cid,JSON.stringify(list));_detailDirty=true;showDetail(cid)}
+
 // Shared: generate coin thumbnail HTML
 function coinImgTag(c,size){
   size=size||120;
@@ -403,8 +409,17 @@ function showDetail(coinId){
   const dp=document.getElementById('detailPanel');
   // Find related auction records from global DB
   const relatedAuctions=AUCTION_RECORDS.filter(r=>c.cn.includes(r.cn.split(' ')[0])||r.cn.includes(c.cn.substring(0,4)));
-  // Find collectors who hold this coin
-  const relatedCollectors=COLLECTORS.filter(col=>col.coins.some(cc=>cc.coin_id===c.id));
+  // Find collectors who hold this coin (fuzzy match by cn name)
+  const _cnShort=c.cn.substring(0,4);
+  const relatedCollectors=[];
+  COLLECTORS.forEach(col=>{
+    if(!col.coins) return;
+    col.coins.forEach(cc=>{
+      if(cc.cn.includes(_cnShort)||c.cn.includes(cc.cn.substring(0,4))){
+        relatedCollectors.push({name:col.cn,grade:cc.grade||'',cost:cc.cost||'',est:cc.current_est||''});
+      }
+    });
+  });
   // Tier labels
   const tierLabels=['至尊珍品','博物馆级','顶级珍品','高级珍品'];
   const tierLabelsEn=['Supreme Rarity','Museum Grade','Premium','High-End'];
@@ -464,9 +479,22 @@ function showDetail(coinId){
     <div><div class="dl">材质 / 规格</div><div class="dv">${c.metal} ${c.weight} ${c.diam}</div></div>
     <div><div class="dl">珍稀度 Rarity</div><div class="dv">${(function(){const t=c.pcgs_pop?.total;const n=!t?3:t<3?5:t<10?4:t<30?3:t<100?2:1;return starsHTML(n)})()}</div></div>
     <div><div class="dl">PCGS获评数量</div><div class="dv">${c.pcgs_pop?.total||'N/A'}${c.pcgs_pop?.total?` <span style="color:var(--td);font-size:.72rem">枚获评</span>`:''}${pcgsHigherHTML(c)}</div></div>
+    ${c.myStatus==='owned'?`<div><div class="dl" style="color:var(--g)">本藏品 My Piece <span onclick="event.stopPropagation();toggleNoteEdit('${c.id}')" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" style="font-size:1.1rem">${gradeBadge(c)} ${c.myRank?'<span style="color:var(--ch)">— '+c.myRank+'</span>':''}</div><div style="font-size:.82rem;color:var(--td);margin-top:4px;line-height:1.6" id="noteVal_${c.id}">${localStorage.getItem('note_'+c.id)||''}</div><div id="noteEdit_${c.id}" style="display:none;margin-top:4px"><textarea id="noteInput_${c.id}" rows="3" style="width:100%;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:6px 8px;border-radius:4px;font-size:.82rem;resize:vertical;font-family:inherit">${localStorage.getItem('note_'+c.id)||''}</textarea><button onclick="saveNote('${c.id}')" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer;margin-top:4px">保存</button></div></div>`:''}
     <div><div class="dl">购买来源 Source <span onclick="event.stopPropagation();toggleSrcEdit('${c.id}')" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" id="srcVal_${c.id}">${localStorage.getItem('src_'+c.id)||''}</div><div id="srcEdit_${c.id}" style="display:none;margin-top:4px"><select id="srcSelect_${c.id}" onchange="if(this.value==='_custom'){document.getElementById('srcCustom_${c.id}').style.display='inline'}else{document.getElementById('srcCustom_${c.id}').style.display='none'}" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.85rem"><option value="">选择来源</option><option value="Heritage">Heritage</option><option value="洪盛">洪盛</option><option value="SBP">SBP</option><option value="华谊">华谊</option><option value="HONG">HONG</option><option value="_custom">自定义...</option></select> <input id="srcCustom_${c.id}" placeholder="输入藏家名" style="display:none;background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.85rem;width:120px;margin-left:4px"> <button onclick="saveSrc('${c.id}')" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer;margin-left:4px">保存</button></div></div>
+    <div style="grid-column:1/-1"><div class="dl">拥有此藏品的藏家 Holders <span onclick="event.stopPropagation();toggleHolderAdd('${c.id}')" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">➕</span></div><div class="dv"><table style="width:100%;font-size:.78rem;color:var(--td);border-collapse:collapse">${(function(){const custom=JSON.parse(localStorage.getItem('holders_'+c.id)||'[]');const all=[...relatedCollectors.map(r=>({name:r.name,grade:r.grade,info:r.est||r.cost||''})),...custom];if(!all.length) return '<tr><td style="color:var(--td);opacity:.5">暂无记录</td></tr>';return all.map((h,i)=>'<tr style="border-bottom:1px solid var(--lz-b)"><td style="padding:4px 6px;color:var(--cr);font-weight:600">'+h.name+'</td><td style="padding:4px 6px;color:var(--g)">'+h.grade+'</td><td style="padding:4px 6px">'+h.info+'</td>'+(i>=relatedCollectors.length?'<td style="padding:4px 2px"><span onclick="event.stopPropagation();removeHolder(\''+c.id+'\','+(i-relatedCollectors.length)+')" style="cursor:pointer;color:var(--r);font-size:.65rem">✕</span></td>':'<td></td>')+'</tr>').join('')})()}</table></div><div id="holderAdd_${c.id}" style="display:none;margin-top:6px"><div style="display:flex;gap:4px;flex-wrap:wrap"><input id="holderName_${c.id}" placeholder="藏家名" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.82rem;width:100px"><input id="holderGrade_${c.id}" placeholder="评级/分数" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.82rem;width:90px"><input id="holderInfo_${c.id}" placeholder="备注" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.82rem;width:100px"><button onclick="addHolder('${c.id}')" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer">添加</button></div></div></div>
     <div><div class="dl">估值 Est. <span onclick="event.stopPropagation();toggleEstEdit('${c.id}')" style="cursor:pointer;font-size:.6rem;color:var(--td);margin-left:4px">✏️</span></div><div class="dv" style="color:var(--g);font-size:1.05rem" id="estVal_${c.id}">¥${localStorage.getItem('est_'+c.id)||c.est_rmb}</div><div id="estEdit_${c.id}" style="display:none;margin-top:4px"><input id="estInput_${c.id}" value="${localStorage.getItem('est_'+c.id)||c.est_rmb}" style="background:var(--lz);border:1px solid var(--gd);color:var(--g);padding:4px 8px;border-radius:4px;font-size:.85rem;width:140px"> <button onclick="saveEst('${c.id}')" style="background:var(--gd);color:var(--lz-deep);border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer">保存</button></div></div>
-    ${c.myStatus==='owned'?`<div style="grid-column:1/-1;background:rgba(197,162,88,.08);border:1px solid rgba(197,162,88,.25)"><div class="dl" style="color:var(--g)">本藏品 My Piece</div><div class="dv" style="font-size:1.1rem">${gradeBadge(c)} ${c.myRank?'<span style="color:var(--ch)">— '+c.myRank+'</span>':''}</div></div>`:''}
+  </div>`;
+
+  // Action buttons (after 估值)
+  const DEFAULT_BUY=new Set(['C031','C032','C033','C034','C005']);
+  const curAction=localStorage.getItem('action_'+c.id)||(DEFAULT_BUY.has(c.id)?'buy':c.myStatus==='owned'?'collect':c.myStatus==='want'?'buy':'');
+  h+=`<div style="margin:16px 0;padding:12px 16px;background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px">
+    <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">操作 Action</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="setCoinAction('${c.id}','collect')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='collect'?'#ffd700':'var(--lz-b)'};background:${curAction==='collect'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${curAction==='collect'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">收藏</button>
+      <button onclick="setCoinAction('${c.id}','buy')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='buy'?'#ffd700':'var(--lz-b)'};background:${curAction==='buy'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${curAction==='buy'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">买入</button>
+      <button onclick="setCoinAction('${c.id}','sell')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='sell'?'var(--r)':'var(--lz-b)'};background:${curAction==='sell'?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${curAction==='sell'?'var(--r)':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">卖出</button>
+    </div>
   </div>`;
 
   // PCGS Pop breakdown (if available)
@@ -526,8 +554,7 @@ function showDetail(coinId){
   if(relatedCollectors.length){
     h+=`<div style="margin-bottom:10px"><span style="color:var(--g);font-weight:600">相关藏家:</span> `;
     relatedCollectors.forEach((col,i)=>{
-      const theirCoin=col.coins.find(cc=>cc.coin_id===c.id);
-      h+=`${i>0?' | ':''}${col.cn}（${col.loc_cn}）${theirCoin?.grade?' '+theirCoin.grade:''}${col.mode==='sell'?' <span style="color:var(--r);font-size:.72rem">[有出售意向]</span>':col.mode==='buy'?' <span style="color:var(--gr);font-size:.72rem">[积极买入]</span>':''}`;
+      h+=`${i>0?' | ':''}${col.name}${col.grade?' ('+col.grade+')':''}`;
     });
     h+=`</div>`;
   }
@@ -554,18 +581,6 @@ function showDetail(coinId){
     h+=`<div style="padding:6px 12px;background:rgba(255,215,0,.08);border-radius:4px;border-left:3px solid var(--ch);margin-bottom:8px"><span style="color:var(--ch);font-weight:600">评级地位:</span> ${c.myGrade} — ${c.myRank}。在该品种的PCGS评级中占据顶尖位置。</div>`;
   }
   h+=`</div>`;
-
-  // Action buttons: 收藏 / 买入 / 卖出
-  const DEFAULT_BUY=new Set(['C031','C032','C033','C034','C005']);
-  const curAction=localStorage.getItem('action_'+c.id)||(DEFAULT_BUY.has(c.id)?'buy':c.myStatus==='owned'?'collect':c.myStatus==='want'?'buy':'');
-  h+=`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--lz-b)">
-    <div style="font-size:.72rem;color:var(--td);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">操作 Action</div>
-    <div style="display:flex;gap:8px">
-      <button onclick="setCoinAction('${c.id}','collect')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='collect'?'#ffd700':'var(--lz-b)'};background:${curAction==='collect'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${curAction==='collect'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">收藏</button>
-      <button onclick="setCoinAction('${c.id}','buy')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='buy'?'#ffd700':'var(--lz-b)'};background:${curAction==='buy'?'rgba(255,215,0,.15)':'var(--lz-s)'};color:${curAction==='buy'?'#ffd700':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">买入</button>
-      <button onclick="setCoinAction('${c.id}','sell')" style="padding:8px 20px;border-radius:4px;border:1px solid ${curAction==='sell'?'var(--r)':'var(--lz-b)'};background:${curAction==='sell'?'rgba(180,40,40,.15)':'var(--lz-s)'};color:${curAction==='sell'?'var(--r)':'var(--td)'};cursor:pointer;font-size:.85rem;font-weight:600">卖出</button>
-    </div>
-  </div>`;
 
   dp.innerHTML=h;document.getElementById('detailOverlay').classList.add('open');document.body.style.overflow='hidden';
 }
