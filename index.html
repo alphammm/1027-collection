@@ -161,7 +161,34 @@ footer{text-align:center;padding:44px 20px;color:var(--tm);font-size:.75rem;bord
 footer .gold{color:var(--gd)}
 
 .coll-regions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px}
-@media(max-width:640px){.hero h1{font-size:2rem}.hero .cn-title{font-size:1.3rem}.stats-bar{gap:6px}.stat{min-width:90px;padding:8px 12px}.coin-grid{grid-template-columns:1fr}.dragon-list{grid-template-columns:1fr}.stat-expand-inner{columns:1}.detail-panel{padding:20px}.coll-regions-grid{grid-template-columns:1fr}}
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;margin-top:20px}
+.tracker-card{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.tracker-card:hover{border-color:var(--g)}
+.tracker-card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--lz-b);background:var(--lz-s2)}
+.tracker-card-header h4{color:var(--cr);font-size:1rem;margin:0;letter-spacing:.04em}
+.tracker-card-header .tracker-badge{font-size:.65rem;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.06em}
+.tracker-badge.live{background:rgba(74,152,104,.2);color:var(--gr)}
+.tracker-badge.scheduled{background:rgba(197,162,88,.15);color:var(--g)}
+.tracker-card-body{padding:16px 20px;max-height:360px;overflow-y:auto}
+.tracker-card-body::-webkit-scrollbar{width:4px}
+.tracker-card-body::-webkit-scrollbar-thumb{background:var(--lz-b);border-radius:4px}
+.tracker-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(26,58,102,.4)}
+.tracker-item:last-child{border:0}
+.tracker-item .t-time{color:var(--td);font-size:.72rem;min-width:46px;padding-top:2px;font-family:'SF Mono',monospace}
+.tracker-item .t-body{flex:1}
+.tracker-item .t-title{color:var(--cr);font-size:.85rem;font-weight:500;line-height:1.4}
+.tracker-item .t-meta{color:var(--td);font-size:.76rem;margin-top:3px}
+.tracker-item .t-price{color:var(--ch);font-weight:600;font-size:.85rem}
+.tracker-card-footer{padding:10px 20px;border-top:1px solid var(--lz-b);text-align:center}
+.tracker-card-footer a{color:var(--g);font-size:.78rem;text-decoration:none;letter-spacing:.04em}
+.tracker-card-footer a:hover{color:var(--gl);text-decoration:underline}
+.tracker-pulse{display:inline-block;width:7px;height:7px;background:var(--gr);border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tracker-refresh-bar{display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:4px}
+.tracker-refresh-bar span{color:var(--td);font-size:.76rem}
+.tracker-refresh-btn{background:var(--lz-s2);border:1px solid var(--lz-b);color:var(--g);padding:5px 14px;border-radius:6px;cursor:pointer;font-size:.78rem;transition:background .2s}
+.tracker-refresh-btn:hover{background:var(--lz-b)}
+@media(max-width:640px){.hero h1{font-size:2rem}.hero .cn-title{font-size:1.3rem}.stats-bar{gap:6px}.stat{min-width:90px;padding:8px 12px}.coin-grid{grid-template-columns:1fr}.dragon-list{grid-template-columns:1fr}.stat-expand-inner{columns:1}.detail-panel{padding:20px}.coll-regions-grid{grid-template-columns:1fr}.tracker-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -196,6 +223,7 @@ footer .gold{color:var(--gd)}
   <div class="section" id="numisDB"></div>
   <div class="section" id="pnl"></div>
   <div class="section" id="intel"></div>
+  <div class="section" id="liveTracker"></div>
 </div>
 
 <!-- DETAIL OVERLAY -->
@@ -227,7 +255,8 @@ const NAV=[
   {id:'coinFlow',cn:'珍币流转',en:'Provenance Flow'},
   {id:'numisDB',cn:'数据库',en:'Numismatic Database'},
   {id:'pnl',cn:'交易记录',en:'Trade History'},
-  {id:'intel',cn:'市场资讯',en:'Market News'}
+  {id:'intel',cn:'市场资讯',en:'Market News'},
+  {id:'liveTracker',cn:'实时追踪',en:'Live Tracker'}
 ];
 const nav=document.getElementById('mainNav');
 NAV.forEach((n,i)=>{const b=document.createElement('button');b.className=n.id==='highlights'?'active':'';b.setAttribute('data-cn',n.cn);b.setAttribute('data-en',n.en);b.textContent=n.cn;b.onclick=()=>{document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(n.id).classList.add('active');b.classList.add('active')};nav.appendChild(b)});
@@ -2658,6 +2687,104 @@ document.getElementById('collectors').innerHTML+=`
 <li><strong>何代水（台湾/上海）</strong> — 科技行业高管，持有短须龙。跨界藏家代表</li>
 </ul>
 </div>`;
+
+// ═══════ LIVE TRACKER — 实时追踪 ═══════
+(function(){
+  const platforms=[
+    {
+      id:'xianyu',name:'闲鱼',nameEn:'Xianyu (Idle Fish)',
+      badge:'live',badgeText:'实时',
+      url:'https://www.goofish.com/',
+      items:[
+        {time:'14:32',title:'光绪元宝 北洋造 库平七钱二分',meta:'卖家：银圆老藏 · 浙江杭州',price:'¥38,000'},
+        {time:'13:58',title:'袁大头 三年 O版 PCGS XF45',meta:'卖家：古泉汇 · 上海',price:'¥12,500'},
+        {time:'13:21',title:'孙小头 开国纪念币 AU58',meta:'卖家：龙洋阁 · 广东深圳',price:'¥4,800'},
+        {time:'12:45',title:'造币总厂七钱二分 PCGS AU55',meta:'卖家：泉友小刘 · 北京',price:'¥28,000'},
+        {time:'11:30',title:'大清银币 宣统三年 曲须龙 VF35',meta:'卖家：古币斋 · 江苏南京',price:'¥15,600'},
+        {time:'10:15',title:'袁大头 九年精发 PCGS MS62',meta:'卖家：钱庄主人 · 湖南长沙',price:'¥8,200'}
+      ]
+    },
+    {
+      id:'huaxia',name:'华夏古玩城',nameEn:'Huaxia Antique Mall',
+      badge:'live',badgeText:'实时',
+      url:'https://www.huaxiaguwan.com/',
+      items:[
+        {time:'15:10',title:'湖北省造 光绪元宝 七钱二分 PCGS VF30',meta:'委托方：资深藏家 · 专场拍卖',price:'¥22,000'},
+        {time:'14:40',title:'江南省造 甲辰 七钱二分 NGC AU53',meta:'专区：机制银币 · 限时竞拍',price:'¥45,000'},
+        {time:'13:05',title:'四川省造 光绪七钱二分 PCGS XF40',meta:'委托方：川渝收藏协会',price:'¥35,500'},
+        {time:'12:20',title:'广东省造 光绪元宝 七钱二分 AU50',meta:'专区：龙洋专场 · 即将结拍',price:'¥18,800'},
+        {time:'11:00',title:'奉天省造 癸卯 七钱二分 PCGS F15',meta:'稀缺品 · 起拍即关注',price:'¥68,000'}
+      ]
+    },
+    {
+      id:'heritage',name:'Heritage Auctions',nameEn:'Heritage Auctions',
+      badge:'scheduled',badgeText:'预展中',
+      url:'https://www.ha.com/',
+      items:[
+        {time:'Mar 20',title:'China-Kirin. 7 Mace 2 Candareens CD1901 MS62',meta:'Session 3 · World Coins Hong Kong',price:'Est. $15,000'},
+        {time:'Mar 20',title:'China-Empire. Dollar ND(1911) AU58',meta:'Session 3 · Dragon Dollar Selection',price:'Est. $8,000'},
+        {time:'Mar 21',title:'China-Republic. Yuan Shikai Dollar Yr3 MS63',meta:'Session 4 · Republic Silver',price:'Est. $5,500'},
+        {time:'Mar 21',title:'China-Hupeh. 7M2C ND(1895-07) XF45',meta:'Session 4 · Provincial Issues',price:'Est. $12,000'}
+      ]
+    },
+    {
+      id:'sbp',name:"Stack's Bowers",nameEn:"Stack's Bowers Galleries",
+      badge:'scheduled',badgeText:'预展中',
+      url:'https://www.stacksbowers.com/',
+      items:[
+        {time:'Apr 8',title:'China-Chihli. Dollar Yr34 PCGS AU55',meta:'Hong Kong Spring Auction · Lot 51234',price:'Est. $20,000'},
+        {time:'Apr 8',title:'China-Fengtien. Dollar CD1903 NGC VF35',meta:'Hong Kong Spring Auction · Lot 51240',price:'Est. $35,000'},
+        {time:'Apr 9',title:'China-Republic. Sun Yat-sen Memento Dollar MS64',meta:'Hong Kong Spring Auction · Lot 51302',price:'Est. $3,800'}
+      ]
+    },
+    {
+      id:'auctionworld',name:'Auction World',nameEn:'Auction World (Japan)',
+      badge:'scheduled',badgeText:'预展中',
+      url:'https://auctionworld.co.jp/',
+      items:[
+        {time:'Mar 25',title:'中国 湖北省造 光绪元宝 七銭二分 PCGS AU50',meta:'第42回 オークション · Lot 1821',price:'Est. ¥380,000'},
+        {time:'Mar 25',title:'中国 北洋造 光緒34年 七銭二分 NGC MS61',meta:'第42回 オークション · Lot 1835',price:'Est. ¥850,000'},
+        {time:'Mar 26',title:'中国 袁世凱 壹圓 三年 PCGS MS63',meta:'第42回 オークション · Lot 1860',price:'Est. ¥120,000'},
+        {time:'Mar 26',title:'中国 宣統三年 大清銀幣 壹圓 NGC AU58',meta:'第42回 オークション · Lot 1872',price:'Est. ¥280,000'}
+      ]
+    }
+  ];
+
+  function renderTracker(){
+    const now=new Date();
+    const timeStr=now.getFullYear()+'-'+(''+(now.getMonth()+1)).padStart(2,'0')+'-'+(''+ now.getDate()).padStart(2,'0')+' '+(''+ now.getHours()).padStart(2,'0')+':'+(''+ now.getMinutes()).padStart(2,'0')+':'+(''+ now.getSeconds()).padStart(2,'0');
+    let cards='';
+    platforms.forEach(p=>{
+      let items='';
+      p.items.forEach(it=>{
+        items+=`<div class="tracker-item">
+          <div class="t-time">${it.time}</div>
+          <div class="t-body">
+            <div class="t-title">${it.title}</div>
+            <div class="t-meta">${it.meta}</div>
+          </div>
+          <div class="t-price">${it.price}</div>
+        </div>`;
+      });
+      cards+=`<div class="tracker-card">
+        <div class="tracker-card-header">
+          <h4>${p.badge==='live'?'<span class="tracker-pulse"></span>':''}${p.name}</h4>
+          <span class="tracker-badge ${p.badge}">${p.badgeText}</span>
+        </div>
+        <div class="tracker-card-body">${items}</div>
+        <div class="tracker-card-footer"><a href="${p.url}" target="_blank" rel="noopener">访问 ${p.name} →</a></div>
+      </div>`;
+    });
+
+    document.getElementById('liveTracker').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾陆章" data-en="Chapter XVI">第拾陆章</div><div class="chapter-title" data-cn="实时追踪" data-en="Live Tracker">实时追踪</div><div class="chapter-line"></div></div>
+    <div class="tracker-refresh-bar"><span data-cn="最后刷新：${timeStr}" data-en="Last refresh: ${timeStr}">最后刷新：${timeStr}</span><button class="tracker-refresh-btn" onclick="window._refreshTracker()" data-cn="⟳ 刷新数据" data-en="⟳ Refresh">⟳ 刷新数据</button></div>
+    <div class="tracker-grid">${cards}</div>
+    <div style="text-align:center;margin-top:24px;color:var(--td);font-size:.78rem;font-style:italic" data-cn="数据为模拟展示，实际接入需配置各平台 API / 爬虫服务" data-en="Data shown is simulated — live feeds require platform API / scraper integration">数据为模拟展示，实际接入需配置各平台 API / 爬虫服务</div>`;
+  }
+
+  window._refreshTracker=renderTracker;
+  renderTracker();
+})();
 
 // ═══════ FULL COLLECTION (所有藏品) — Two classification modes ═══════
 (function(){
