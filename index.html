@@ -1186,7 +1186,7 @@ function filterDB(){
   if(window._dbSort==='sp')list=list.filter(c=>getGrade(c)&&/SP/i.test(getGrade(c)));
   list=[...list];
   const d=window._dbSortDir||{year:1,price:1,rarity:1};
-  if(window._dbSort==='year')list.sort((a,b)=>d.year*(dbExtractYear(a.cn)-dbExtractYear(b.cn)));
+  if(window._dbSort==='year')list.sort((a,b)=>d.year*((parseInt(a.year)||dbExtractYear(a.cn))-(parseInt(b.year)||dbExtractYear(b.cn))));
   else if(window._dbSort==='price')list.sort((a,b)=>{const va=parseInt(String(a.est_rmb).replace(/[^0-9]/g,''))||0;const vb=parseInt(String(b.est_rmb).replace(/[^0-9]/g,''))||0;return d.price*(va-vb)});
   else if(window._dbSort==='rarity')list.sort((a,b)=>d.rarity*(a.rarity-b.rarity));
   // Update category button styles
