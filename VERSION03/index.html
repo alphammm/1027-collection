@@ -1177,9 +1177,16 @@ function filterDB(){
   const q=document.getElementById('dbSearch').value.toLowerCase();
   const f=document.getElementById('dbFilter').value;
   let list=dbCoins;
-  if(f!=='all')list=list.filter(c=>c.cat===f);
+  // Dropdown filter via COIN_REGION
+  const _provSet=new Set(['造总','北洋','吉林','奉天','江南','安徽','湖北','湖南','四川','广东','云南','福建','浙江']);
+  if(f==='qing-tael')list=list.filter(c=>c.cn.includes('壹两')||c.cn.includes('一两'));
+  else if(f==='qing-dragon')list=list.filter(c=>COIN_REGION[c.id]==='中央');
+  else if(f==='qing-provincial')list=list.filter(c=>_provSet.has(COIN_REGION[c.id]));
+  else if(f==='republic-yuan')list=list.filter(c=>COIN_REGION[c.id]==='袁像');
+  else if(f==='republic-sun')list=list.filter(c=>COIN_REGION[c.id]==='孙像');
+  else if(f==='republic-warlord')list=list.filter(c=>COIN_REGION[c.id]==='军阀');
   if(q)list=list.filter(c=>c.cn.includes(q)||c.en.toLowerCase().includes(q));
-  // Category filter via COIN_REGION mapping
+  // Category button filter via COIN_REGION mapping
   const cat=window._dbCat||'all';
   if(cat!=='all')list=list.filter(c=>COIN_REGION[c.id]===cat);
   // Sort filter
