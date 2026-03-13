@@ -873,6 +873,10 @@ const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" 
   <div style="font-size:1.4rem;font-weight:700;color:var(--g)">¥${dbOwnedEst.toLocaleString()}</div>
   <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="持仓估值 (RMB)" data-en="Est. Value (RMB)">持仓估值 (RMB)</div></div>
 </div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+  <button onclick="window._dbSort='local';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="地方" data-en="Provincial">地方</button>
+  <button onclick="window._dbSort='central';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="中央" data-en="Central">中央</button>
+</div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
   <button onclick="window._dbSort='year';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:var(--lz-deep);cursor:pointer;font-size:.78rem;font-weight:600" data-cn="按时间" data-en="By Year">按时间</button>
   <button onclick="window._dbSort='price';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="按估值" data-en="By Value">按估值</button>
@@ -1199,6 +1203,8 @@ function filterDB(){
   if(f!=='all')list=list.filter(c=>c.cat===f);
   if(q)list=list.filter(c=>c.cn.includes(q)||c.en.toLowerCase().includes(q));
   if(window._dbSort==='sp')list=list.filter(c=>getGrade(c)&&/SP/i.test(getGrade(c)));
+  if(window._dbSort==='local')list=list.filter(c=>c.cat==='qing-provincial'||c.cat==='republic-warlord');
+  if(window._dbSort==='central')list=list.filter(c=>c.cat==='qing-tael'||c.cat==='qing-dragon'||c.cat==='republic-yuan'||c.cat==='republic-sun'||c.cat==='republic-portrait');
   // Sort
   list=[...list];
   if(window._dbSort==='year')list.sort((a,b)=>dbExtractYear(a.cn)-dbExtractYear(b.cn));
