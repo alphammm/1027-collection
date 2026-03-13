@@ -816,7 +816,7 @@ function getCoinSource(c){for(let len=8;len>=4;len--){const k=c.cn.substring(0,l
 function getCoinCost(c){const s=getCoinSource(c);if(!s)return'';const FX=6.89;return s.cur==='USD'?'$'+s.cost.toLocaleString()+' / ¥'+Math.round(s.cost*FX).toLocaleString():'¥'+s.cost.toLocaleString()}
 // Extract year helper for sorting
 function dbExtractYear(cn){const m=cn.match(/\((\d{4})\)/);if(m)return parseInt(m[1]);const eras={光绪:[1875,0],宣统:[1909,0],民国:[1911,0],洪宪:[1915,0]};const ym=cn.match(/(光绪|宣统|民国|洪宪)[\u4e00-\u9fff]*?(\d+)年/);if(ym&&eras[ym[1]])return eras[ym[1]][0]+parseInt(ym[2]);return 1900}
-window._dbSort='year';
+window._dbSort='year';window._dbCat='all';window._dbSortDir={year:1,price:1,rarity:1};
 const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Holdings">全部藏品</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。" data-en="A complete collecting path from late Qing dragon dollars to Republican pattern coins — each piece fills a coordinate in China's modern monetary history. A numismatic logic spanning the late Qing and Republic is gradually taking shape.">这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。</p></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
@@ -830,11 +830,29 @@ const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" 
   <div style="font-size:1.4rem;font-weight:700;color:var(--g)">¥${dbOwnedEst.toLocaleString()}</div>
   <div style="font-size:.75rem;color:var(--td);text-transform:uppercase;letter-spacing:.08em" data-cn="持仓估值 (RMB)" data-en="Est. Value (RMB)">持仓估值 (RMB)</div></div>
 </div>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-  <button onclick="window._dbSort='year';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:var(--lz-deep);cursor:pointer;font-size:.78rem;font-weight:600" data-cn="按时间" data-en="By Year">按时间</button>
-  <button onclick="window._dbSort='price';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="按估值" data-en="By Value">按估值</button>
-  <button onclick="window._dbSort='rarity';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="按珍稀度" data-en="By Rarity">按珍稀度</button>
-  <button onclick="window._dbSort='sp';filterDB()" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="样币" data-en="Specimens">样币</button>
+<div id="dbCatRow" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+  <button onclick="window._dbCat='all';filterDB()" data-cat="all" style="padding:4px 12px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:var(--lz-deep);cursor:pointer;font-size:.75rem;font-weight:600" data-cn="全部" data-en="All">全部</button>
+  <button onclick="window._dbCat='central';filterDB()" data-cat="central" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="中央" data-en="Central">中央</button>
+  <button onclick="window._dbCat='造总';filterDB()" data-cat="造总" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="造总" data-en="General Mint">造总</button>
+  <button onclick="window._dbCat='北洋';filterDB()" data-cat="北洋" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="北洋" data-en="Beiyang">北洋</button>
+  <button onclick="window._dbCat='吉林';filterDB()" data-cat="吉林" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="吉林" data-en="Kirin">吉林</button>
+  <button onclick="window._dbCat='奉天';filterDB()" data-cat="奉天" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="奉天" data-en="Fengtien">奉天</button>
+  <button onclick="window._dbCat='江南';filterDB()" data-cat="江南" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="江南" data-en="Kiangnan">江南</button>
+  <button onclick="window._dbCat='安徽';filterDB()" data-cat="安徽" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="安徽" data-en="Anhwei">安徽</button>
+  <button onclick="window._dbCat='湖北';filterDB()" data-cat="湖北" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="湖北" data-en="Hupeh">湖北</button>
+  <button onclick="window._dbCat='湖南';filterDB()" data-cat="湖南" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="湖南" data-en="Hunan">湖南</button>
+  <button onclick="window._dbCat='四川';filterDB()" data-cat="四川" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="四川" data-en="Szechuan">四川</button>
+  <button onclick="window._dbCat='广东';filterDB()" data-cat="广东" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="广东" data-en="Kwangtung">广东</button>
+  <button onclick="window._dbCat='云南';filterDB()" data-cat="云南" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="云南" data-en="Yunnan">云南</button>
+  <button onclick="window._dbCat='yuan';filterDB()" data-cat="yuan" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="袁像" data-en="Yuan Shikai">袁像</button>
+  <button onclick="window._dbCat='sun';filterDB()" data-cat="sun" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="孙像" data-en="Sun Yat-sen">孙像</button>
+  <button onclick="window._dbCat='warlord';filterDB()" data-cat="warlord" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="军阀" data-en="Warlords">军阀</button>
+</div>
+<div id="dbSortRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+  <button onclick="if(window._dbSort==='year'){window._dbSortDir.year*=-1}else{window._dbSort='year'};filterDB()" data-sort="year" style="padding:5px 14px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:var(--lz-deep);cursor:pointer;font-size:.78rem;font-weight:600" data-cn="按时间" data-en="By Year">按时间</button>
+  <button onclick="if(window._dbSort==='price'){window._dbSortDir.price*=-1}else{window._dbSort='price'};filterDB()" data-sort="price" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="按估值" data-en="By Value">按估值</button>
+  <button onclick="if(window._dbSort==='rarity'){window._dbSortDir.rarity*=-1}else{window._dbSort='rarity'};filterDB()" data-sort="rarity" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="按珍稀度" data-en="By Rarity">按珍稀度</button>
+  <button onclick="window._dbSort='sp';filterDB()" data-sort="sp" style="padding:5px 14px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.78rem" data-cn="样币" data-en="Specimens">样币</button>
 </div>
 <div class="search-bar"><input type="text" id="dbSearch" placeholder="搜索币种..." oninput="filterDB()"><select id="dbFilter" onchange="filterDB()"><option value="all">全部</option><option value="qing-tael">清·壹两</option><option value="qing-dragon">清·中央龙洋</option><option value="qing-provincial">清·省造龙洋</option><option value="republic-yuan">民国·袁像</option><option value="republic-sun">民国·孙像</option><option value="republic-warlord">军阀</option></select></div>
 <div id="dbGrid"></div>`;
@@ -1143,17 +1161,35 @@ function filterDB(){
   let list=dbCoins;
   if(f!=='all')list=list.filter(c=>c.cat===f);
   if(q)list=list.filter(c=>c.cn.includes(q)||c.en.toLowerCase().includes(q));
+  // Category filter (first row)
+  const cat=window._dbCat||'all';
+  const provMap={'造总':['造币总厂','户部'],'北洋':['北洋'],'吉林':['吉林'],'奉天':['奉天'],'江南':['江南'],'安徽':['安徽'],'湖北':['湖北'],'湖南':['湖南'],'四川':['四川'],'广东':['广东'],'云南':['云南']};
+  if(cat==='central')list=list.filter(c=>c.cat==='qing-tael'||c.cat==='qing-dragon'||c.cat==='republic-portrait');
+  else if(cat==='yuan')list=list.filter(c=>c.cat==='republic-yuan');
+  else if(cat==='sun')list=list.filter(c=>c.cat==='republic-sun');
+  else if(cat==='warlord')list=list.filter(c=>c.cat==='republic-warlord');
+  else if(provMap[cat])list=list.filter(c=>provMap[cat].some(k=>c.cn.includes(k)));
+  // Sort filter
   if(window._dbSort==='sp')list=list.filter(c=>getGrade(c)&&/SP/i.test(getGrade(c)));
-  // Sort
   list=[...list];
-  if(window._dbSort==='year')list.sort((a,b)=>dbExtractYear(a.cn)-dbExtractYear(b.cn));
-  else if(window._dbSort==='price')list.sort((a,b)=>{const va=parseInt(String(a.est_rmb).replace(/[^0-9]/g,''))||0;const vb=parseInt(String(b.est_rmb).replace(/[^0-9]/g,''))||0;return vb-va});
-  else if(window._dbSort==='rarity')list.sort((a,b)=>b.rarity-a.rarity);
-  // Update sort button styles
-  document.querySelectorAll('#database [onclick*="_dbSort"]').forEach(btn=>{
-    const m=btn.getAttribute('onclick').match(/_dbSort='(\w+)'/);
-    if(m&&m[1]===window._dbSort){btn.style.background='var(--g)';btn.style.color='var(--lz-deep)';btn.style.borderColor='var(--g)'}
-    else{btn.style.background='var(--lz-s)';btn.style.color='var(--td)';btn.style.borderColor='var(--lz-b)'}
+  const d=window._dbSortDir||{year:1,price:1,rarity:1};
+  if(window._dbSort==='year')list.sort((a,b)=>d.year*(dbExtractYear(a.cn)-dbExtractYear(b.cn)));
+  else if(window._dbSort==='price')list.sort((a,b)=>{const va=parseInt(String(a.est_rmb).replace(/[^0-9]/g,''))||0;const vb=parseInt(String(b.est_rmb).replace(/[^0-9]/g,''))||0;return d.price*(va-vb)});
+  else if(window._dbSort==='rarity')list.sort((a,b)=>d.rarity*(a.rarity-b.rarity));
+  // Update category button styles
+  document.querySelectorAll('#dbCatRow button').forEach(btn=>{
+    if(btn.dataset.cat===cat){btn.style.background='var(--g)';btn.style.color='var(--lz-deep)';btn.style.borderColor='var(--g)';btn.style.fontWeight='600'}
+    else{btn.style.background='var(--lz-s)';btn.style.color='var(--td)';btn.style.borderColor='var(--lz-b)';btn.style.fontWeight=''}
+  });
+  // Update sort button styles with direction arrows
+  const arrows={year:d.year>0?' ↑':' ↓',price:d.price>0?' ↑':' ↓',rarity:d.rarity>0?' ↑':' ↓'};
+  const labels={year:['按时间','By Year'],price:['按估值','By Value'],rarity:['按珍稀度','By Rarity'],sp:['样币','Specimens']};
+  document.querySelectorAll('#dbSortRow button').forEach(btn=>{
+    const s=btn.dataset.sort;
+    const isActive=s===window._dbSort;
+    if(isActive){btn.style.background='var(--g)';btn.style.color='var(--lz-deep)';btn.style.borderColor='var(--g)';btn.style.fontWeight='600'}
+    else{btn.style.background='var(--lz-s)';btn.style.color='var(--td)';btn.style.borderColor='var(--lz-b)';btn.style.fontWeight=''}
+    if(labels[s]){const base=curLang==='en'?labels[s][1]:labels[s][0];btn.textContent=isActive&&arrows[s]?base+arrows[s]:base}
   });
   renderDB(list);
 }
