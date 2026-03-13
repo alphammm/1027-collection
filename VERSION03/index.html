@@ -817,6 +817,22 @@ function getCoinCost(c){const s=getCoinSource(c);if(!s)return'';const FX=6.89;re
 // Extract year helper for sorting
 function dbExtractYear(cn){const m=cn.match(/\((\d{4})\)/);if(m)return parseInt(m[1]);const eras={光绪:[1875,0],宣统:[1909,0],民国:[1911,0],洪宪:[1915,0]};const ym=cn.match(/(光绪|宣统|民国|洪宪)[\u4e00-\u9fff]*?(\d+)年/);if(ym&&eras[ym[1]])return eras[ym[1]][0]+parseInt(ym[2]);return 1900}
 window._dbSort='year';window._dbCat='all';window._dbSortDir={year:1,price:1,rarity:1};
+// Region mapping for every coin — based on PCGS classification & mint origin
+const COIN_REGION={
+  C001:'广东',C002:'奉天',C003:'中央',C004:'中央',C005:'中央',C006:'军阀',C007:'中央',
+  C010:'江南',C011:'广东',C012:'孙像',C013:'袁像',C014:'袁像',C015:'军阀',C016:'军阀',
+  C017:'孙像',C018:'湖北',C019:'孙像',C020:'袁像',C030:'中央',C031:'北洋',C032:'造总',
+  C033:'湖北',C034:'湖北',C035:'军阀',C036:'军阀',C037:'袁像',C038:'袁像',C039:'孙像',
+  C040:'孙像',C041:'孙像',C042:'孙像',C043:'孙像',C044:'广东',C045:'造总',C046:'袁像',
+  C047:'广东',C048:'中央',C049:'袁像',C050:'军阀',C051:'军阀',C052:'军阀',C053:'军阀',
+  C054:'孙像',C055:'孙像',C056:'孙像',C057:'孙像',C058:'孙像',C059:'孙像',C060:'军阀',
+  C061:'江南',C062:'江南',C063:'江南',C064:'江南',C065:'军阀',C066:'军阀',C067:'孙像',
+  C068:'孙像',C069:'袁像',C070:'袁像',C071:'袁像',C072:'袁像',C073:'孙像',C074:'孙像',
+  C075:'孙像',C076:'孙像',C077:'孙像',C078:'北洋',C079:'吉林',C080:'江南',C081:'奉天',
+  C082:'湖北',C083:'广东',C084:'造总',C085:'北洋',C086:'四川',C087:'云南',C089:'奉天',
+  C090:'中央',C091:'孙像',C092:'孙像',C093:'孙像',C094:'孙像',C095:'军阀',C096:'军阀',
+  C097:'福建',C098:'浙江',C099:'军阀',C100:'军阀'
+};
 const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Holdings">全部藏品</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。" data-en="A complete collecting path from late Qing dragon dollars to Republican pattern coins — each piece fills a coordinate in China's modern monetary history. A numismatic logic spanning the late Qing and Republic is gradually taking shape.">这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。</p></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
@@ -832,7 +848,7 @@ const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" 
 </div>
 <div id="dbCatRow" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
   <button onclick="window._dbCat='all';filterDB()" data-cat="all" style="padding:4px 12px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:var(--lz-deep);cursor:pointer;font-size:.75rem;font-weight:600" data-cn="全部" data-en="All">全部</button>
-  <button onclick="window._dbCat='central';filterDB()" data-cat="central" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="中央" data-en="Central">中央</button>
+  <button onclick="window._dbCat='中央';filterDB()" data-cat="中央" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="中央" data-en="Central">中央</button>
   <button onclick="window._dbCat='造总';filterDB()" data-cat="造总" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="造总" data-en="General Mint">造总</button>
   <button onclick="window._dbCat='北洋';filterDB()" data-cat="北洋" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="北洋" data-en="Beiyang">北洋</button>
   <button onclick="window._dbCat='吉林';filterDB()" data-cat="吉林" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="吉林" data-en="Kirin">吉林</button>
@@ -844,9 +860,11 @@ const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" 
   <button onclick="window._dbCat='四川';filterDB()" data-cat="四川" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="四川" data-en="Szechuan">四川</button>
   <button onclick="window._dbCat='广东';filterDB()" data-cat="广东" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="广东" data-en="Kwangtung">广东</button>
   <button onclick="window._dbCat='云南';filterDB()" data-cat="云南" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="云南" data-en="Yunnan">云南</button>
-  <button onclick="window._dbCat='yuan';filterDB()" data-cat="yuan" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="袁像" data-en="Yuan Shikai">袁像</button>
-  <button onclick="window._dbCat='sun';filterDB()" data-cat="sun" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="孙像" data-en="Sun Yat-sen">孙像</button>
-  <button onclick="window._dbCat='warlord';filterDB()" data-cat="warlord" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="军阀" data-en="Warlords">军阀</button>
+  <button onclick="window._dbCat='福建';filterDB()" data-cat="福建" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="福建" data-en="Fukien">福建</button>
+  <button onclick="window._dbCat='浙江';filterDB()" data-cat="浙江" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="浙江" data-en="Chekiang">浙江</button>
+  <button onclick="window._dbCat='袁像';filterDB()" data-cat="袁像" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="袁像" data-en="Yuan Shikai">袁像</button>
+  <button onclick="window._dbCat='孙像';filterDB()" data-cat="孙像" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="孙像" data-en="Sun Yat-sen">孙像</button>
+  <button onclick="window._dbCat='军阀';filterDB()" data-cat="军阀" style="padding:4px 12px;border-radius:4px;border:1px solid var(--lz-b);background:var(--lz-s);color:var(--td);cursor:pointer;font-size:.75rem" data-cn="军阀" data-en="Warlords">军阀</button>
 </div>
 <div id="dbSortRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
   <button onclick="if(window._dbSort==='year'){window._dbSortDir.year*=-1}else{window._dbSort='year'};filterDB()" data-sort="year" style="padding:5px 14px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:var(--lz-deep);cursor:pointer;font-size:.78rem;font-weight:600" data-cn="按时间" data-en="By Year">按时间</button>
@@ -1161,14 +1179,9 @@ function filterDB(){
   let list=dbCoins;
   if(f!=='all')list=list.filter(c=>c.cat===f);
   if(q)list=list.filter(c=>c.cn.includes(q)||c.en.toLowerCase().includes(q));
-  // Category filter (first row)
+  // Category filter via COIN_REGION mapping
   const cat=window._dbCat||'all';
-  const provMap={'造总':['造币总厂','户部'],'北洋':['北洋'],'吉林':['吉林'],'奉天':['奉天'],'江南':['江南'],'安徽':['安徽'],'湖北':['湖北'],'湖南':['湖南'],'四川':['四川'],'广东':['广东'],'云南':['云南']};
-  if(cat==='central')list=list.filter(c=>c.cat==='qing-tael'||c.cat==='qing-dragon'||c.cat==='republic-portrait');
-  else if(cat==='yuan')list=list.filter(c=>c.cat==='republic-yuan');
-  else if(cat==='sun')list=list.filter(c=>c.cat==='republic-sun');
-  else if(cat==='warlord')list=list.filter(c=>c.cat==='republic-warlord');
-  else if(provMap[cat])list=list.filter(c=>provMap[cat].some(k=>c.cn.includes(k)));
+  if(cat!=='all')list=list.filter(c=>COIN_REGION[c.id]===cat);
   // Sort filter
   if(window._dbSort==='sp')list=list.filter(c=>getGrade(c)&&/SP/i.test(getGrade(c)));
   list=[...list];
