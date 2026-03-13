@@ -1202,7 +1202,7 @@ function filterDB(){
     const isActive=s===window._dbSort;
     if(isActive){btn.style.background='var(--g)';btn.style.color='var(--lz-deep)';btn.style.borderColor='var(--g)';btn.style.fontWeight='600'}
     else{btn.style.background='var(--lz-s)';btn.style.color='var(--td)';btn.style.borderColor='var(--lz-b)';btn.style.fontWeight=''}
-    if(labels[s]){const base=curLang==='en'?labels[s][1]:labels[s][0];btn.textContent=isActive&&arrows[s]?base+arrows[s]:base}
+    if(labels[s]){const base=(typeof CL!=='undefined'&&CL==='en')?labels[s][1]:labels[s][0];btn.textContent=isActive&&arrows[s]?base+arrows[s]:base}
   });
   renderDB(list);
 }
