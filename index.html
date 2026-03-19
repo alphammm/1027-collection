@@ -2371,10 +2371,10 @@ function filterFCCat(cat){
 }
 </script>
 
-<!-- SITE URL POPUP -->
-<div id="siteUrlPopup" style="display:flex;position:fixed;inset:0;background:rgba(0,26,58,.88);z-index:400;align-items:center;justify-content:center;animation:fadeIn .3s ease" onclick="if(event.target===this)this.style.display='none'">
+<!-- SITE URL POPUP (only shows once per browser via localStorage) -->
+<div id="siteUrlPopup" style="display:none;position:fixed;inset:0;background:rgba(0,26,58,.88);z-index:400;align-items:center;justify-content:center;animation:fadeIn .3s ease" onclick="if(event.target===this){this.style.display='none';localStorage.setItem('siteUrlSeen','1')}">
   <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-top:3px solid var(--g);border-radius:10px;padding:32px;width:90%;max-width:420px;text-align:center;position:relative">
-    <button onclick="document.getElementById('siteUrlPopup').style.display='none'" style="position:absolute;top:10px;right:14px;background:0;border:0;color:var(--td);font-size:1.4rem;cursor:pointer">&times;</button>
+    <button onclick="document.getElementById('siteUrlPopup').style.display='none';localStorage.setItem('siteUrlSeen','1')" style="position:absolute;top:10px;right:14px;background:0;border:0;color:var(--td);font-size:1.4rem;cursor:pointer">&times;</button>
     <div style="font-size:.72rem;letter-spacing:.3em;color:var(--gd);text-transform:uppercase;margin-bottom:8px">1024 Collection</div>
     <h3 style="color:var(--g);font-family:'Noto Serif SC',serif;font-size:1.15rem;margin-bottom:4px">最新网站地址</h3>
     <p style="color:var(--td);font-size:.82rem;font-style:italic;margin-bottom:20px">Latest Website URLs</p>
@@ -2386,8 +2386,9 @@ function filterFCCat(cat){
       <div style="font-size:.68rem;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Vercel</div>
       <a href="https://1024-collection.vercel.app" target="_blank" rel="noopener" style="color:var(--g);font-size:.9rem;text-decoration:none;word-break:break-all;font-weight:600">1024-collection.vercel.app</a>
     </div>
-    <button onclick="document.getElementById('siteUrlPopup').style.display='none'" style="background:var(--g);color:var(--lz-deep);border:0;padding:8px 28px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.88rem;font-weight:600">知道了</button>
+    <button onclick="document.getElementById('siteUrlPopup').style.display='none';localStorage.setItem('siteUrlSeen','1')" style="background:var(--g);color:var(--lz-deep);border:0;padding:8px 28px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.88rem;font-weight:600">知道了</button>
   </div>
 </div>
+<script>if(!localStorage.getItem('siteUrlSeen'))document.getElementById('siteUrlPopup').style.display='flex';</script>
 </body>
 </html>
