@@ -135,12 +135,27 @@ nav button:hover,nav button.active{background:var(--g);color:var(--lz-deep);bord
 .dragon-item{background:var(--lz-s);border:1px solid var(--lz-b);border-radius:6px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;font-size:.88rem;transition:.15s}
 .dragon-item:hover{border-color:var(--lz-bl)}
 .dragon-item .dp{font-size:.66rem;color:var(--tm);letter-spacing:.08em;min-width:40px}
-.wish-card{background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid var(--gd);border-radius:8px;padding:16px 20px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;transition:.2s}
+.wish-card{background:var(--lz-s);border:1px solid var(--lz-b);border-left:3px solid var(--gd);border-radius:8px;padding:16px 20px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;transition:.2s;position:relative}
 .wish-card:hover{border-left-color:var(--g)}
 .wish-card .name-cn{font-weight:600;font-family:'Noto Serif SC',serif;font-size:1rem;color:var(--cr)}
 .wish-card .name-en{font-size:.78rem;color:var(--td);font-style:italic}
 .wish-card .est{color:var(--g);font-weight:600;font-size:.92rem;white-space:nowrap}
 .wish-card .rarity{font-size:.72rem;color:var(--gd);margin-top:2px}
+.grail-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:opacity .2s}
+.wish-card:hover .grail-actions{opacity:1}
+.grail-act{background:var(--lz-s2);border:1px solid var(--lz-b);color:var(--td);width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:.78rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+.grail-act:hover{border-color:var(--g);color:var(--g)}
+.grail-act.del:hover{border-color:var(--r);color:var(--r)}
+.grail-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:310;align-items:center;justify-content:center}
+.grail-modal.open{display:flex}
+.grail-modal-body{background:var(--lz-s);border:1px solid var(--lz-b);border-top:3px solid var(--g);border-radius:10px;padding:28px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto}
+.grail-form label{display:block;color:var(--td);font-size:.78rem;margin:12px 0 4px;letter-spacing:.04em}
+.grail-form input,.grail-form textarea,.grail-form select{width:100%;background:var(--lz-s2);border:1px solid var(--lz-b);color:var(--cr);padding:8px 12px;border-radius:4px;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.88rem}
+.grail-form input:focus,.grail-form textarea:focus,.grail-form select:focus{outline:none;border-color:var(--g)}
+.grail-btn{background:var(--g);color:var(--lz-deep);border:none;padding:8px 20px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.85rem;font-weight:600;transition:.15s}
+.grail-btn:hover{background:var(--gl)}
+.grail-btn.sec{background:var(--lz-b);color:var(--td)}
+.grail-btn.danger{background:var(--r);color:#fff}
 
 /* SEARCH */
 .search-bar{display:flex;gap:8px;margin-bottom:20px}
@@ -193,6 +208,33 @@ footer .gold{color:var(--gd)}
   <div class="section" id="coinFlow"></div>
   <div class="section" id="numisDB"></div>
   <div class="section" id="intel"></div>
+</div>
+
+<!-- GRAIL MODAL -->
+<div class="grail-modal" id="grailModal" onclick="if(event.target===this)closeGrailModal()">
+  <div class="grail-modal-body">
+    <h3 id="grailModalTitle" style="color:var(--g);margin-bottom:4px;font-size:1.1rem"></h3>
+    <form class="grail-form" id="grailForm" onsubmit="saveGrailItem(event)">
+      <input type="hidden" id="grailEditId">
+      <label>名称 Name *</label><input id="grailName" required placeholder="e.g. 广东省造光绪元宝寿字双龙壹两">
+      <label>英文名 English Name</label><input id="grailNameEn" placeholder="e.g. Kwangtung Longevity Double Dragon One Tael">
+      <label>年代 Era</label><input id="grailEra" placeholder="e.g. 清·光绪">
+      <label>年份 Year</label><input id="grailYear" placeholder="e.g. 1890">
+      <label>预估价格 Est. Price (RMB)</label><input id="grailEst" placeholder="e.g. 5,000,000+">
+      <label>梯队 Tier</label>
+      <select id="grailTier">
+        <option value="0">T0 至珍 (4000万+)</option>
+        <option value="1">T1 极珍 (1000万+)</option>
+        <option value="2">T2 大珍 (500-1000万)</option>
+        <option value="3" selected>T3 珍品</option>
+      </select>
+      <label>收藏理由 / 备注</label><textarea id="grailNote" rows="3" placeholder="为什么想要这枚币..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:18px">
+        <button type="submit" class="grail-btn">保存</button>
+        <button type="button" class="grail-btn sec" onclick="closeGrailModal()">取消</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- DETAIL OVERLAY -->
@@ -1214,12 +1256,8 @@ function filterDB(){
   renderDB(list);
 }
 
-// WISHLIST
-// Grails ordered by collector's priority logic
+// WISHLIST — with CRUD (localStorage persistence)
 const grailOrder=['C001','C019','C006','C031','C005','C003','C004','C020','C018','C002','C007'];
-const orderedWanted=grailOrder.map(id=>wanted.find(c=>c.id===id)).filter(Boolean);
-// Add any wanted coins not in grailOrder
-wanted.forEach(c=>{if(!grailOrder.includes(c.id))orderedWanted.push(c)});
 const grailLogic={
   'C001':'最终封顶 · 超越制度框架的帝国献礼，清末铸币工艺与政治象征的极致合一。存世仅五枚评级，凌驾于整条收藏逻辑链之上。',
   'C006':'张作霖Y16 · 民国十六年陆海军大元帅纪念币样币，仅存数枚评级。东北军阀货币主权的最高表达，与Y15共同构成张作霖系列的双壁。',
@@ -1246,7 +1284,13 @@ const grailLogicEn={
   'C002':'Fengtian Tael · Highest auction record for Chinese silver (¥46.575M). Peak expression of Northeast local minting authority.',
   'C007':'Shanghai Tael · Among China\'s earliest modern milled coins (1856). Predating Kwangtung by 30+ years, the harbinger of monetary modernization.'
 };
-document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="收藏圣杯" data-en="The Grails">收藏圣杯</div><div class="chapter-line"></div></div>
+// Persistence helpers
+function _getCustomGrails(){return JSON.parse(localStorage.getItem('wishlist_custom')||'[]')}
+function _saveCustomGrails(list){localStorage.setItem('wishlist_custom',JSON.stringify(list))}
+function _getDeletedGrails(){return JSON.parse(localStorage.getItem('wishlist_deleted')||'[]')}
+function _getGrailEdits(){return JSON.parse(localStorage.getItem('wishlist_edits')||'{}')}
+
+const _wishStoryHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾章" data-en="Chapter X">第拾章</div><div class="chapter-title" data-cn="收藏圣杯" data-en="The Grails">收藏圣杯</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:24px;line-height:2;color:var(--cr)">
 <p style="margin-bottom:14px">在中国机制币收藏史上，真正具有时代意义的私人收藏并不多见。</p>
 <p style="margin-bottom:14px">19世纪末至20世纪初，中国现代货币体系的形成被铭刻在一批极为稀见的试铸币与样币之中。能够以实物系统重建这一历史脉络，不仅需要巨额资源，更需要长期的学术视野与罕见的历史机遇。</p>
@@ -1274,8 +1318,146 @@ document.getElementById('wishlist').innerHTML=`<div class="chapter"><div class="
 <li><strong>第二梯队（1000万+）：</strong>宣三短须龙、户部壹两、金本位下三鸟壹圆</li>
 <li><strong>第三梯队（500-1000万）：</strong>上海壹两、本省、七二反版</li>
 <li><strong>第四梯队（样币/签字）：</strong>袁大头签字版、七分脸、飞龙签字版</li>
-</ul></div>
-${orderedWanted.map((c,i)=>{const logic=grailLogic[c.id]||c.history_cn?.substring(0,100)+'...';const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)+'...';const isTop=i===0;const tierLabel={0:'至珍',1:'极珍',2:'大珍',3:'珍品'};return`<div class="wish-card${isTop?' top-grail':''}" onclick="showDetail('${c.id}')" style="border-left:3px solid var(--gd);${isTop?'background:rgba(255,215,0,.03)':''}"><div style="display:flex;gap:14px;align-items:flex-start"><div style="flex-shrink:0">${coinImgTag(c,isTop?120:90)}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap"><span style="color:var(--gd);font-size:.72rem;font-weight:600">${tierLabel[c.tier]||'珍品'} · T${c.tier}</span><span style="color:var(--td);font-size:.72rem">${c.era} ${c.year}</span><span style="background:var(--gd);color:#fff;font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">圣杯目标</span></div>${eraTagHTML(c.id)}<div class="name-cn" style="font-size:1.05rem">${c.cn}</div><div class="name-en" style="font-size:.78rem;margin-bottom:6px">${c.en}</div><div class="grade-row">${gradeBadge(c)}${pcgsTotalBadge(c)}${higherBadge(c)}${catBadge(c)}</div><div class="value"><span style="color:var(--td);font-size:.78rem;font-weight:400">预估价格：</span>¥${c.est_rmb} ${actionBadge(c)}</div><div style="color:var(--td);font-size:.82rem;line-height:1.7;margin-top:6px;font-style:italic" data-cn="${logic}" data-en="${logicEn}">${logic}</div></div></div></div>`}).join('')}`;
+</ul></div>`;
+
+function renderGrailCard(c,i,isCustom){
+  const edits=_getGrailEdits();
+  const e=edits[c.id]||{};
+  const logic=e.note||grailLogic[c.id]||c.history_cn?.substring(0,100)||c._note||'';
+  const logicEn=grailLogicEn[c.id]||c.history_en?.substring(0,100)||'';
+  const isTop=i===0&&!isCustom;
+  const tierLabel={0:'至珍',1:'极珍',2:'大珍',3:'珍品'};
+  const tier=e.tier!==undefined?e.tier:c.tier;
+  const estRmb=e.est_rmb||c.est_rmb||c._est||'';
+  const cn=e.cn||c.cn||c._cn||'';
+  const en=e.en||c.en||c._en||'';
+  const era=e.era||c.era||c._era||'';
+  const year=e.year||c.year||c._year||'';
+  const clickFn=isCustom?'':`onclick="showDetail('${c.id}')"`;
+  return`<div class="wish-card${isTop?' top-grail':''}" ${clickFn} style="border-left:3px solid var(--gd);${isTop?'background:rgba(255,215,0,.03)':''}cursor:${isCustom?'default':'pointer'}">
+<div class="grail-actions">
+  <button class="grail-act" onclick="event.stopPropagation();openGrailModal('${c.id}')" title="编辑">&#9998;</button>
+  <button class="grail-act del" onclick="event.stopPropagation();deleteGrailItem('${c.id}')" title="删除">&#10005;</button>
+</div>
+<div style="display:flex;gap:14px;align-items:flex-start">
+<div style="flex-shrink:0">${isCustom?`<div style="width:90px;height:90px;background:var(--lz-s2);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--gd);font-size:2rem;opacity:.3">&#9733;</div>`:coinImgTag(c,isTop?120:90)}</div>
+<div style="flex:1">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
+<span style="color:var(--gd);font-size:.72rem;font-weight:600">${tierLabel[tier]||'珍品'} · T${tier}</span>
+<span style="color:var(--td);font-size:.72rem">${era} ${year}</span>
+<span style="background:var(--gd);color:#fff;font-size:.65rem;padding:1px 6px;border-radius:3px;font-weight:700">圣杯目标</span>
+${isCustom?'<span style="background:rgba(74,152,104,.2);color:var(--gr);font-size:.6rem;padding:1px 6px;border-radius:3px">自定义</span>':''}
+</div>
+${isCustom?'':eraTagHTML(c.id)}
+<div class="name-cn" style="font-size:1.05rem">${cn}</div>
+<div class="name-en" style="font-size:.78rem;margin-bottom:6px">${en}</div>
+${isCustom?'':`<div class="grade-row">${gradeBadge(c)}${pcgsTotalBadge(c)}${higherBadge(c)}${catBadge(c)}</div>`}
+<div class="value"><span style="color:var(--td);font-size:.78rem;font-weight:400">预估价格：</span>¥${estRmb} ${isCustom?'':actionBadge(c)}</div>
+${logic?`<div style="color:var(--td);font-size:.82rem;line-height:1.7;margin-top:6px;font-style:italic" ${logicEn?`data-cn="${logic}" data-en="${logicEn}"`:''}>${logic}</div>`:''}
+</div></div></div>`;
+}
+
+function rerenderWishlist(){
+  const deleted=new Set(_getDeletedGrails());
+  // Base items from COINS
+  const base=grailOrder.map(id=>wanted.find(c=>c.id===id)).filter(Boolean);
+  wanted.forEach(c=>{if(!grailOrder.includes(c.id))base.push(c)});
+  const filteredBase=base.filter(c=>!deleted.has(c.id));
+  // Custom items
+  const custom=_getCustomGrails();
+  const baseCards=filteredBase.map((c,i)=>renderGrailCard(c,i,false)).join('');
+  const customCards=custom.map((c,i)=>renderGrailCard({id:c.id,_cn:c.cn,_en:c.en,_era:c.era,_year:c.year,_est:c.est_rmb,_note:c.note,tier:parseInt(c.tier)||3,img:[]},filteredBase.length+i,true)).join('');
+  document.getElementById('wishlist').innerHTML=_wishStoryHTML+
+    `<button onclick="openGrailModal()" class="grail-btn" style="margin-bottom:16px;padding:8px 20px;font-size:.88rem">+ 添加圣杯目标</button>`+
+    baseCards+customCards;
+}
+// Modal CRUD
+function openGrailModal(id){
+  const modal=document.getElementById('grailModal');
+  const title=document.getElementById('grailModalTitle');
+  document.getElementById('grailEditId').value=id||'';
+  if(!id){
+    title.textContent='添加圣杯目标';
+    document.getElementById('grailName').value='';
+    document.getElementById('grailNameEn').value='';
+    document.getElementById('grailEra').value='';
+    document.getElementById('grailYear').value='';
+    document.getElementById('grailEst').value='';
+    document.getElementById('grailTier').value='3';
+    document.getElementById('grailNote').value='';
+  } else if(id.startsWith('W')){
+    title.textContent='编辑自定义圣杯';
+    const list=_getCustomGrails();
+    const item=list.find(x=>x.id===id);
+    if(item){
+      document.getElementById('grailName').value=item.cn||'';
+      document.getElementById('grailNameEn').value=item.en||'';
+      document.getElementById('grailEra').value=item.era||'';
+      document.getElementById('grailYear').value=item.year||'';
+      document.getElementById('grailEst').value=item.est_rmb||'';
+      document.getElementById('grailTier').value=item.tier||'3';
+      document.getElementById('grailNote').value=item.note||'';
+    }
+  } else {
+    title.textContent='编辑圣杯备注';
+    const coin=COINS.find(x=>x.id===id);
+    const edits=_getGrailEdits();
+    const e=edits[id]||{};
+    document.getElementById('grailName').value=e.cn||coin?.cn||'';
+    document.getElementById('grailNameEn').value=e.en||coin?.en||'';
+    document.getElementById('grailEra').value=e.era||coin?.era||'';
+    document.getElementById('grailYear').value=e.year||coin?.year||'';
+    document.getElementById('grailEst').value=e.est_rmb||coin?.est_rmb||'';
+    document.getElementById('grailTier').value=e.tier!==undefined?e.tier:(coin?.tier||3);
+    document.getElementById('grailNote').value=e.note||grailLogic[id]||'';
+  }
+  modal.classList.add('open');
+}
+function closeGrailModal(){document.getElementById('grailModal').classList.remove('open')}
+function saveGrailItem(ev){
+  ev.preventDefault();
+  const id=document.getElementById('grailEditId').value;
+  const data={
+    cn:document.getElementById('grailName').value,
+    en:document.getElementById('grailNameEn').value,
+    era:document.getElementById('grailEra').value,
+    year:document.getElementById('grailYear').value,
+    est_rmb:document.getElementById('grailEst').value,
+    tier:parseInt(document.getElementById('grailTier').value),
+    note:document.getElementById('grailNote').value
+  };
+  if(!id){
+    // New custom item
+    const list=_getCustomGrails();
+    data.id='W'+Date.now();
+    list.push(data);
+    _saveCustomGrails(list);
+  } else if(id.startsWith('W')){
+    // Edit custom item
+    const list=_getCustomGrails();
+    const idx=list.findIndex(x=>x.id===id);
+    if(idx>=0){list[idx]={...list[idx],...data};_saveCustomGrails(list)}
+  } else {
+    // Edit COINS item
+    const edits=_getGrailEdits();
+    edits[id]=data;
+    localStorage.setItem('wishlist_edits',JSON.stringify(edits));
+  }
+  closeGrailModal();
+  rerenderWishlist();
+}
+function deleteGrailItem(id){
+  if(!confirm('确认删除此圣杯目标？'))return;
+  if(id.startsWith('W')){
+    const list=_getCustomGrails().filter(x=>x.id!==id);
+    _saveCustomGrails(list);
+  } else {
+    const del=_getDeletedGrails();
+    if(!del.includes(id)){del.push(id);localStorage.setItem('wishlist_deleted',JSON.stringify(del))}
+  }
+  rerenderWishlist();
+}
+rerenderWishlist();
 
 // RANKINGS — 高分典藏
 const _rkPriority=['C011','C010','C017','C043','C014'];
