@@ -9,7 +9,7 @@ const COINS = [
     id:"C001", cat:"qing-tael",
     cn:"广东省造光绪元宝寿字双龙壹两",
     en:"Kwangtung Longevity Double Dragon One Tael",
-    img:["img/C001_shou_full.jpg"],
+    img:["img/C001_shou.png"],
     era:"清·光绪", year:"1890", mint:"广东造币厂（喜敦机器）",
     mintEn:"Kwangtung Mint (Heaton machinery)",
     metal:"银 Silver", weight:"37.3g", diam:"39mm",
