@@ -873,7 +873,7 @@ const COIN_REGION={
   C075:'孙像',C076:'孙像',C077:'孙像',C078:'北洋',C079:'吉林',C080:'江南',C081:'奉天',
   C082:'湖北',C083:'广东',C084:'造总',C085:'北洋',C086:'四川',C087:'云南',C089:'奉天',
   C090:'中央',C091:'孙像',C092:'孙像',C093:'孙像',C094:'孙像',C095:'军阀',C096:'军阀',
-  C097:'福建',C098:'浙江',C099:'军阀',C100:'军阀',C101:'孙像'
+  C097:'福建',C098:'浙江',C099:'军阀',C100:'军阀',C101:'孙像',C102:'中央'
 };
 const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Holdings">全部藏品</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。" data-en="A complete collecting path from late Qing dragon dollars to Republican pattern coins — each piece fills a coordinate in China's modern monetary history. A numismatic logic spanning the late Qing and Republic is gradually taking shape.">这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。</p></div>
@@ -1257,7 +1257,7 @@ function filterDB(){
 }
 
 // WISHLIST — with CRUD (localStorage persistence)
-const grailOrder=['C001','C019','C006','C031','C005','C003','C004','C020','C018','C002','C007'];
+const grailOrder=['C001','C102','C019','C006','C031','C005','C003','C004','C020','C018','C002','C007'];
 const grailLogic={
   'C001':'最终封顶 · 超越制度框架的帝国献礼，清末铸币工艺与政治象征的极致合一。存世仅五枚评级，凌驾于整条收藏逻辑链之上。',
   'C006':'张作霖Y16 · 民国十六年陆海军大元帅纪念币样币，仅存数枚评级。东北军阀货币主权的最高表达，与Y15共同构成张作霖系列的双壁。',
@@ -1269,7 +1269,8 @@ const grailLogic={
   'C020':'签字大头 · 1914年，国家制度终于成功。Giorgi签字版是中央统一币制的最高规格试铸品——从清末分权到民国定型的历史性转折的直接见证。',
   'C018':'本省 · 湖北省造「本省」二字表明仅限省内流通——地方财政分权的极端案例。评级仅2枚。制度史逻辑链中「地方极限」的封顶标本。',
   'C002':'奉天壹两 · 中国银圆拍卖最高成交纪录（¥4657.5万）。奉天机器局试铸——东北地方铸币权的顶峰表达。',
-  'C007':'上海壹两 · 中国最早的近代机制银币之一（1856）。早于广东首铸三十余年，是中国货币现代化的先声。'
+  'C007':'上海壹两 · 中国最早的近代机制银币之一（1856）。早于广东首铸三十余年，是中国货币现代化的先声。',
+  'C102':'上海贰钱 · 1867年香港造币厂试铸，中国最早近代机制银币之一。仅铸5枚后被命令销毁。已知存世于上海博物馆、韩国三星美术馆、NC Collection、Doctor\'s Collection等。与上海壹两共同构成中国机制银币的创世纪篇章，是货币现代化的起源实物。'
 };
 const grailLogicEn={
   'C001':'Ultimate Capstone · An imperial tribute beyond institutional frameworks — the supreme fusion of late Qing minting art and political symbolism. Only 5 graded.',
@@ -1282,7 +1283,8 @@ const grailLogicEn={
   'C020':'Signed Dollar · 1914: the year the national system succeeded. Giorgi\'s signed pattern marks the historic transition from Qing decentralization to Republican unity.',
   'C018':'Ben Sheng · "This Province Only" — the extreme case of local fiscal decentralization. Only 2 graded. The capstone specimen of "local limits."',
   'C002':'Fengtian Tael · Highest auction record for Chinese silver (¥46.575M). Peak expression of Northeast local minting authority.',
-  'C007':'Shanghai Tael · Among China\'s earliest modern milled coins (1856). Predating Kwangtung by 30+ years, the harbinger of monetary modernization.'
+  'C007':'Shanghai Tael · Among China\'s earliest modern milled coins (1856). Predating Kwangtung by 30+ years, the harbinger of monetary modernization.',
+  'C102':'Shanghai Two Mace · 1867 Hong Kong Mint trial strike. Only 5 struck, then ordered destroyed. Known survivors in Shanghai Museum, Samsung Museum, NC Collection, Doctor\'s Collection. Together with Shanghai Tael, the genesis of Chinese milled coinage.'
 };
 // Persistence helpers
 function _getCustomGrails(){return JSON.parse(localStorage.getItem('wishlist_custom')||'[]')}
