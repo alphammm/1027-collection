@@ -196,6 +196,7 @@ footer .gold{color:var(--gd)}
   <div class="section active" id="highlights"></div>
   <div class="section" id="rankings"></div>
   <div class="section" id="masterpieces"></div>
+  <div class="section" id="centralDragons"></div>
   <div class="section" id="dragons"></div>
   <div class="section" id="yuanPortraits"></div>
   <div class="section" id="sunPortraits"></div>
@@ -254,6 +255,7 @@ const NAV=[
   {id:'highlights',cn:'至臻之藏',en:'The Finest'},
   {id:'rankings',cn:'巅峰评级',en:'Top Grades'},
   {id:'masterpieces',cn:'顶级名誉品',en:'Masterpieces'},
+  {id:'centralDragons',cn:'中央龙洋',en:'Central Dragons'},
   {id:'dragons',cn:'各省龙洋',en:'Provincial Dragons'},
   {id:'yuanPortraits',cn:'袁像银圆',en:'Yuan Shikai'},
   {id:'sunPortraits',cn:'孙像银圆',en:'Sun Yat-sen'},
@@ -1534,6 +1536,29 @@ ${ranked.map((c,i)=>{
     event.target.style.background='var(--g)';event.target.style.color='var(--lz-deep)';
     renderMasterpieces((filterMap[cat]||filterMap['all'])());
   };
+})();
+
+// CENTRAL DRAGONS — 中央龙洋 (大清银币、户部/造总体系)
+(function(){
+  const centralCoins=COINS.filter(c=>c.cat==='qing-dragon'||c.cat==='qing-tael');
+  centralCoins.sort((a,b)=>(parseInt(a.year)||1900)-(parseInt(b.year)||1900));
+  let chtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章·续" data-en="Chapter III-B">第叁章·续</div><div class="chapter-title" data-cn="中央龙洋" data-en="Central Dragons">中央龙洋</div><div class="chapter-line"></div></div>`;
+  chtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="从户部壹两到造币总厂光绪元宝，从宣统二年水龙到宣统三年长须龙——中央政府铸造的银圆代表了清廷统一币制、收回地方铸币权的最高意志。这些银圆是中国近代货币制度从分散走向集中的核心实物见证。" data-en="From the Hu Bu Tael to the General Mint Kuang-Hsu Dollar, from the Year 2 Water Dragon to the Year 3 Long Whisker Dragon — central government silver represents the Qing court's supreme will to unify coinage and reclaim provincial minting authority.">从户部壹两到造币总厂光绪元宝，从宣统二年水龙到宣统三年长须龙——中央政府铸造的银圆代表了清廷统一币制、收回地方铸币权的最高意志。这些银圆是中国近代货币制度从分散走向集中的核心实物见证。</p></div>`;
+  chtml+=`<div style="display:flex;gap:6px;margin-bottom:14px"><button id="cdSortYear" class="dr-btn" style="background:var(--g);border:1px solid var(--lz-b);color:var(--lz-deep);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="window._cdSort='year';window._cdRender()">按时间</button><button id="cdSortPrice" class="dr-btn" style="background:var(--lz-s);border:1px solid var(--lz-b);color:var(--td);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="window._cdSort='price';window._cdRender()">按价格</button></div>`;
+  chtml+=`<div id="cdGrid"></div>`;
+  document.getElementById('centralDragons').innerHTML=chtml;
+  window._cdSort='year';
+  window._cdRender=function(){
+    let sorted=[...centralCoins];
+    if(window._cdSort==='price')sorted.sort((a,b)=>{const va=parseInt(String(a.est_rmb).replace(/[^0-9]/g,''))||0;const vb=parseInt(String(b.est_rmb).replace(/[^0-9]/g,''))||0;return vb-va});
+    else sorted.sort((a,b)=>(parseInt(a.year)||1900)-(parseInt(b.year)||1900));
+    document.getElementById('cdGrid').innerHTML=renderCoinCards(sorted);
+    document.getElementById('cdSortYear').style.background=window._cdSort==='year'?'var(--g)':'var(--lz-s)';
+    document.getElementById('cdSortYear').style.color=window._cdSort==='year'?'var(--lz-deep)':'var(--td)';
+    document.getElementById('cdSortPrice').style.background=window._cdSort==='price'?'var(--g)':'var(--lz-s)';
+    document.getElementById('cdSortPrice').style.color=window._cdSort==='price'?'var(--lz-deep)':'var(--td)';
+  };
+  window._cdRender();
 })();
 
 // DRAGONS (龙洋) — vertical card format with detailed info, region tabs
