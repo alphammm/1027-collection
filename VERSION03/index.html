@@ -1540,7 +1540,7 @@ ${ranked.map((c,i)=>{
 
 // CENTRAL DRAGONS — 中央龙洋 (大清银币、户部/造总体系)
 (function(){
-  const centralCoins=COINS.filter(c=>c.cat==='qing-dragon'||c.cat==='qing-tael');
+  const centralCoins=COINS.filter(c=>COIN_REGION[c.id]==='中央'||COIN_REGION[c.id]==='造总');
   centralCoins.sort((a,b)=>(parseInt(a.year)||1900)-(parseInt(b.year)||1900));
   let chtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章·续" data-en="Chapter III-B">第叁章·续</div><div class="chapter-title" data-cn="中央龙洋" data-en="Central Dragons">中央龙洋</div><div class="chapter-line"></div></div>`;
   chtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="从户部壹两到造币总厂光绪元宝，从宣统二年水龙到宣统三年长须龙——中央政府铸造的银圆代表了清廷统一币制、收回地方铸币权的最高意志。这些银圆是中国近代货币制度从分散走向集中的核心实物见证。" data-en="From the Hu Bu Tael to the General Mint Kuang-Hsu Dollar, from the Year 2 Water Dragon to the Year 3 Long Whisker Dragon — central government silver represents the Qing court's supreme will to unify coinage and reclaim provincial minting authority.">从户部壹两到造币总厂光绪元宝，从宣统二年水龙到宣统三年长须龙——中央政府铸造的银圆代表了清廷统一币制、收回地方铸币权的最高意志。这些银圆是中国近代货币制度从分散走向集中的核心实物见证。</p></div>`;
@@ -1648,17 +1648,27 @@ ${ranked.map((c,i)=>{
 
   window._drSort='year';
   window._drFilter='all';
+  // Build lookup: match dragonData entries to COINS by partial cn match
+  const _drCoinMap={};
+  dragonData.forEach(d=>{
+    const match=COINS.find(c=>c.cn.includes(d.cn.replace(/七钱二分|三钱六分/g,'').substring(0,6))||d.cn.includes(c.cn.substring(0,8)));
+    if(match)_drCoinMap[d.cn]=match;
+  });
   function renderDragonCards(list){
     document.getElementById('dragonGrid').innerHTML=list.map((d,i)=>{
+      const mc=_drCoinMap[d.cn];
       const ownedStyle=d.owned?'border-left:3px solid var(--g);background:rgba(197,162,88,.04)':'';
       const ownedBadge=d.owned?'<span style="background:var(--g);color:var(--lz-deep);font-size:.65rem;padding:1px 8px;border-radius:3px;font-weight:700">已入藏</span>':'';
-      return `<div class="coin-card" style="margin-bottom:10px;padding:16px;display:flex;gap:14px;align-items:flex-start;${ownedStyle}">
-        <div style="flex-shrink:0;width:80px;height:80px;border-radius:8px;background:var(--lz);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gd);opacity:.3">龙</div>
+      const clickAttr=mc?`onclick="showDetail('${mc.id}')" style="cursor:pointer"`:'';
+      const imgHtml=mc&&mc.img&&mc.img.length?`<img src="${mc.img[0]}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:6px">`:`<span style="font-size:2rem;color:var(--gd);opacity:.3">龙</span>`;
+      return `<div class="coin-card" ${clickAttr} style="margin-bottom:10px;padding:16px;display:flex;gap:14px;align-items:flex-start;${ownedStyle}${mc?'cursor:pointer':''}">
+        <div style="flex-shrink:0;width:80px;height:80px;border-radius:8px;background:var(--lz);display:flex;align-items:center;justify-content:center;overflow:hidden">${imgHtml}</div>
         <div style="flex:1;min-width:180px">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
             <span style="background:var(--lz-bl);color:var(--g);font-size:.65rem;padding:1px 8px;border-radius:3px;font-weight:600">${d.p}</span>
             <span style="color:var(--td);font-size:.72rem">${d.era} · ${d.year}</span>
             ${ownedBadge}
+            ${mc?'<span style="background:rgba(74,152,104,.15);color:var(--gr);font-size:.6rem;padding:1px 6px;border-radius:3px">可查看</span>':''}
           </div>
           <div class="name-cn" style="font-size:1.05rem;margin-bottom:2px">${d.cn}</div>
           <div style="font-size:.72rem;color:var(--td);margin-bottom:6px">${d.mint}</div>
