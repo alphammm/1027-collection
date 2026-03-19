@@ -1561,8 +1561,45 @@ ${ranked.map((c,i)=>{
   window._cdRender();
 })();
 
-// DRAGONS (龙洋) — vertical card format with detailed info, region tabs
+// DRAGONS (各省龙洋) — uses COIN_REGION for provincial coins, rendered with renderCoinCards
 (function(){
+  const _provRegions=['造总','北洋','吉林','奉天','江南','安徽','湖北','湖南','四川','广东','云南','福建','浙江'];
+  const provincialCoins=COINS.filter(c=>_provRegions.includes(COIN_REGION[c.id])&&c.cat==='qing-provincial');
+  provincialCoins.sort((a,b)=>(parseInt(a.year)||1900)-(parseInt(b.year)||1900));
+  let dhtml=`<div class="chapter"><div class="chapter-num" data-cn="第肆章" data-en="Chapter IV">第肆章</div><div class="chapter-title" data-cn="各省龙洋" data-en="Provincial Dragons">各省龙洋</div><div class="chapter-line"></div></div>`;
+  dhtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="自光绪十五年广东开铸至宣统三年大清覆灭，各省造币厂留下丰富的龙洋品种。每一枚龙洋都是地方财权的银质化表达——龙纹各异，版别繁多，构成中国近代货币史最丰富的实物体系。" data-en="From 1889 to 1911, provincial mints produced diverse dragon dollar varieties. Each dragon dollar embodies local fiscal power cast in silver.">自光绪十五年广东开铸至宣统三年大清覆灭，各省造币厂留下丰富的龙洋品种。每一枚龙洋都是地方财权的银质化表达——龙纹各异，版别繁多，构成中国近代货币史最丰富的实物体系。</p></div>`;
+  // Region filter buttons
+  const regionCounts={};
+  provincialCoins.forEach(c=>{const r=COIN_REGION[c.id];regionCounts[r]=(regionCounts[r]||0)+1});
+  dhtml+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">`;
+  dhtml+=`<button onclick="window._drFilter='all';window._drRender2()" class="dr-btn" style="background:var(--g);border:1px solid var(--lz-b);color:var(--lz-deep);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem">全部 (${provincialCoins.length})</button>`;
+  _provRegions.forEach(r=>{if(regionCounts[r])dhtml+=`<button onclick="window._drFilter='${r}';window._drRender2()" class="dr-btn" style="background:var(--lz-s);border:1px solid var(--lz-b);color:var(--td);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem">${r} (${regionCounts[r]})</button>`});
+  dhtml+=`</div>`;
+  // Sort buttons
+  dhtml+=`<div style="display:flex;gap:6px;margin-bottom:14px"><button id="drSortYear2" class="dr-btn" style="background:var(--g);border:1px solid var(--lz-b);color:var(--lz-deep);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="window._drSort2='year';window._drRender2()">按时间</button><button id="drSortPrice2" class="dr-btn" style="background:var(--lz-s);border:1px solid var(--lz-b);color:var(--td);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="window._drSort2='price';window._drRender2()">按价格</button></div>`;
+  dhtml+=`<div id="dragonGrid"></div>`;
+  document.getElementById('dragons').innerHTML=dhtml;
+  window._drFilter='all';window._drSort2='year';
+  window._drRender2=function(){
+    let filtered=window._drFilter==='all'?[...provincialCoins]:provincialCoins.filter(c=>COIN_REGION[c.id]===window._drFilter);
+    if(window._drSort2==='price')filtered.sort((a,b)=>{const va=parseInt(String(a.est_rmb).replace(/[^0-9]/g,''))||0;const vb=parseInt(String(b.est_rmb).replace(/[^0-9]/g,''))||0;return vb-va});
+    else filtered.sort((a,b)=>(parseInt(a.year)||1900)-(parseInt(b.year)||1900));
+    document.getElementById('dragonGrid').innerHTML=renderCoinCards(filtered);
+    document.getElementById('drSortYear2').style.background=window._drSort2==='year'?'var(--g)':'var(--lz-s)';
+    document.getElementById('drSortYear2').style.color=window._drSort2==='year'?'var(--lz-deep)':'var(--td)';
+    document.getElementById('drSortPrice2').style.background=window._drSort2==='price'?'var(--g)':'var(--lz-s)';
+    document.getElementById('drSortPrice2').style.color=window._drSort2==='price'?'var(--lz-deep)':'var(--td)';
+    // Update region button styles
+    document.querySelectorAll('#dragons .dr-btn:not(#drSortYear2):not(#drSortPrice2)').forEach(b=>{
+      const isAll=b.textContent.startsWith('全部');
+      const isActive=(isAll&&window._drFilter==='all')||b.textContent.startsWith(window._drFilter);
+      b.style.background=isActive?'var(--g)':'var(--lz-s)';b.style.color=isActive?'var(--lz-deep)':'var(--td)';
+    });
+  };
+  window._drRender2();
+})();
+
+/*  LEGACY dragonData — replaced by COINS + COIN_REGION approach above
   const dragonData=[
     {p:"北洋",cn:"北洋机器局二十二年",era:"清·光绪二十二年",year:"1896",mint:"北洋机器局",note:"北洋最早期铸币，光绪二十二年（1896）天津北洋机器局开铸。存世稀少。",owned:true,est:"¥300,000+"},
     {p:"云南",cn:"云南省造宣统庚戌春季七钱二分",era:"清·宣统二年",year:"1910",mint:"云南造币厂",note:"云南春季版，宣统庚戌年铸造。「春季」二字为该版独有标识，极为珍贵。",est:"¥800,000+"},
@@ -1696,6 +1733,7 @@ ${ranked.map((c,i)=>{
     window._drRender();
   };
 })();
+*/
 
 // Shared card renderer for coin sections
 function renderCoinCards(coins){
@@ -2465,5 +2503,24 @@ function filterFCCat(cat){
   });
 }
 </script>
+
+<!-- SITE URL POPUP -->
+<div id="siteUrlPopup" style="display:flex;position:fixed;inset:0;background:rgba(0,26,58,.88);z-index:400;align-items:center;justify-content:center;animation:fadeIn .3s ease" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:var(--lz-s);border:1px solid var(--lz-b);border-top:3px solid var(--g);border-radius:10px;padding:32px;width:90%;max-width:420px;text-align:center;position:relative">
+    <button onclick="document.getElementById('siteUrlPopup').style.display='none'" style="position:absolute;top:10px;right:14px;background:0;border:0;color:var(--td);font-size:1.4rem;cursor:pointer">&times;</button>
+    <div style="font-size:.72rem;letter-spacing:.3em;color:var(--gd);text-transform:uppercase;margin-bottom:8px">1024 Collection</div>
+    <h3 style="color:var(--g);font-family:'Noto Serif SC',serif;font-size:1.15rem;margin-bottom:4px">最新网站地址</h3>
+    <p style="color:var(--td);font-size:.82rem;font-style:italic;margin-bottom:20px">Latest Website URLs</p>
+    <div style="background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:6px;padding:14px 16px;margin-bottom:12px;text-align:left">
+      <div style="font-size:.68rem;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">GitHub Pages</div>
+      <a href="https://alphammm.github.io/1024-collection" target="_blank" rel="noopener" style="color:var(--g);font-size:.9rem;text-decoration:none;word-break:break-all;font-weight:600">alphammm.github.io/1024-collection</a>
+    </div>
+    <div style="background:var(--lz-s2);border:1px solid var(--lz-b);border-radius:6px;padding:14px 16px;margin-bottom:20px;text-align:left">
+      <div style="font-size:.68rem;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Vercel</div>
+      <a href="https://1024-collection.vercel.app" target="_blank" rel="noopener" style="color:var(--g);font-size:.9rem;text-decoration:none;word-break:break-all;font-weight:600">1024-collection.vercel.app</a>
+    </div>
+    <button onclick="document.getElementById('siteUrlPopup').style.display='none'" style="background:var(--g);color:var(--lz-deep);border:0;padding:8px 28px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.88rem;font-weight:600">知道了</button>
+  </div>
+</div>
 </body>
 </html>
