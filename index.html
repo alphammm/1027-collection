@@ -421,11 +421,11 @@ function coinImgTag(c,size){
 const owned=COINS.filter(c=>c.myStatus==='owned');
 const wanted=COINS.filter(c=>c.myStatus==='want');
 const champs=owned.filter(c=>c.myRank&&(c.myRank.includes('冠军')||c.myRank.includes('亚军')||c.myRank.includes('季军')));
-const DAZHEN_IDS=['C010','C011','C044','C014','C017','C043','C061','C031','C032','C030','C048','C062','C063','C064','C033','C034','C035','C016','C060','C050','C051','C036','C065','C052','C015','C053','C056','C057','C066','C067','C068','C037','C013','C038','C049','C069','C070','C072','C074','C039','C012','C075','C076','C077','C040','C058','C059','C078','C079','C080','C081','C082','C083','C084','C085','C086','C087','C089','C090','C091','C092','C093','C094','C095','C096','C097','C098','C099','C100'];
-const _beforeC066=['C010','C011','C044','C014','C017','C043','C061','C031','C032','C030','C048','C062','C063','C064','C033','C034','C035','C016','C060','C050','C051','C036','C065','C052','C015','C053'];
+const DAZHEN_IDS=['C010','C011','C044','C014','C017','C043','C104','C061','C031','C032','C030','C048','C062','C063','C064','C033','C034','C035','C016','C060','C050','C051','C036','C065','C052','C015','C053','C056','C057','C066','C067','C068','C037','C013','C038','C049','C069','C070','C072','C074','C039','C012','C075','C076','C077','C040','C058','C059','C078','C079','C080','C081','C082','C083','C084','C085','C086','C087','C089','C090','C091','C092','C093','C094','C095','C096','C097','C098','C099','C100'];
+const _beforeC066=['C010','C011','C044','C014','C017','C043','C104','C061','C031','C032','C030','C048','C062','C063','C064','C033','C034','C035','C016','C060','C050','C051','C036','C065','C052','C015','C053'];
 const _afterC066Keep=['C040','C049','C038','C070'];
 const SHOWCASE_INCLUDE=new Set([..._beforeC066,..._afterC066Keep]);
-const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043']);
+const SUPREME_5STAR=new Set(['C010','C011','C044','C014','C017','C043','C104']);
 (function(){
   const track=document.getElementById('showcaseTrack');
   const _scPriority=['C011','C010','C017','C032','C014','C030','C048'];
@@ -880,7 +880,7 @@ const COIN_REGION={
   C075:'孙像',C076:'孙像',C077:'孙像',C078:'北洋',C079:'吉林',C080:'江南',C081:'奉天',
   C082:'湖北',C083:'广东',C084:'造总',C085:'北洋',C086:'四川',C087:'云南',C089:'奉天',
   C090:'中央',C091:'孙像',C092:'孙像',C093:'孙像',C094:'孙像',C095:'军阀',C096:'军阀',
-  C097:'福建',C098:'浙江',C099:'军阀',C100:'军阀',C101:'孙像',C102:'中央',C103:'孙像'
+  C097:'福建',C098:'浙江',C099:'军阀',C100:'军阀',C101:'孙像',C102:'中央',C103:'孙像',C104:'孙像'
 };
 const dbHTML=`<div class="chapter"><div class="chapter-num" data-cn="第玖章" data-en="Chapter IX">第玖章</div><div class="chapter-title" data-cn="全部藏品" data-en="Full Holdings">全部藏品</div><div class="chapter-line"></div></div>
 <div class="story" style="margin-bottom:20px"><p data-cn="这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。" data-en="A complete collecting path from late Qing dragon dollars to Republican pattern coins — each piece fills a coordinate in China's modern monetary history. A numismatic logic spanning the late Qing and Republic is gradually taking shape.">这是一条从清末龙银到民国样币的完整收藏路径，每一枚都在填补中国近代货币史的一段坐标。一条跨越清末与民国的机制币收藏逻辑，正在逐步完成。</p></div>
