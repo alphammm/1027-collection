@@ -420,8 +420,8 @@ const COINS = [
   // ─── ADDITIONAL OWNED PIECES ───
   {
     id:"C030", cat:"qing-dragon", pcgs_cert:"35378884", img:["img/C030_obverse.jpg"],
-    cn:"宣统三年大清银币壹圆（反龙版）",
-    en:"Hsuan Tung Year 3 Reverse Dragon Dollar (1911)",
+    cn:"宣统三年大清银币壹圆（反龙版·古德曼旧藏）",
+    en:"Hsuan Tung Year 3 Reverse Dragon Dollar (1911), Ex. Goodman Collection",
     era:"清·宣统三年", year:"1911", mint:"天津造币总厂",
     mintEn:"Tientsin Central Mint",
     metal:"银 Silver", weight:"26.9g", diam:"39mm",
@@ -433,6 +433,7 @@ const COINS = [
       { date:"2023-04-17", house:"Stack's Bowers", lot:"40162", grade:"PCGS SP65", price_rmb:null, price_usd:1380000, note:"Type II反龙" },
     ],
     provenance:[
+      { holder:"Irving Goodman", grade:"", acquired:"", price:"", status:"旧藏", note:"Ex. Goodman Collection, Superior Galleries 1991" },
       { holder:"1024 Collection", grade:"MS62+", acquired:"", price:"", status:"入藏", note:"" },
     ],
     myStatus:"owned", myGrade:"MS62+", myRank:null,
