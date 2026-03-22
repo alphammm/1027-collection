@@ -1506,6 +1506,7 @@ ${ranked.map((c,i)=>{
   let mhtml=`<div class="chapter"><div class="chapter-num" data-cn="第叁章" data-en="Chapter III">第叁章</div><div class="chapter-title" data-cn="顶级名誉品" data-en="Masterpieces">顶级名誉品</div><div class="chapter-line"></div></div>`;
   mhtml+=`<div class="story" style="margin-bottom:20px"><p data-cn="收录${COINS.length}枚中国机制币核心品种——涵盖壹两、中央龙洋、地方龙洋、孙像、袁像、军阀人像。按稀缺程度与历史地位排列，点击查看完整档案。" data-en="A curated registry of ${COINS.length} core Chinese milled coin types — taels, central dragons, provincial dragons, Sun Yat-sen, Yuan Shikai, and warlord portraits. Sorted by rarity and historical significance.">收录${COINS.length}枚中国机制币核心品种。按稀缺程度与历史地位排列，点击查看完整档案。</p></div>`;
   // Category filter tabs
+  mhtml+=`<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><button id="mpSortDefault" class="mp-sort" style="background:var(--g);border:1px solid var(--lz-b);color:var(--lz-deep);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="window._mpSort='default';window._mpRender()">按稀缺度</button><button id="mpSortYear" class="mp-sort" style="background:var(--lz-s);border:1px solid var(--lz-b);color:var(--td);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="window._mpSort='year';window._mpRender()">按时间</button><button id="mpSortPrice" class="mp-sort" style="background:var(--lz-s);border:1px solid var(--lz-b);color:var(--td);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'EB Garamond','Noto Serif SC',serif;font-size:.82rem" onclick="window._mpSort='price';window._mpRender()">按价格</button></div>`;
   mhtml+=`<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">`;
   const cats=[
     {v:'all',cn:'全部',en:'All'},
@@ -1523,10 +1524,13 @@ ${ranked.map((c,i)=>{
   mhtml+=`</div>`;
   mhtml+=`<div id="mpGrid"></div>`;
   document.getElementById('masterpieces').innerHTML=mhtml;
-  function renderMasterpieces(list){
-    document.getElementById('mpGrid').innerHTML=renderCoinCards(list);
+  window._mpSort='default';window._mpCat='all';
+  function sortMpList(list){
+    let sorted=[...list];
+    if(window._mpSort==='year')sorted.sort((a,b)=>(parseInt(a.year)||1900)-(parseInt(b.year)||1900));
+    else if(window._mpSort==='price')sorted.sort((a,b)=>{const va=parseInt(String(a.est_rmb).replace(/[^0-9]/g,''))||0;const vb=parseInt(String(b.est_rmb).replace(/[^0-9]/g,''))||0;return vb-va});
+    return sorted;
   }
-  renderMasterpieces(COINS);
   const filterMap={
     'all':()=>COINS,
     'qing-tael':()=>COINS.filter(c=>c.cat==='qing-tael'),
@@ -1536,7 +1540,18 @@ ${ranked.map((c,i)=>{
     'yuan':()=>COINS.filter(c=>c.cat==='republic-yuan'),
     'warlord':()=>COINS.filter(c=>c.cat==='republic-warlord'||c.cat==='republic-portrait')
   };
+  function renderMasterpieces(list){
+    document.getElementById('mpGrid').innerHTML=renderCoinCards(sortMpList(list));
+  }
+  window._mpRender=function(){
+    document.querySelectorAll('.mp-sort').forEach(b=>{b.style.background='var(--lz-s)';b.style.color='var(--td)'});
+    const btn=document.getElementById(window._mpSort==='year'?'mpSortYear':window._mpSort==='price'?'mpSortPrice':'mpSortDefault');
+    btn.style.background='var(--g)';btn.style.color='var(--lz-deep)';
+    renderMasterpieces((filterMap[window._mpCat]||filterMap['all'])());
+  };
+  renderMasterpieces(COINS);
   window.filterMasterpieces=function(cat){
+    window._mpCat=cat;
     document.querySelectorAll('.mf-btn').forEach(b=>{b.style.background='var(--lz-s)';b.style.color='var(--td)'});
     event.target.style.background='var(--g)';event.target.style.color='var(--lz-deep)';
     renderMasterpieces((filterMap[cat]||filterMap['all'])());
