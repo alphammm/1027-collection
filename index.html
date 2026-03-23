@@ -1869,13 +1869,12 @@ document.getElementById('collectors').innerHTML=collHTML;
 const _collFuzzyMap={'73':'七三','72':'七二','44':'四四','25':'二十五','21':'二十一','18':'十八','17':'十七','10':'十年','9':'九年','8':'八年','3':'三年'};
 window._collFilter=function(q){
   q=q.trim().toLowerCase();
-  // expand numeric shortcuts
   let expandedQ=q;
   Object.entries(_collFuzzyMap).forEach(([k,v])=>{if(q===k||q.includes(k))expandedQ+=' '+v});
   const terms=expandedQ.split(/\s+/).filter(t=>t);
   document.querySelectorAll('.coll-card').forEach(card=>{
     if(!terms.length){card.style.display='';return}
-    const txt=card.getAttribute('data-coll-search')||'';
+    const txt=(card.getAttribute('data-coll-search')||'')+' '+(card.textContent||'').toLowerCase();
     const match=terms.every(t=>txt.includes(t));
     card.style.display=match?'':'none';
   });
