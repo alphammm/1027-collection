@@ -1791,8 +1791,9 @@ function buildCollectorFlowSVG(){
   return svg;
 }
 
-let collHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="藏家档案" data-en="Collector Profiles">藏家档案</div><div class="chapter-line"></div></div>`;
-collHTML+=`<div class="story" style="margin-bottom:20px"><p data-cn="中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。" data-en="The world of top Chinese numismatics is fewer than fifty people. Below: ${COLLECTORS.length} core collector profiles, holdings analysis, and coin flow paths. Click to expand.">中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。</p></div>`;
+let collHTML=`<div class="chapter" style="position:relative"><div class="chapter-num" data-cn="第拾贰章" data-en="Chapter XII">第拾贰章</div><div class="chapter-title" data-cn="藏家档案" data-en="Collector Profiles">藏家档案</div><div class="chapter-line"></div><div style="position:absolute;top:8px;right:0"><span onclick="document.getElementById('collSearch').style.display=document.getElementById('collSearch').style.display==='none'?'flex':'none';if(document.getElementById('collSearch').style.display==='flex')document.getElementById('collSearchInput').focus()" style="cursor:pointer;color:var(--td);font-size:1.05rem;opacity:.5;transition:.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">&#x1F50D;</span></div></div>
+<div id="collSearch" style="display:none;margin-bottom:14px;align-items:center;gap:8px"><input id="collSearchInput" placeholder="搜索藏家/藏品... (如: 73, 七三, 龙洋, 肖志军)" oninput="window._collFilter(this.value)" style="flex:1;max-width:320px;background:var(--lz-s2);border:1px solid var(--lz-b);color:var(--cr);padding:6px 12px;border-radius:4px;font-size:.82rem;font-family:inherit;outline:none"><span onclick="document.getElementById('collSearchInput').value='';window._collFilter('');document.getElementById('collSearch').style.display='none'" style="cursor:pointer;color:var(--td);font-size:.75rem;opacity:.6">&times;</span></div>
+<div class="story" style="margin-bottom:20px"><p data-cn="中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。" data-en="The world of top Chinese numismatics is fewer than fifty people. Below: ${COLLECTORS.length} core collector profiles, holdings analysis, and coin flow paths. Click to expand.">中国顶级机制币的世界不超过五十人。以下是${COLLECTORS.length}位核心藏家画像、藏品，以及珍币在藏家之间的流转路径。点击展开查看深度分析。</p></div>`;
 // Group collectors by region
 function collRegion(loc){
   if(/台湾|澳门|香港/.test(loc)) return 'twhk';
@@ -1818,7 +1819,8 @@ collRegions.forEach(reg=>{
   const isHL=_hlNames.has(c.cn);
   const _mBright=m.cls==='hold'||m.cls==='buy';
   const _mStyle=_mBright?'background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.35)':'background:rgba(180,40,40,.15);color:var(--r);border:1px solid rgba(180,40,40,.3)';
-  collHTML+=`<div class="coll-card${isHL?' hl':' key'}"${isHL?' style="border-left:3px solid var(--ch)"':''}>
+  const _searchText=[c.cn,c.en||'',c.loc_cn||'',...c.coins.map(cc=>cc.cn+(cc.grade||''))].join(' ').toLowerCase();
+  collHTML+=`<div class="coll-card${isHL?' hl':' key'}" data-coll-search="${_searchText.replace(/"/g,'')}"${isHL?' style="border-left:3px solid var(--ch)"':''}>
     ${m.label?`<span style="position:absolute;top:10px;right:10px;font-size:.6rem;padding:2px 9px;border-radius:10px;font-weight:700;letter-spacing:.04em;${_mStyle};z-index:1">${m.label}</span>`:''}
     <div class="coll-header" onclick="this.querySelector('.ch-toggle').classList.toggle('open');const body=this.parentElement.querySelector('.coll-body');body.classList.toggle('open')">
       <div><span class="ch-name">${c.cn}</span><span class="ch-en"> &mdash; ${c.loc_cn}</span>${c.stars?starsHTML(c.stars):''}</div>
@@ -1847,6 +1849,22 @@ collRegions.forEach(reg=>{
 });
 collHTML+=`</div>`;
 document.getElementById('collectors').innerHTML=collHTML;
+
+// Collector search filter — supports fuzzy: 73→七三, partial match
+const _collFuzzyMap={'73':'七三','72':'七二','44':'四四','25':'二十五','21':'二十一','18':'十八','17':'十七','10':'十年','9':'九年','8':'八年','3':'三年'};
+window._collFilter=function(q){
+  q=q.trim().toLowerCase();
+  // expand numeric shortcuts
+  let expandedQ=q;
+  Object.entries(_collFuzzyMap).forEach(([k,v])=>{if(q===k||q.includes(k))expandedQ+=' '+v});
+  const terms=expandedQ.split(/\s+/).filter(t=>t);
+  document.querySelectorAll('.coll-card').forEach(card=>{
+    if(!terms.length){card.style.display='';return}
+    const txt=card.getAttribute('data-coll-search')||'';
+    const match=terms.every(t=>txt.includes(t));
+    card.style.display=match?'':'none';
+  });
+};
 
 // COIN FLOW MAP — separate section
 document.getElementById('coinFlow').innerHTML=`<div class="chapter"><div class="chapter-num" data-cn="第拾叁章" data-en="Chapter XIII">第拾叁章</div><div class="chapter-title" style="font-size:1.8rem" data-cn="珍币流转" data-en="Provenance Flow">珍币流转</div><div style="color:var(--gd);font-size:.9rem;letter-spacing:.15em;margin-top:4px;text-align:center;font-style:italic">Provenance Flow</div><div class="chapter-line"></div></div>
